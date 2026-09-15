@@ -1,0 +1,28 @@
+Titlovi.com.Unified 1.1.9
+==========================
+
+Initial Titlovi.com.Unified package release.
+
+The package contains two independent host plugins registered as
+"Titlovi.com (Unofficial)": one for Emby and one for Jellyfin. Both compile the
+same shared Common source so search, download, language, archive, encoding and
+release-ranking behavior remains aligned across hosts.
+
+Highlights:
+
+- Emby 4.10.x and Jellyfin 12.0 host adapters.
+- Movie and TV-episode subtitle search with IMDb/title fallback.
+- Optional Serbian/Croatian/Bosnian alternative searches while preserving the
+  actual language returned by Titlovi.com.
+- Season packs, whole-series packs, nested ZIP archives and legacy filename
+  conventions.
+- SRT, SUB, TXT, SSA and ASS handling with optional conversion to UTF-8.
+- Synchronization-aware release ranking. Source, release group, FPS and named
+  cuts/editions are stronger signals than resolution or codec. Ranking never
+  filters a result out.
+- Offline regression suite with 96 cases using the exact Common production
+  source and in-memory ZIP/subtitle fixtures.
+- Simple host-specific output directories. Jellyfin's ready-to-copy folder and
+  ZIP are both created directly under src\Jellyfin\output.
+
+See README.md for an overview and README-BUILD.txt for build/installation steps.

@@ -1,0 +1,33 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Titlovi.com.Unified build working directories
+src/Emby/.build/
+src/Jellyfin/.build/
+src/Emby/embylibs/
+
+# Generated plugin packages and logs
+src/Emby/output/
+src/Jellyfin/output/
+tests/output/
+**/TestResults/
+*.log
+
+# global.json is generated dynamically by the build scripts
+src/Emby/global.json
+src/Jellyfin/global.json
+
+# Visual Studio / IDE
+.vs/
+*.user
+*.suo
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Locally generated release artifacts
+/*-source-build-kit.zip
+/*-SHA256.txt

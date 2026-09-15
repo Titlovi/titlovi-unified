@@ -1,0 +1,57 @@
+<div id="EmbyTitloviConfigPage"
+     data-role="page"
+     class="page type-interior pluginConfigurationPage"
+     data-controller="__plugin/EmbyTitloviConfigPageJs"
+     data-require="emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+            <h1>Titlovi.com (Unofficial)</h1>
+            <p>Unofficial Titlovi.com subtitle provider for Emby. Uses your own Titlovi.com account and API access.</p>
+            <form id="EmbyTitloviConfigForm">
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="TitloviUsername" label="Titlovi.com username" />
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="password" id="TitloviPassword" label="Titlovi.com password" />
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="IncludeBshAlternativeLanguages" />
+                        <span>Include Serbian/Croatian/Bosnian alternatives</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">When the language selected in Emby is Serbian, Croatian or Bosnian, the plugin also searches the other two languages. Results are grouped with the selected language first. This option is ignored for all other languages.</div>
+                </div>
+
+                <h2>Accepted subtitle formats</h2>
+                <div class="fieldDescription">Choose which subtitle file formats the plugin may extract and return from Titlovi.com archives. At least one format must remain enabled.</div>
+                <div class="checkboxContainer"><label><input is="emby-checkbox" type="checkbox" id="AcceptSrt" /><span>SRT</span></label></div>
+                <div class="checkboxContainer"><label><input is="emby-checkbox" type="checkbox" id="AcceptSub" /><span>SUB</span></label></div>
+                <div class="checkboxContainer"><label><input is="emby-checkbox" type="checkbox" id="AcceptTxt" /><span>TXT</span></label></div>
+                <div class="checkboxContainer"><label><input is="emby-checkbox" type="checkbox" id="AcceptSsa" /><span>SSA</span></label></div>
+                <div class="checkboxContainer"><label><input is="emby-checkbox" type="checkbox" id="AcceptAss" /><span>ASS</span></label></div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="ConvertDownloadedSubtitlesToUtf8" />
+                        <span>Convert downloaded subtitles to UTF-8</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">If enabled, non-UTF-8 subtitle files are detected and converted to UTF-8 before Emby saves them.</div>
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="EnableDebugLogging" />
+                        <span>Enable detailed debug logging</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">When enabled, the plugin writes detailed search, API, download, ZIP-selection and encoding diagnostics to <b>emby-titlovi-debug.log</b>. The lightweight <b>emby-titlovi.log</b> remains active either way. Passwords and API tokens are never written to either log. The debug log can contain media titles and subtitle filenames.</div>
+                </div>
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block">
+                        <span>Save</span>
+                    </button>
+                </div>
+                <p class="fieldDescription">The token is obtained automatically on the first subtitle search and cached by the plugin.</p>
+            </form>
+        </div>
+    </div>
+</div>

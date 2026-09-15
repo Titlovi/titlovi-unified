@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Emby/Emby.Titlovi.csproj" />
+  <Project Path="src/Jellyfin/Jellyfin.Titlovi.csproj" />
+  <Project Path="tests/Titlovi.Tests/Titlovi.Tests.csproj" />
+</Solution>
