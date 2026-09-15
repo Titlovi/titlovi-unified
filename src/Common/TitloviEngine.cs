@@ -1263,6 +1263,21 @@ namespace Titlovi.Common
             if (!bundle.Success)
                 return false;
 
+            // High-confidence compact season/episode forms such as S01E12 and 1x12
+            // must never be reinterpreted by the legacy compact-bundle detector as 1+2.
+            foreach (Match candidate in EpisodeCandidateRegex.Matches(fileName ?? string.Empty))
+            {
+                var season = candidate.Groups["season"];
+                var episode = candidate.Groups["episode"];
+                if (season.Success
+                    && episode.Success
+                    && bundle.Index >= episode.Index
+                    && bundle.Index + bundle.Length <= episode.Index + episode.Length)
+                {
+                    return true;
+                }
+            }
+
             foreach (Match episodeToken in EpisodeTokenRegex.Matches(fileName ?? string.Empty))
             {
                 var episode = episodeToken.Groups["episode"];
