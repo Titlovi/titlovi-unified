@@ -39,6 +39,47 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
+      - name: Use canonical Linux build/package path in E2E harness
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('tests/e2e/jellyfin-linux-e2e.sh')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              'JF_PLUGIN="$JF_CONFIG/plugins/Titlovi.com (Unofficial)_1.1.9.0"\n',
+              'JF_PLUGIN_ROOT="$JF_CONFIG/plugins"\n',
+          )
+          text = text.replace(
+              'mkdir -p "$MOVIE_DIR" "$EPISODE_DIR" "$JF_PLUGIN"\n',
+              'mkdir -p "$MOVIE_DIR" "$EPISODE_DIR" "$JF_PLUGIN_ROOT"\n',
+          )
+
+          start_marker = 'echo "==> Building Jellyfin plugin on Ubuntu"\n'
+          end_marker = 'echo "==> Starting official Jellyfin 12 Linux container"\n'
+          start = text.find(start_marker)
+          end = text.find(end_marker, start + len(start_marker))
+          if start < 0 or end < 0:
+              raise SystemExit('Expected Jellyfin E2E build markers were not found')
+
+          replacement = r'''echo "==> Building Jellyfin plugin through canonical Linux build script"
+          bash "$ROOT/scripts/linux/build-jellyfin.sh"
+          JF_PACKAGE="$(find "$ROOT/dist/Jellyfin" -mindepth 1 -maxdepth 1 -type d -name 'Titlovi.com (Unofficial)_*' -print -quit)"
+          test -n "$JF_PACKAGE" || fail "Jellyfin package directory was not produced."
+          test -s "$JF_PACKAGE/Jellyfin.Titlovi.dll" || fail "Jellyfin.Titlovi.dll was not produced."
+          test -s "$JF_PACKAGE/meta.json" || fail "meta.json was not produced."
+          test -s "$JF_PACKAGE/thumb.png" || fail "thumb.png was not produced."
+          JF_PLUGIN="$JF_PLUGIN_ROOT/$(basename "$JF_PACKAGE")"
+          mkdir -p "$JF_PLUGIN"
+          cp -a "$JF_PACKAGE/." "$JF_PLUGIN/"
+
+          '''
+          text = text[:start] + replacement + text[end:]
+          path.write_text(text, encoding='utf-8')
+          PY
+          bash -n tests/e2e/jellyfin-linux-e2e.sh
+
       - name: Run Jellyfin Linux end-to-end validation
         shell: bash
         run: bash tests/e2e/jellyfin-linux-e2e.sh

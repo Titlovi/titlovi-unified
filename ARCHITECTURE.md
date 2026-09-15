@@ -2,27 +2,29 @@
 
 ## Purpose
 
-Titlovi.com.Unified keeps all subtitle-provider behavior in one platform-neutral source set while producing two independent host plugins:
+Titlovi.com.Unified keeps subtitle-provider behavior in one platform-neutral source set while producing two independent host plugins:
 
 ```text
 Emby.Titlovi.dll
 Jellyfin.Titlovi.dll
 ```
 
-Both plugins are registered to users as **Titlovi.com (Unofficial)**.
+Both plugins are registered to users as **Titlovi.com (Unofficial)**. There is no shared runtime DLL; each host plugin contains its own compiled copy of the Common source and can be installed independently. The same host artifact is used for the supported server version on Windows and Linux.
 
-There is no shared runtime DLL. Each host plugin contains its own compiled copy of the Common source so it can be installed independently.
-
-The same host plugin binaries are used for the supported server version on Windows and Linux.
-
-## Source layout
+## Repository layout
 
 ```text
 src/Common/       shared Titlovi.com engine and data models
-src/Emby/         Emby adapter, bootstrap, configuration UI and build script
-src/Jellyfin/     Jellyfin adapter, bootstrap, configuration UI and build script
-tests/            offline regression suite plus Linux smoke/E2E validation
+src/Emby/         Emby adapter, bootstrap and configuration UI
+src/Jellyfin/     Jellyfin adapter, bootstrap and configuration UI
+scripts/windows/  Windows build/test entry points
+scripts/linux/    Linux build/test entry points
+tests/            regression suite and Linux smoke/E2E validation
+.build/           generated build/intermediate state (ignored)
+dist/             generated installable artifacts (ignored)
 ```
+
+Build tooling is intentionally outside `src/`, so the source tree contains production source/resources rather than build wrappers and generated output.
 
 Both host project files link the same Common files directly:
 
@@ -30,9 +32,26 @@ Both host project files link the same Common files directly:
 <Compile Include="../Common/*.cs" Link="Common/%(Filename)%(Extension)" />
 ```
 
-Repository-relative MSBuild paths use forward slashes so the same project files can be evaluated on Windows and Linux.
+Repository-relative MSBuild paths use forward slashes so the same project files can be evaluated on Windows and Linux. Root `Directory.Build.props` redirects normal .NET `bin` and `obj` output for the two plugins and the test project into `.build/`.
 
-This keeps one functional implementation without introducing a `Titlovi.Core.dll` deployment dependency.
+## Build artifact boundary
+
+`.build/` is disposable implementation state: compiler output, MSBuild intermediates, Emby reference DLLs, logs, test results and temporary tooling. It is never a distribution source.
+
+`dist/` is the build-product boundary. Both operating-system-specific build front ends must produce the same host-oriented layout:
+
+```text
+dist/Emby/Emby.Titlovi.dll
+
+dist/Jellyfin/Titlovi.com (Unofficial)_<version>/
+  Jellyfin.Titlovi.dll
+  meta.json
+  thumb.png
+
+dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip
+```
+
+The distribution tree is not split by Windows/Linux because plugin binaries are not OS-specific products.
 
 ## Common layer
 
@@ -75,25 +94,12 @@ Jellyfin 12 does not expose `SeriesProviderIds` directly on `SubtitleSearchReque
 
 On download, `SubtitleResponse.Language` receives the actual two-letter Common language code, which Jellyfin uses when naming the external subtitle file.
 
-## Jellyfin package
-
-Jellyfin requires the manifest and thumbnail beside the plugin DLL. The build therefore produces one ready-to-copy directory:
-
-```text
-output/Titlovi.com (Unofficial)_1.1.9.0/
-  Jellyfin.Titlovi.dll
-  meta.json
-  thumb.png
-```
-
-The same directory is also compressed into a distribution ZIP. `meta.json` is written as UTF-8 without BOM and is validated before the ZIP is created.
-
 ## Tests and validation
 
 `tests/Titlovi.Tests` links the same `src/Common/*.cs` files into the test assembly. An internal test seam injects a fake `ITitloviApiClient`; production construction still uses the real `TitloviApiClient`.
 
-The offline regression suite does not contact Titlovi.com. ZIP fixtures are real ZIP byte streams generated in memory, so archive parsing, nested archives, file selection and encoding conversion execute the same Common code as production. GitHub Actions runs this suite on both Windows and Ubuntu.
+The offline regression suite does not contact Titlovi.com. GitHub Actions runs it through the platform-specific test entry points on Windows and Ubuntu.
 
-Separate Linux runtime-smoke validation builds and loads both plugins in the official Emby 4.10 and Jellyfin 12 Linux server containers. Explicitly triggered live E2E workflows can additionally validate authenticated Titlovi.com search, download and host-side subtitle saving on both Linux hosts.
+Linux runtime smoke invokes the canonical Linux packaging scripts and then loads the resulting `dist/` artifacts into the official Emby 4.10 and Jellyfin 12 Linux server containers. Explicitly triggered live E2E workflows can additionally validate authenticated Titlovi.com search, download and host-side subtitle saving.
 
 No test assembly or test dependency is shipped with either plugin.

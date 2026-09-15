@@ -2,21 +2,21 @@
 
 **Titlovi.com.Unified** is a source/build package for the unofficial **Titlovi.com (Unofficial)** subtitle provider for **Emby** and **Jellyfin**.
 
-The package builds two independent host plugins from one shared subtitle engine:
+The repository builds two independent, self-contained host plugins from one shared subtitle engine:
 
-- `Emby.Titlovi.dll` for Emby
-- `Jellyfin.Titlovi.dll` for Jellyfin
+- `Emby.Titlovi.dll` for Emby Server 4.10.x
+- `Jellyfin.Titlovi.dll` for Jellyfin 12 / .NET 10
 
-The plugins share the same search, download, archive-selection, language, encoding and release-matching logic. There is no separate runtime `Titlovi.Core.dll`; each host plugin is self-contained.
+There is no separate runtime `Titlovi.Core.dll`. Both host projects compile the same `src/Common` source directly into their own assembly.
 
 > This is an unofficial community integration. It is not published or endorsed by Titlovi.com, Emby or Jellyfin. A Titlovi.com account/API access is required for subtitle searches and downloads.
 
 ## Supported hosts
 
-- **Emby:** Emby Server 4.10.x. Builds are validated on Windows and Ubuntu. The Windows convenience build script uses installed Emby reference assemblies when available and falls back to the official Emby 4.10.0.40 package for compilation references. Runtime loading and authenticated search/download have also been validated in the official Emby 4.10.0.40 Linux container.
-- **Jellyfin:** Jellyfin 12.0 / .NET 10. Builds are validated on Windows and Ubuntu, and runtime loading plus authenticated search/download have been validated in the official Jellyfin 12 Linux container.
+- **Emby Server 4.10.x** — builds and regression coverage are validated on Windows and Ubuntu; runtime loading and live search/download have also been validated with the official Emby 4.10.0.40 Linux container.
+- **Jellyfin 12 / .NET 10** — builds and regression coverage are validated on Windows and Ubuntu; runtime loading and live search/download have also been validated with the official Jellyfin 12 Linux container.
 
-The same host plugin binaries are intended for the supported server version regardless of whether the server itself runs on Windows or Linux.
+The same host plugin artifacts are used on Windows and Linux. The operating system changes the build tooling, not the plugin product.
 
 ## Main features
 
@@ -30,70 +30,73 @@ The same host plugin binaries are intended for the supported server version rega
 - SRT, SUB, TXT, SSA and ASS subtitle extraction.
 - Optional legacy-encoding detection and UTF-8 conversion.
 - Token caching and diagnostic logging.
-- Offline regression suite using the exact same Common source as both plugins.
 - Separator-independent shared filename parsing for Windows (`\`) and Unix (`/`) media/archive paths.
+- Offline regression suite using the exact same Common source as both plugins.
 
-## Quick start
+## Build and test quick start
 
-The provided convenience build scripts are for Windows:
-
-```text
-RUN-TESTS.cmd
-BUILD-EMBY.cmd
-BUILD-JELLYFIN.cmd
-```
-
-Or build both host plugins in sequence:
+Windows entry points are under `scripts/windows`:
 
 ```text
-BUILD-ALL.cmd
+scripts\windows\run-tests.cmd
+scripts\windows\build-emby.cmd
+scripts\windows\build-jellyfin.cmd
+scripts\windows\build-all.cmd
 ```
 
-The regression suite can also be run directly on Windows or Linux with a suitable .NET 10 SDK:
+Linux entry points are under `scripts/linux`:
 
 ```text
-dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
+./scripts/linux/run-tests.sh
+./scripts/linux/build-emby.sh
+./scripts/linux/build-jellyfin.sh
+./scripts/linux/build-all.sh
 ```
 
-For the same Linux build/runtime smoke path used by CI, a Linux development host with Bash, Docker, .NET 10, `curl` and Python 3 can run:
+The Linux Emby build obtains the required `MediaBrowser.*` compile-time references from an installed Emby server when available, from `EMBY_REFERENCE_DIR` when explicitly supplied, or from the official `emby/embyserver:4.10.0.40` Docker image as a fallback.
+
+For developers building from source, see **README-BUILD.txt**. For installation of pre-built releases, see **[INSTALL.md](INSTALL.md)**.
+
+## Build layout
+
+Generated build state is kept outside the source tree:
 
 ```text
-bash tests/smoke/linux-runtime-smoke.sh
+.build/
+  Emby/
+    bin/
+    obj/
+    refs/
+  Jellyfin/
+    bin/
+    obj/
+  Tests/
+    bin/
+    obj/
+    results/
+  logs/
+  nuget/
+  tooling/
 ```
 
-That script pulls the official Emby 4.10 and Jellyfin 12 Linux images, builds both host plugins on Linux, loads them into disposable containers and verifies that both servers start with the plugin without loader/ABI errors.
+`.build/` is ignored by Git and may be deleted at any time.
 
-The Windows build scripts do not install or modify Emby or Jellyfin. The Linux smoke script uses disposable containers and temporary configuration directories for validation.
-
-For installation of pre-built releases, see **[INSTALL.md](INSTALL.md)**.
-
-For developers building from source, see **README-BUILD.txt**.
-
-## Packaged build output
-
-The Windows convenience packaging scripts produce the release-style `output/` directories below. Linux smoke validation builds the same host projects under their normal `bin/Release` locations and does not publish release packages.
-
-### Emby
+User-facing build artifacts are always collected under the root `dist/` directory, regardless of whether the build ran on Windows or Linux:
 
 ```text
-src/Emby/output/
-  Emby.Titlovi.dll
-  build.log
+dist/
+  Emby/
+    Emby.Titlovi.dll
+
+  Jellyfin/
+    Titlovi.com (Unofficial)_1.1.9.0/
+      Jellyfin.Titlovi.dll
+      meta.json
+      thumb.png
+    Titlovi.com.Unified-1.1.9-Jellyfin-12.zip
 ```
 
-### Jellyfin
-
-```text
-src/Jellyfin/output/
-  Titlovi.com (Unofficial)_1.1.9.0/
-    Jellyfin.Titlovi.dll
-    meta.json
-    thumb.png
-  Titlovi.com.Unified-1.1.9-Jellyfin-12.zip
-  build.log
-```
-
-The Jellyfin folder is ready to copy into Jellyfin's plugins directory. The ZIP contains the same three runtime files and is provided as a convenient distribution package.
+`dist/` is also ignored by Git. It is the only directory a developer needs to inspect after a successful packaging build.
 
 ## First configuration
 
@@ -122,34 +125,32 @@ Jellyfin uses the language returned in `SubtitleResponse.Language`, so Croatian/
 
 ## Cross-platform validation
 
-The offline regression suite runs on both Windows and Ubuntu in GitHub Actions. Linux runtime smoke tests build and load both host plugins in the official Emby 4.10 and Jellyfin 12 server containers.
+The current offline suite contains **110 regression cases** and runs on both Windows and Ubuntu in GitHub Actions.
 
-In addition, explicitly triggered live end-to-end workflows have validated authenticated Titlovi.com movie and episode searches, downloads, host-side subtitle saving and UTF-8 output on both supported Linux hosts. These live workflows are intentionally not run on ordinary pushes.
+Linux runtime smoke validation runs the canonical `scripts/linux/build-all.sh`, then loads the actual artifacts from `dist/` into the official Emby 4.10 and Jellyfin 12 Linux containers. This verifies both the Linux build/package path and host loading without contacting Titlovi.com.
+
+Separately triggered live E2E workflows validate authenticated Titlovi.com movie/episode search, download, host-side subtitle saving and UTF-8 output. They are intentionally not run on ordinary pushes.
+
+## Project layout
+
+```text
+src/Common/       shared platform-neutral Titlovi.com engine
+src/Emby/         Emby adapter, plugin bootstrap and configuration UI
+src/Jellyfin/     Jellyfin adapter, plugin bootstrap and configuration UI
+scripts/windows/  Windows build/test entry points and PowerShell implementation
+scripts/linux/    Linux build/test entry points and Bash implementation
+tests/            regression suite plus Linux smoke/E2E validation
+.build/           generated intermediate state (ignored)
+dist/             generated installable artifacts (ignored)
+```
+
+For the source boundary and host-adapter design, see **ARCHITECTURE.md**.
 
 ## Diagnostics
 
 Each host has normal and optional detailed plugin logs. Detailed logging can be enabled from the plugin configuration page. Passwords and API tokens are not written to the diagnostic logs.
 
 Detailed logs may contain media titles, release names and archive/subtitle filenames, so treat them as diagnostic data when sharing them.
-
-## Project layout
-
-```text
-src/Common/      shared platform-neutral Titlovi.com engine
-src/Emby/        Emby adapter, plugin bootstrap, UI and build script
-src/Jellyfin/    Jellyfin adapter, plugin bootstrap, UI and build script
-tests/           offline regression suite, smoke/E2E validation and corpus notes
-```
-
-For a technical explanation of the source boundary and host adapters, see **ARCHITECTURE.md**.
-
-## Tests
-
-`RUN-TESTS.cmd` runs the offline regression suite on Windows. The same suite can be run directly with `dotnet test` on Windows or Linux. It does not contact Titlovi.com. Search/download responses are supplied by a fake API client, while subtitle and ZIP fixtures are created as real byte streams in memory and passed through the same archive/selection/encoding code used by the plugins.
-
-The suite currently contains **110 regression cases** covering B/S/H handling, episode filename parsing, Windows/Unix path handling, season/full-series/nested ZIP selection, encoding conversion, search fallback, token behavior and release ranking.
-
-See `tests/README.md` and `tests/TEST-CORPUS.md` for details.
 
 ## License
 

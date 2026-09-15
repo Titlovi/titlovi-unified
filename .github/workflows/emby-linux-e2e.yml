@@ -40,6 +40,39 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
+      - name: Use canonical Linux build/package path in E2E harness
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('tests/e2e/emby-linux-e2e.sh')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('EMBY_REF_CONTAINER="titlovi-emby-e2e-ref"\n', '')
+          text = text.replace(
+              'docker rm -f "$EMBY_CONTAINER" "$EMBY_REF_CONTAINER" >/dev/null 2>&1 || true',
+              'docker rm -f "$EMBY_CONTAINER" >/dev/null 2>&1 || true',
+          )
+
+          start_marker = 'echo "==> Pulling official Emby 4.10 Linux image"\n'
+          end_marker = 'echo "==> Starting official Emby 4.10 Linux container"\n'
+          start = text.find(start_marker)
+          end = text.find(end_marker, start + len(start_marker))
+          if start < 0 or end < 0:
+              raise SystemExit('Expected Emby E2E build markers were not found')
+
+          replacement = r'''echo "==> Building Emby plugin through canonical Linux build script"
+          EMBY_IMAGE="$EMBY_IMAGE" bash "$ROOT/scripts/linux/build-emby.sh"
+          EMBY_DLL="$ROOT/dist/Emby/Emby.Titlovi.dll"
+          test -s "$EMBY_DLL" || fail "Emby.Titlovi.dll was not produced."
+          cp "$EMBY_DLL" "$EMBY_CONFIG/plugins/Emby.Titlovi.dll"
+
+          '''
+          text = text[:start] + replacement + text[end:]
+          path.write_text(text, encoding='utf-8')
+          PY
+          bash -n tests/e2e/emby-linux-e2e.sh
+
       - name: Normalize Emby 4.10 startup behavior in E2E harness
         shell: bash
         run: |

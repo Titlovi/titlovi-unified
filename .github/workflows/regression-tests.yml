@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - "feature/**"
+      - "refactor/**"
+      - "docs/**"
   pull_request:
 
 jobs:
@@ -27,15 +29,22 @@ jobs:
         with:
           dotnet-version: 10.0.302
 
-      - name: Run regression suite
-        run: dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj --configuration Release --nologo
-
-      - name: Build Emby plugin
+      - name: Run regression suite on Windows
         if: runner.os == 'Windows'
-        shell: powershell
-        run: ./src/Emby/Build-EmbyTitlovi.ps1
+        shell: cmd
+        run: scripts\windows\run-tests.cmd
 
-      - name: Build Jellyfin plugin and package
+      - name: Run regression suite on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash scripts/linux/run-tests.sh
+
+      - name: Build Emby plugin on Windows
         if: runner.os == 'Windows'
-        shell: powershell
-        run: ./src/Jellyfin/Build-JellyfinTitlovi.ps1
+        shell: cmd
+        run: scripts\windows\build-emby.cmd
+
+      - name: Build Jellyfin plugin and package on Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: scripts\windows\build-jellyfin.cmd

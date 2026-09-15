@@ -8,6 +8,7 @@
     <Nullable>disable</Nullable>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
+    <EmbyReferenceDir Condition="'$(EmbyReferenceDir)' == ''">$(MSBuildThisFileDirectory)../../.build/Emby/refs</EmbyReferenceDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,17 +17,17 @@
 
   <ItemGroup>
     <Reference Include="MediaBrowser.Model">
-      <HintPath>embylibs/MediaBrowser.Model.dll</HintPath>
+      <HintPath>$(EmbyReferenceDir)/MediaBrowser.Model.dll</HintPath>
       <Private>false</Private>
       <SpecificVersion>false</SpecificVersion>
     </Reference>
     <Reference Include="MediaBrowser.Common">
-      <HintPath>embylibs/MediaBrowser.Common.dll</HintPath>
+      <HintPath>$(EmbyReferenceDir)/MediaBrowser.Common.dll</HintPath>
       <Private>false</Private>
       <SpecificVersion>false</SpecificVersion>
     </Reference>
     <Reference Include="MediaBrowser.Controller">
-      <HintPath>embylibs/MediaBrowser.Controller.dll</HintPath>
+      <HintPath>$(EmbyReferenceDir)/MediaBrowser.Controller.dll</HintPath>
       <Private>false</Private>
       <SpecificVersion>false</SpecificVersion>
     </Reference>

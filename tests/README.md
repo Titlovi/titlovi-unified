@@ -1,16 +1,20 @@
 # Titlovi.com.Unified regression tests
 
-Run the suite from the package root on Windows:
+Use the platform entry point from the repository root.
+
+Windows:
 
 ```text
-RUN-TESTS.cmd
+scripts\windows\run-tests.cmd
 ```
 
-or directly on any supported .NET development host:
+Linux:
 
 ```text
-dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
+./scripts/linux/run-tests.sh
 ```
+
+The suite can also be invoked directly with `dotnet test`, but the repository scripts provide the canonical output/log layout.
 
 ## What the offline suite actually tests
 
@@ -18,24 +22,24 @@ The suite does **not** contact Titlovi.com. A `FakeTitloviApiClient` supplies de
 
 For archive tests, the suite creates **real ZIP byte streams in memory**. Those bytes are passed to the same Common download/archive-selection code used by Emby and Jellyfin. Nested ZIPs are created the same way. Subtitle entries contain small deterministic payloads so each test can verify which file was actually selected.
 
-This means the suite tests production parsing, archive traversal, filename matching, subtitle selection and encoding conversion without downloading a live archive from the website.
-
 ## Source under test
 
 The test project compiles the exact same `src/Common/*.cs` source files as both host plugins. No copied implementation and no separate Core assembly is used.
 
-When using `RUN-TESTS.cmd`, results are written to:
+Generated test state is centralized under:
 
 ```text
-tests\output\test.log
-tests\output\test-results.trx
+.build/Tests/bin/
+.build/Tests/obj/
+.build/Tests/results/test-results.trx
+.build/logs/Tests/test.log
 ```
 
-GitHub Actions also runs the complete suite on Windows and Ubuntu.
+GitHub Actions runs the complete suite on Windows and Ubuntu. The current baseline is **110 passing tests** on each operating system.
 
 ## Coverage
 
-The current suite contains 110 cases covering, among other things:
+The suite covers, among other things:
 
 - B/S/H language mapping, alternative-search ordering and actual-language preservation;
 - Seinfeld/Blackadder and other legacy episode filename conventions;

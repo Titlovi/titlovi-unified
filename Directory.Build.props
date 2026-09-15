@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Emby.Titlovi'">
+    <BaseOutputPath>$(MSBuildThisFileDirectory).build/Emby/bin/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).build/Emby/obj/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Jellyfin.Titlovi'">
+    <BaseOutputPath>$(MSBuildThisFileDirectory).build/Jellyfin/bin/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).build/Jellyfin/obj/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Titlovi.Tests'">
+    <BaseOutputPath>$(MSBuildThisFileDirectory).build/Tests/bin/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).build/Tests/obj/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>
