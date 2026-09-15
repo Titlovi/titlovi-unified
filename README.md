@@ -48,7 +48,9 @@ BUILD-ALL.cmd
 
 The build scripts do not install or modify Emby or Jellyfin. They only compile and package the plugin files.
 
-See **README-BUILD.txt** for prerequisites, exact output locations and manual installation steps.
+For installation of pre-built releases, see **[INSTALL.md](INSTALL.md)**.
+
+For developers building from source, see **README-BUILD.txt**.
 
 ## Build output
 
