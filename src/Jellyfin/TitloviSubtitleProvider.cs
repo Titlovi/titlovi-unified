@@ -64,7 +64,8 @@ namespace Jellyfin.Titlovi
 
         public async Task<SubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
         {
-            var response = await _engine.GetSubtitles(id, cancellationToken).ConfigureAwait(false);
+            var internalId = SubtitleIdTransport.FromUrlSafe(id);
+            var response = await _engine.GetSubtitles(internalId, cancellationToken).ConfigureAwait(false);
             return new SubtitleResponse
             {
                 Format = response.Format,
@@ -100,7 +101,7 @@ namespace Jellyfin.Titlovi
         {
             return new RemoteSubtitleInfo
             {
-                Id = result.Id,
+                Id = SubtitleIdTransport.ToUrlSafe(result.Id),
                 DateCreated = result.DateCreated,
                 DownloadCount = result.DownloadCount,
                 Name = result.Name,

@@ -1206,6 +1206,9 @@ namespace Titlovi.Common
 
             foreach (Match bundleMatch in CompactEpisodeBundleRegex.Matches(fileName))
             {
+                if (IsCompactBundleInsideExplicitEpisodeToken(fileName, bundleMatch))
+                    continue;
+
                 if (!IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out var bundledEpisodes))
                     continue;
 
@@ -1240,8 +1243,49 @@ namespace Titlovi.Common
             {
                 foreach (Match bundleMatch in CompactEpisodeBundleRegex.Matches(fileName))
                 {
+                    if (IsCompactBundleInsideExplicitEpisodeToken(fileName, bundleMatch))
+                        continue;
+
                     if (IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out _))
                         return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsCompactBundleInsideExplicitEpisodeToken(string fileName, Match bundleMatch)
+        {
+            if (bundleMatch == null || !bundleMatch.Success)
+                return false;
+
+            var bundle = bundleMatch.Groups["bundle"];
+            if (!bundle.Success)
+                return false;
+
+            // High-confidence compact season/episode forms such as S01E12 and 1x12
+            // must never be reinterpreted by the legacy compact-bundle detector as 1+2.
+            foreach (Match candidate in EpisodeCandidateRegex.Matches(fileName ?? string.Empty))
+            {
+                var season = candidate.Groups["season"];
+                var episode = candidate.Groups["episode"];
+                if (season.Success
+                    && episode.Success
+                    && bundle.Index >= episode.Index
+                    && bundle.Index + bundle.Length <= episode.Index + episode.Length)
+                {
+                    return true;
+                }
+            }
+
+            foreach (Match episodeToken in EpisodeTokenRegex.Matches(fileName ?? string.Empty))
+            {
+                var episode = episodeToken.Groups["episode"];
+                if (episode.Success
+                    && bundle.Index >= episode.Index
+                    && bundle.Index + bundle.Length <= episode.Index + episode.Length)
+                {
+                    return true;
                 }
             }
 
