@@ -22,6 +22,8 @@ namespace Titlovi.Tests
         [InlineData("season_01_blackadder_season_01_episode_01.srt", 1, 1)]
         [InlineData("black_adder_i_01.srt", 1, 1)]
         [InlineData("black_adder_iv_06.srt", 4, 6)]
+        [InlineData("m.python s1 ep12 The Naked Ant.sub", 1, 12)]
+        [InlineData("m.python s1 ep 12 The Naked Ant.sub", 1, 12)]
         [InlineData("101 - Pilot.srt", 1, 1)]
         [InlineData("110 - Finale.srt", 1, 10)]
         [InlineData("1001 - Episode.srt", 10, 1)]
@@ -62,6 +64,8 @@ namespace Titlovi.Tests
         [InlineData("Seinfeld.S01E01.srt")]
         [InlineData("001 - The Seinfeld Chronicles.srt")]
         [InlineData("black_adder_i_01.srt")]
+        [InlineData("m.python s1 ep12 The Naked Ant.sub")]
+        [InlineData("m.python s1 ep 12 The Naked Ant.sub")]
         [InlineData("Ep 1,2,3/001 - Pilot.srt")]
         [InlineData("Ep 1,2,3\\001 - Pilot.srt")]
         public void OrdinaryEpisodeNames_AreNotGrouped(string fileName)
