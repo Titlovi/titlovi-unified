@@ -24,6 +24,8 @@ namespace Titlovi.Tests
         [InlineData("black_adder_iv_06.srt", 4, 6)]
         [InlineData("m.python s1 ep12 The Naked Ant.sub", 1, 12)]
         [InlineData("m.python s1 ep 12 The Naked Ant.sub", 1, 12)]
+        [InlineData("monty_python_-_s01e12_-_the_naked_ant.sub", 1, 12)]
+        [InlineData("Monty.Python.1x12.The.Naked.Ant.sub", 1, 12)]
         [InlineData("101 - Pilot.srt", 1, 1)]
         [InlineData("110 - Finale.srt", 1, 10)]
         [InlineData("1001 - Episode.srt", 10, 1)]
@@ -66,6 +68,8 @@ namespace Titlovi.Tests
         [InlineData("black_adder_i_01.srt")]
         [InlineData("m.python s1 ep12 The Naked Ant.sub")]
         [InlineData("m.python s1 ep 12 The Naked Ant.sub")]
+        [InlineData("monty_python_-_s01e12_-_the_naked_ant.sub")]
+        [InlineData("Monty.Python.1x12.The.Naked.Ant.sub")]
         [InlineData("Ep 1,2,3/001 - Pilot.srt")]
         [InlineData("Ep 1,2,3\\001 - Pilot.srt")]
         public void OrdinaryEpisodeNames_AreNotGrouped(string fileName)
