@@ -13,20 +13,24 @@ Both plugins are registered to users as **Titlovi.com (Unofficial)**.
 
 There is no shared runtime DLL. Each host plugin contains its own compiled copy of the Common source so it can be installed independently.
 
+The same host plugin binaries are used for the supported server version on Windows and Linux.
+
 ## Source layout
 
 ```text
 src/Common/       shared Titlovi.com engine and data models
 src/Emby/         Emby adapter, bootstrap, configuration UI and build script
 src/Jellyfin/     Jellyfin adapter, bootstrap, configuration UI and build script
-tests/            offline regression suite
+tests/            offline regression suite plus Linux smoke/E2E validation
 ```
 
 Both host project files link the same Common files directly:
 
 ```xml
-<Compile Include="..\Common\*.cs" Link="Common\%(Filename)%(Extension)" />
+<Compile Include="../Common/*.cs" Link="Common/%(Filename)%(Extension)" />
 ```
+
+Repository-relative MSBuild paths use forward slashes so the same project files can be evaluated on Windows and Linux.
 
 This keeps one functional implementation without introducing a `Titlovi.Core.dll` deployment dependency.
 
@@ -48,6 +52,12 @@ This keeps one functional implementation without introducing a `Titlovi.Core.dll
 - provider diagnostics.
 
 The Common boundary uses neutral models such as `CoreSubtitleSearchRequest`, `CoreRemoteSubtitleInfo` and `CoreSubtitleResponse`, plus small serialization/configuration interfaces supplied by each host.
+
+## Cross-platform path handling
+
+Host-native media paths are passed through unchanged. A Windows path remains a Windows path and a Linux/Docker/NAS path remains the path known to the host server.
+
+Shared filename and archive-entry parsing is separator-independent. Common code treats both `\` and `/` as virtual separators when it needs to extract a filename, episode token or release name. This allows the same parsing logic to handle Windows media paths, Unix media paths and non-conforming ZIP entry names without rewriting the filesystem path supplied by Emby or Jellyfin.
 
 ## Emby adapter
 
@@ -78,10 +88,12 @@ output/Titlovi.com (Unofficial)_1.1.9.0/
 
 The same directory is also compressed into a distribution ZIP. `meta.json` is written as UTF-8 without BOM and is validated before the ZIP is created.
 
-## Tests
+## Tests and validation
 
 `tests/Titlovi.Tests` links the same `src/Common/*.cs` files into the test assembly. An internal test seam injects a fake `ITitloviApiClient`; production construction still uses the real `TitloviApiClient`.
 
-The suite does not contact Titlovi.com. ZIP fixtures are real ZIP byte streams generated in memory, so archive parsing, nested archives, file selection and encoding conversion execute the same Common code as production.
+The offline regression suite does not contact Titlovi.com. ZIP fixtures are real ZIP byte streams generated in memory, so archive parsing, nested archives, file selection and encoding conversion execute the same Common code as production. GitHub Actions runs this suite on both Windows and Ubuntu.
+
+Separate Linux runtime-smoke validation builds and loads both plugins in the official Emby 4.10 and Jellyfin 12 Linux server containers. Explicitly triggered live E2E workflows can additionally validate authenticated Titlovi.com search, download and host-side subtitle saving on both Linux hosts.
 
 No test assembly or test dependency is shipped with either plugin.

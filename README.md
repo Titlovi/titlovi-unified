@@ -13,7 +13,7 @@ The plugins share the same search, download, archive-selection, language, encodi
 
 ## Supported hosts
 
-- **Emby:** Emby Server 4.10.x. The Windows build script uses installed Emby reference assemblies when available and falls back to the official Emby 4.10.0.40 package for compilation references. Runtime loading and authenticated search/download have also been validated in the official Emby 4.10.0.40 Linux container.
+- **Emby:** Emby Server 4.10.x. Builds are validated on Windows and Ubuntu. The Windows convenience build script uses installed Emby reference assemblies when available and falls back to the official Emby 4.10.0.40 package for compilation references. Runtime loading and authenticated search/download have also been validated in the official Emby 4.10.0.40 Linux container.
 - **Jellyfin:** Jellyfin 12.0 / .NET 10. Builds are validated on Windows and Ubuntu, and runtime loading plus authenticated search/download have been validated in the official Jellyfin 12 Linux container.
 
 The same host plugin binaries are intended for the supported server version regardless of whether the server itself runs on Windows or Linux.
@@ -49,24 +49,34 @@ Or build both host plugins in sequence:
 BUILD-ALL.cmd
 ```
 
-The regression suite can also be run directly on any development host with a suitable .NET 10 SDK:
+The regression suite can also be run directly on Windows or Linux with a suitable .NET 10 SDK:
 
 ```text
 dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
 ```
 
-The build scripts do not install or modify Emby or Jellyfin. They only compile and package the plugin files.
+For the same Linux build/runtime smoke path used by CI, a Linux development host with Bash, Docker, .NET 10, `curl` and Python 3 can run:
+
+```text
+bash tests/smoke/linux-runtime-smoke.sh
+```
+
+That script pulls the official Emby 4.10 and Jellyfin 12 Linux images, builds both host plugins on Linux, loads them into disposable containers and verifies that both servers start with the plugin without loader/ABI errors.
+
+The Windows build scripts do not install or modify Emby or Jellyfin. The Linux smoke script uses disposable containers and temporary configuration directories for validation.
 
 For installation of pre-built releases, see **[INSTALL.md](INSTALL.md)**.
 
 For developers building from source, see **README-BUILD.txt**.
 
-## Build output
+## Packaged build output
+
+The Windows convenience packaging scripts produce the release-style `output/` directories below. Linux smoke validation builds the same host projects under their normal `bin/Release` locations and does not publish release packages.
 
 ### Emby
 
 ```text
-src\Emby\output\
+src/Emby/output/
   Emby.Titlovi.dll
   build.log
 ```
@@ -74,8 +84,8 @@ src\Emby\output\
 ### Jellyfin
 
 ```text
-src\Jellyfin\output\
-  Titlovi.com (Unofficial)_1.1.9.0\
+src/Jellyfin/output/
+  Titlovi.com (Unofficial)_1.1.9.0/
     Jellyfin.Titlovi.dll
     meta.json
     thumb.png
@@ -128,7 +138,7 @@ Detailed logs may contain media titles, release names and archive/subtitle filen
 src/Common/      shared platform-neutral Titlovi.com engine
 src/Emby/        Emby adapter, plugin bootstrap, UI and build script
 src/Jellyfin/    Jellyfin adapter, plugin bootstrap, UI and build script
-tests/            offline regression suite, smoke/E2E validation and corpus notes
+tests/           offline regression suite, smoke/E2E validation and corpus notes
 ```
 
 For a technical explanation of the source boundary and host adapters, see **ARCHITECTURE.md**.

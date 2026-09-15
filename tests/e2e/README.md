@@ -17,23 +17,21 @@ In GitHub, open:
 
 Do not put the credentials in a workflow file, issue, pull request, commit, label, comment, or Actions input.
 
-## Running validation before this pull request is merged
+## Triggering a live validation
 
-GitHub exposes `workflow_dispatch` from the Actions UI only after a workflow exists on the default branch. While these workflows exist only on `feature/linux-path-compatibility`, use an explicit label on the same-repository pull request:
+The workflows are available on `main` and can be started explicitly from the GitHub Actions UI with **Run workflow**:
+
+- `Jellyfin Linux end-to-end`
+- `Emby Linux end-to-end`
+
+For a future same-repository pull request, either workflow can also be triggered deliberately by adding its exact label:
 
 - Jellyfin 12: `run-live-e2e`
 - Emby 4.10: `run-emby-live-e2e`
 
-Each workflow listens only for the pull-request `labeled` event and checks both the exact label and that the pull-request head repository is this repository. Ordinary pushes, PR synchronization, comments, reviews, and unrelated labels do not run either live Titlovi.com test.
+Each pull-request workflow checks both the exact label and that the pull-request head repository is this repository. Ordinary pushes, PR synchronization, comments, reviews, and unrelated labels do not run either live Titlovi.com test.
 
-If a validation needs to be run again, remove its label and add it again.
-
-## Running validation after the workflows reach `main`
-
-Open the appropriate workflow under Actions and choose **Run workflow**:
-
-- `Jellyfin Linux end-to-end`
-- `Emby Linux end-to-end`
+If a label-triggered validation needs to be run again on the same pull request, remove its label and add it again.
 
 ## Jellyfin 12 validation
 
