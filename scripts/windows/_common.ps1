@@ -18,6 +18,31 @@ function Reset-Directory([string]$Path) {
     Ensure-Directory $Path
 }
 
+function Remove-LegacyGeneratedState {
+    $legacyPaths = @(
+        'src\Emby\bin',
+        'src\Emby\obj',
+        'src\Emby\.build',
+        'src\Emby\embylibs',
+        'src\Emby\output',
+        'src\Jellyfin\bin',
+        'src\Jellyfin\obj',
+        'src\Jellyfin\.build',
+        'src\Jellyfin\output',
+        'tests\Titlovi.Tests\bin',
+        'tests\Titlovi.Tests\obj',
+        'tests\output'
+    )
+
+    foreach ($relative in $legacyPaths) {
+        $path = Join-Path $Script:RepoRoot $relative
+        if (Test-Path -LiteralPath $path) {
+            Write-Host "Removing legacy generated directory: $relative" -ForegroundColor DarkGray
+            Remove-Item -LiteralPath $path -Recurse -Force
+        }
+    }
+}
+
 function Get-StableSdkFromHost([string]$Path) {
     if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) { return $null }
     try {
@@ -138,3 +163,5 @@ function Get-ProjectVersion([string]$ProjectPath) {
     }
     throw "Project Version was not found in $ProjectPath"
 }
+
+Remove-LegacyGeneratedState

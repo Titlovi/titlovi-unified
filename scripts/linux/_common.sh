@@ -17,6 +17,31 @@ clean_dir() {
   mkdir -p "$dir"
 }
 
+clean_legacy_generated_state() {
+  local paths=(
+    "$ROOT/src/Emby/bin"
+    "$ROOT/src/Emby/obj"
+    "$ROOT/src/Emby/.build"
+    "$ROOT/src/Emby/embylibs"
+    "$ROOT/src/Emby/output"
+    "$ROOT/src/Jellyfin/bin"
+    "$ROOT/src/Jellyfin/obj"
+    "$ROOT/src/Jellyfin/.build"
+    "$ROOT/src/Jellyfin/output"
+    "$ROOT/tests/Titlovi.Tests/bin"
+    "$ROOT/tests/Titlovi.Tests/obj"
+    "$ROOT/tests/output"
+  )
+
+  local dir
+  for dir in "${paths[@]}"; do
+    if [ -e "$dir" ] || [ -L "$dir" ]; then
+      echo "Removing legacy generated directory: ${dir#$ROOT/}"
+      rm -rf -- "$dir"
+    fi
+  done
+}
+
 require_command() {
   local name="$1"
   if ! command -v "$name" >/dev/null 2>&1; then
@@ -75,3 +100,5 @@ for group in root.findall('PropertyGroup'):
 raise SystemExit('Project Version was not found')
 PY
 }
+
+clean_legacy_generated_state

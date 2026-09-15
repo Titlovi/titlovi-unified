@@ -230,7 +230,9 @@ Build/test logs are centralized under:
   .build/logs/Jellyfin/build.log
   .build/logs/Tests/test.log
 
-If an old checkout still contains generated src/Emby/output,
-src/Jellyfin/output, src/*/bin, src/*/obj, src/Emby/embylibs or tests/output
-directories, they are legacy generated artifacts and may be deleted. Current
-scripts do not use them.
+A checkout that was built before the centralized .build/ layout may still have
+ignored generated src/Emby/output, src/Jellyfin/output, src/*/bin, src/*/obj,
+src/Emby/embylibs or tests/output directories after git pull. The canonical
+Windows and Linux build/test scripts remove these legacy generated directories
+automatically before running, and MSBuild also excludes them from default item
+globs so stale generated AssemblyInfo files cannot be compiled twice.

@@ -19,6 +19,12 @@ jobs:
         with:
           dotnet-version: 10.0.302
 
+      - name: Seed stale pre-refactor Emby obj on Linux
+        shell: bash
+        run: |
+          mkdir -p src/Emby/obj/Release/netstandard2.0
+          printf '%s\n' '[assembly: System.Reflection.AssemblyCompany("Legacy generated state")]' > src/Emby/obj/Release/netstandard2.0/LegacyAssemblyInfo.cs
+
       - name: Run Linux runtime smoke
         env:
           EMBY_IMAGE: emby/embyserver:4.10.0.40

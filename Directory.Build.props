@@ -1,4 +1,9 @@
 <Project>
+  <PropertyGroup>
+    <!-- Keep legacy project-local generated directories out of SDK default globs after bin/obj moved to .build/. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(MSBuildProjectDirectory)/bin/**;$(MSBuildProjectDirectory)/obj/**;$(MSBuildProjectDirectory)/output/**;$(MSBuildProjectDirectory)/embylibs/**</DefaultItemExcludes>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Emby.Titlovi'">
     <BaseOutputPath>$(MSBuildThisFileDirectory).build/Emby/bin/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).build/Emby/obj/</BaseIntermediateOutputPath>
