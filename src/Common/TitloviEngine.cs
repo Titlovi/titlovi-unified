@@ -1206,6 +1206,9 @@ namespace Titlovi.Common
 
             foreach (Match bundleMatch in CompactEpisodeBundleRegex.Matches(fileName))
             {
+                if (IsCompactBundleInsideExplicitEpisodeToken(fileName, bundleMatch))
+                    continue;
+
                 if (!IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out var bundledEpisodes))
                     continue;
 
@@ -1240,8 +1243,34 @@ namespace Titlovi.Common
             {
                 foreach (Match bundleMatch in CompactEpisodeBundleRegex.Matches(fileName))
                 {
+                    if (IsCompactBundleInsideExplicitEpisodeToken(fileName, bundleMatch))
+                        continue;
+
                     if (IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out _))
                         return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsCompactBundleInsideExplicitEpisodeToken(string fileName, Match bundleMatch)
+        {
+            if (bundleMatch == null || !bundleMatch.Success)
+                return false;
+
+            var bundle = bundleMatch.Groups["bundle"];
+            if (!bundle.Success)
+                return false;
+
+            foreach (Match episodeToken in EpisodeTokenRegex.Matches(fileName ?? string.Empty))
+            {
+                var episode = episodeToken.Groups["episode"];
+                if (episode.Success
+                    && bundle.Index >= episode.Index
+                    && bundle.Index + bundle.Length <= episode.Index + episode.Length)
+                {
+                    return true;
                 }
             }
 
