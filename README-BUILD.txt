@@ -10,12 +10,14 @@ Host assemblies:
   Emby.Titlovi.dll
   Jellyfin.Titlovi.dll
 
-Both host projects compile the same src\Common source directly into their own
+Both host projects compile the same src/Common source directly into their own
 DLL. There is no Titlovi.Core.dll and no shared runtime dependency between the
 Emby and Jellyfin plugins.
 
 REQUIREMENTS
 ------------
+
+The provided convenience build scripts target Windows:
 
 - Windows with PowerShell 5.1 or newer.
 - Internet access may be needed during the first build to download compilation
@@ -23,14 +25,18 @@ REQUIREMENTS
 - You do not need Visual Studio.
 - The scripts do not install, stop, start or modify Emby/Jellyfin.
 
-The build scripts prefer a suitable stable installed .NET SDK. If none is
-available, they can download a portable SDK into the package's local .build
+The source and regression suite are also validated on Ubuntu in GitHub Actions.
+A suitable .NET 10 SDK can be used directly for cross-platform development and
+for running the offline regression suite.
+
+The Windows build scripts prefer a suitable stable installed .NET SDK. If none
+is available, they can download a portable SDK into the package's local .build
 folder. Preview/RC SDKs are deliberately not selected.
 
 QUICK BUILD
 -----------
 
-From the package root:
+From the package root on Windows:
 
   BUILD-EMBY.cmd
   BUILD-JELLYFIN.cmd
@@ -43,10 +49,14 @@ Before distributing a changed build, run:
 
   RUN-TESTS.cmd
 
+The regression suite can also be run directly on Windows or Linux:
+
+  dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
+
 EMBY BUILD
 ----------
 
-Run:
+Run on Windows:
 
   BUILD-EMBY.cmd
 
@@ -75,10 +85,14 @@ Manual Emby installation:
 The Emby plugin GUID is intentionally stable so an upgrade can keep the
 existing plugin configuration.
 
+The Emby project is also compiled and runtime-loaded on Ubuntu CI using the
+exact MediaBrowser reference assemblies copied from the official
+emby/embyserver:4.10.0.40 Linux image.
+
 JELLYFIN BUILD
 --------------
 
-Run:
+Run on Windows:
 
   BUILD-JELLYFIN.cmd
 
@@ -122,19 +136,42 @@ Manual Jellyfin installation:
 The Jellyfin plugin has its own GUID. It does not reuse the Emby GUID or the
 GUID of the official Titlovi Jellyfin plugin.
 
+The Jellyfin project is also compiled and runtime-loaded on Ubuntu CI against
+the official ghcr.io/jellyfin/jellyfin:12.0 Linux image.
+
+CROSS-PLATFORM VALIDATION
+-------------------------
+
+GitHub Actions runs the complete offline regression suite on both Windows and
+Ubuntu. The current baseline is 110 passing tests on each operating system.
+
+A Linux runtime smoke workflow builds and loads both plugins in the official
+Emby 4.10 and Jellyfin 12 Linux server containers. Separate manually triggered
+live end-to-end workflows have also validated authenticated Titlovi.com movie
+and episode search, download, host-side subtitle saving and UTF-8 output on both
+Linux hosts.
+
+These Linux checks do not create a separate Linux plugin build. They validate
+that the same self-contained host plugin assemblies and shared source behave
+correctly with native Unix media paths.
+
 REGRESSION TESTS
 ----------------
 
-Run:
+Run on Windows:
 
   RUN-TESTS.cmd
 
+Or directly on Windows/Linux:
+
+  dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
+
 The suite is fully offline and does not contact Titlovi.com. It compiles the
-same src\Common\*.cs files used by both plugins. A fake API client provides
+same src/Common/*.cs files used by both plugins. A fake API client provides
 search/download responses, and real ZIP/subtitle byte streams are generated in
 memory for archive and selection tests.
 
-Test output:
+Test output from RUN-TESTS.cmd:
 
   tests\output\test.log
   tests\output\test-results.trx
@@ -144,7 +181,7 @@ See tests\README.md and tests\TEST-CORPUS.md for the covered regression cases.
 TROUBLESHOOTING
 ---------------
 
-If a build fails, first inspect the host-specific log:
+If a Windows build fails, first inspect the host-specific log:
 
   src\Emby\output\build.log
   src\Jellyfin\output\build.log

@@ -38,6 +38,8 @@ namespace Titlovi.Tests
         [InlineData("002 - The Stakeout - [DVD].srt", 2)]
         [InlineData("12 - Finale.srt", 12)]
         [InlineData("friends_01_01.srt", 1)]
+        [InlineData("Season 01/002 - The Stakeout.srt", 2)]
+        [InlineData("Season 01\\002 - The Stakeout.srt", 2)]
         public void Parser_RecognizesEpisodeOnlyPackNames(string fileName, int expectedEpisode)
         {
             var parsed = Parse(fileName);
@@ -60,6 +62,8 @@ namespace Titlovi.Tests
         [InlineData("Seinfeld.S01E01.srt")]
         [InlineData("001 - The Seinfeld Chronicles.srt")]
         [InlineData("black_adder_i_01.srt")]
+        [InlineData("Ep 1,2,3/001 - Pilot.srt")]
+        [InlineData("Ep 1,2,3\\001 - Pilot.srt")]
         public void OrdinaryEpisodeNames_AreNotGrouped(string fileName)
         {
             Assert.False((bool)IsGrouped.Invoke(null, new object[] { fileName }));
@@ -74,6 +78,8 @@ namespace Titlovi.Tests
         [InlineData("BlackAdder_II_456_ser.srt", 2, 4, 6, true)]
         [InlineData("BlackAdder_II_456_ser.srt", 1, 4, 6, false)]
         [InlineData("season_02_blackadder_123.srt", 2, 1, 3, true)]
+        [InlineData("Season 02/Ep 1,2,3.srt", 2, 1, 3, true)]
+        [InlineData("Season 02\\Ep 1,2,3.srt", 2, 1, 3, true)]
         public void GroupRange_MustExactlyMatchRequestedRange(
             string fileName, int season, int start, int end, bool expected)
         {

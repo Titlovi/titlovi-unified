@@ -1,0 +1,26 @@
+name: Linux runtime smoke
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  runtime-smoke:
+    name: Emby 4.10 + Jellyfin 12 on Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Run Linux runtime smoke
+        env:
+          EMBY_IMAGE: emby/embyserver:4.10.0.40
+          JELLYFIN_IMAGE: ghcr.io/jellyfin/jellyfin:12.0
+        run: bash tests/smoke/linux-runtime-smoke.sh

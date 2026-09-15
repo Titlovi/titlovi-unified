@@ -1,0 +1,44 @@
+name: Jellyfin Linux end-to-end
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - labeled
+
+permissions:
+  contents: read
+
+jobs:
+  jellyfin-e2e:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.label.name == 'run-live-e2e' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+    name: Jellyfin 12 + live Titlovi.com
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      JELLYFIN_IMAGE: ghcr.io/jellyfin/jellyfin:12.0
+      TITLOVI_USERNAME: ${{ secrets.TITLOVI_USERNAME }}
+      TITLOVI_PASSWORD: ${{ secrets.TITLOVI_PASSWORD }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Install ffmpeg
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Run Jellyfin Linux end-to-end validation
+        shell: bash
+        run: bash tests/e2e/jellyfin-linux-e2e.sh

@@ -13,8 +13,10 @@ The plugins share the same search, download, archive-selection, language, encodi
 
 ## Supported hosts
 
-- **Emby:** designed for Emby Server 4.10.x. The build script uses the installed Emby reference assemblies when available and falls back to the official Emby 4.10.0.40 server package for compilation references.
-- **Jellyfin:** targets Jellyfin 12.0 / .NET 10.
+- **Emby:** Emby Server 4.10.x. The Windows build script uses installed Emby reference assemblies when available and falls back to the official Emby 4.10.0.40 package for compilation references. Runtime loading and authenticated search/download have also been validated in the official Emby 4.10.0.40 Linux container.
+- **Jellyfin:** Jellyfin 12.0 / .NET 10. Builds are validated on Windows and Ubuntu, and runtime loading plus authenticated search/download have been validated in the official Jellyfin 12 Linux container.
+
+The same host plugin binaries are intended for the supported server version regardless of whether the server itself runs on Windows or Linux.
 
 ## Main features
 
@@ -29,10 +31,11 @@ The plugins share the same search, download, archive-selection, language, encodi
 - Optional legacy-encoding detection and UTF-8 conversion.
 - Token caching and diagnostic logging.
 - Offline regression suite using the exact same Common source as both plugins.
+- Separator-independent shared filename parsing for Windows (`\`) and Unix (`/`) media/archive paths.
 
 ## Quick start
 
-From the package root on Windows:
+The provided convenience build scripts are for Windows:
 
 ```text
 RUN-TESTS.cmd
@@ -44,6 +47,12 @@ Or build both host plugins in sequence:
 
 ```text
 BUILD-ALL.cmd
+```
+
+The regression suite can also be run directly on any development host with a suitable .NET 10 SDK:
+
+```text
+dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
 ```
 
 The build scripts do not install or modify Emby or Jellyfin. They only compile and package the plugin files.
@@ -101,6 +110,12 @@ Emby 4.10.x can save a Croatian or Bosnian alternative with the suffix of the la
 
 Jellyfin uses the language returned in `SubtitleResponse.Language`, so Croatian/Bosnian/Serbian downloads are expected to be saved with `.hr.srt`, `.bs.srt` and `.sr.srt` respectively.
 
+## Cross-platform validation
+
+The offline regression suite runs on both Windows and Ubuntu in GitHub Actions. Linux runtime smoke tests build and load both host plugins in the official Emby 4.10 and Jellyfin 12 server containers.
+
+In addition, explicitly triggered live end-to-end workflows have validated authenticated Titlovi.com movie and episode searches, downloads, host-side subtitle saving and UTF-8 output on both supported Linux hosts. These live workflows are intentionally not run on ordinary pushes.
+
 ## Diagnostics
 
 Each host has normal and optional detailed plugin logs. Detailed logging can be enabled from the plugin configuration page. Passwords and API tokens are not written to the diagnostic logs.
@@ -110,21 +125,21 @@ Detailed logs may contain media titles, release names and archive/subtitle filen
 ## Project layout
 
 ```text
-src\Common\      shared platform-neutral Titlovi.com engine
-src\Emby\        Emby adapter, plugin bootstrap, UI and build script
-src\Jellyfin\    Jellyfin adapter, plugin bootstrap, UI and build script
-tests\            offline regression suite and corpus notes
+src/Common/      shared platform-neutral Titlovi.com engine
+src/Emby/        Emby adapter, plugin bootstrap, UI and build script
+src/Jellyfin/    Jellyfin adapter, plugin bootstrap, UI and build script
+tests/            offline regression suite, smoke/E2E validation and corpus notes
 ```
 
 For a technical explanation of the source boundary and host adapters, see **ARCHITECTURE.md**.
 
 ## Tests
 
-`RUN-TESTS.cmd` runs an offline regression suite. It does not contact Titlovi.com. Search/download responses are supplied by a fake API client, while subtitle and ZIP fixtures are created as real byte streams in memory and passed through the same archive/selection/encoding code used by the plugins.
+`RUN-TESTS.cmd` runs the offline regression suite on Windows. The same suite can be run directly with `dotnet test` on Windows or Linux. It does not contact Titlovi.com. Search/download responses are supplied by a fake API client, while subtitle and ZIP fixtures are created as real byte streams in memory and passed through the same archive/selection/encoding code used by the plugins.
 
-The suite currently contains **96 regression cases** covering B/S/H handling, episode filename parsing, season/full-series/nested ZIP selection, encoding conversion, search fallback, token behavior and release ranking.
+The suite currently contains **110 regression cases** covering B/S/H handling, episode filename parsing, Windows/Unix path handling, season/full-series/nested ZIP selection, encoding conversion, search fallback, token behavior and release ranking.
 
-See `tests\README.md` and `tests\TEST-CORPUS.md` for details.
+See `tests/README.md` and `tests/TEST-CORPUS.md` for details.
 
 ## License
 

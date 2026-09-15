@@ -1,15 +1,15 @@
 # Titlovi.com.Unified regression tests
 
-Run the suite from the package root:
+Run the suite from the package root on Windows:
 
 ```text
 RUN-TESTS.cmd
 ```
 
-or directly:
+or directly on any supported .NET development host:
 
 ```text
-dotnet test tests\Titlovi.Tests\Titlovi.Tests.csproj -c Release
+dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj -c Release
 ```
 
 ## What the offline suite actually tests
@@ -31,15 +31,19 @@ tests\output\test.log
 tests\output\test-results.trx
 ```
 
+GitHub Actions also runs the complete suite on Windows and Ubuntu.
+
 ## Coverage
 
-The current suite contains 96 cases covering, among other things:
+The current suite contains 110 cases covering, among other things:
 
 - B/S/H language mapping, alternative-search ordering and actual-language preservation;
 - Seinfeld/Blackadder and other legacy episode filename conventions;
 - Season 0 and large year-like season numbers;
 - season packs, whole-series folders, nested ZIPs and exact multi-episode ranges;
 - rejection of grouped subtitles for ordinary single-episode files;
+- Windows- and Unix-style archive path separators;
+- Linux/Docker-style absolute media paths and filename-only release ranking;
 - SRT/SUB/TXT/SSA/ASS format handling;
 - UTF-8/BOM, UTF-16 and Windows-1250 conversion;
 - IMDb/title fallback and zero-result behavior;
@@ -48,7 +52,7 @@ The current suite contains 96 cases covering, among other things:
 
 ## Filename fixture note
 
-`/` and `\\` are path separators, not ordinary filename characters in ZIP paths. A synthetic string such as `Episode 4/5/6.srt` therefore represents path components rather than one filename. Explicit episode-list fixtures use valid filename separators such as comma or `+`, for example `Episode 4+5+6.srt`.
+`/` is the canonical directory separator in ZIP entry names. Some legacy or non-conforming archives can expose `\`, so shared archive-path parsing deliberately treats both `/` and `\` as virtual separators regardless of the host operating system. Regression fixtures cover both forms.
 
 ## Adding regressions
 

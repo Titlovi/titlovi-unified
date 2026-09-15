@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Added cross-platform shared filename parsing so Windows (`\`) and Unix (`/`) media/archive paths are handled consistently without rewriting host-native filesystem paths.
+- Added regression coverage for separator-independent episode/archive parsing, Linux/Docker-style media paths and release ranking; the current offline baseline is 110 tests.
+- Added GitHub Actions regression runs on both Windows and Ubuntu, with Windows builds for both host plugins.
+- Added Linux runtime smoke validation using the official Emby 4.10.0.40 and Jellyfin 12 server containers.
+- Added explicitly triggered live Linux end-to-end validation for both hosts, covering authenticated Titlovi.com movie/episode search, download, host-side subtitle saving and UTF-8 output.
+- Confirmed Emby 4.10 supplies parent-series IMDb metadata through `SeriesProviderIds` in the tested Linux flow, while preserving the existing `SeriesName` fallback behavior.
+- Updated installation and developer documentation for Windows/Linux validation and the current manually installed Jellyfin repository-metadata limitation.
+- No plugin version bump is made for these development changes; versions are bumped only when preparing a release.
+
 ## 1.1.9 — Initial Titlovi.com.Unified release
 
 - First packaged release under the **Titlovi.com.Unified** name.

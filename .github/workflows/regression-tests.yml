@@ -1,0 +1,41 @@
+name: Regression tests
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Run regression suite
+        run: dotnet test tests/Titlovi.Tests/Titlovi.Tests.csproj --configuration Release --nologo
+
+      - name: Build Emby plugin
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./src/Emby/Build-EmbyTitlovi.ps1
+
+      - name: Build Jellyfin plugin and package
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./src/Jellyfin/Build-JellyfinTitlovi.ps1

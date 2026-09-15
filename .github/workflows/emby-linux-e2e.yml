@@ -1,0 +1,133 @@
+name: Emby Linux end-to-end
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - labeled
+
+permissions:
+  contents: read
+
+jobs:
+  emby-e2e:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+      github.event.label.name == 'run-emby-live-e2e' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+    name: Emby 4.10 + live Titlovi.com
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      EMBY_IMAGE: emby/embyserver:4.10.0.40
+      TITLOVI_USERNAME: ${{ secrets.TITLOVI_USERNAME }}
+      TITLOVI_PASSWORD: ${{ secrets.TITLOVI_PASSWORD }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Install ffmpeg
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Normalize Emby 4.10 startup behavior in E2E harness
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('tests/e2e/emby-linux-e2e.sh')
+          text = path.read_text(encoding='utf-8')
+          start_marker = 'echo "==> Completing isolated Emby startup wizard"\n'
+          end_marker = 'echo "==> Authenticating disposable Emby administrator"\n'
+          start = text.find(start_marker)
+          end = text.find(end_marker, start + len(start_marker))
+          if start < 0 or end < 0:
+              raise SystemExit('Expected Emby startup markers were not found in E2E harness')
+
+          replacement = r'''echo "==> Completing isolated Emby startup wizard"
+          STARTUP_CONFIG="$E2E_ROOT/startup-configuration.json"
+          for _ in $(seq 1 30); do
+            if curl --silent --show-error --fail "$BASE_URL/Startup/Configuration" -o "$STARTUP_CONFIG"; then
+              break
+            fi
+            sleep 2
+          done
+          test -s "$STARTUP_CONFIG" || fail "Emby startup configuration API did not become ready."
+
+          python3 - "$STARTUP_CONFIG" <<'PYCFG'
+          import json, sys
+          path = sys.argv[1]
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          def set_value(name, value):
+              for key in list(data):
+                  if key.lower() == name.lower():
+                      data[key] = value
+                      return
+              data[name] = value
+
+          set_value("UICulture", "en-US")
+          set_value("MetadataCountryCode", "RS")
+          set_value("PreferredMetadataLanguage", "en")
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f)
+          print("Emby startup configuration schema accepted from server: " + ", ".join(sorted(data.keys())))
+          PYCFG
+
+          curl --silent --show-error --fail \
+            -X POST "$BASE_URL/Startup/Configuration" \
+            -H "Content-Type: application/json" \
+            --data-binary "@$STARTUP_CONFIG" \
+            >/dev/null \
+            || fail "Emby rejected its own startup configuration schema after E2E values were applied."
+
+          ADMIN_JSON="$E2E_ROOT/admin.json"
+          python3 - "$ADMIN_JSON" "$ADMIN_USER" <<'PYUSER'
+          import json, sys
+          dst, user = sys.argv[1:]
+          with open(dst, "w", encoding="utf-8") as f:
+              json.dump({"Name": user, "Password": ""}, f)
+          PYUSER
+
+          curl --silent --show-error --fail \
+            -X POST "$BASE_URL/Startup/User" \
+            -H "Content-Type: application/json" \
+            --data-binary "@$ADMIN_JSON" \
+            >/dev/null \
+            || fail "Emby startup user update failed."
+
+          curl --silent --show-error --fail \
+            -X POST "$BASE_URL/Startup/RemoteAccess" \
+            -H "Content-Type: application/json" \
+            --data '{"EnableRemoteAccess":false,"EnableAutomaticPortMapping":false}' \
+            >/dev/null \
+            || fail "Emby startup remote-access update failed."
+
+          curl --silent --show-error --fail \
+            -X POST "$BASE_URL/Startup/Complete" \
+            --data '' \
+            >/dev/null \
+            || fail "Emby startup completion failed."
+
+          echo "==> Authenticating disposable Emby administrator"
+          '''
+          text = text[:start] + replacement + text[end + len(end_marker):]
+          path.write_text(text, encoding='utf-8')
+          PY
+          bash -n tests/e2e/emby-linux-e2e.sh
+
+      - name: Run Emby Linux end-to-end validation
+        shell: bash
+        run: bash tests/e2e/emby-linux-e2e.sh
