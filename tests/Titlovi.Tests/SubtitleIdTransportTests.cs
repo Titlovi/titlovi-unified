@@ -5,11 +5,13 @@ namespace Titlovi.Tests
 {
     public sealed class SubtitleIdTransportTests
     {
-        [Fact]
-        public void WhitherCanada_MetadataId_IsMadeRouteSafeAndRoundTrips()
+        [Theory]
+        [InlineData(3841)]
+        [InlineData(3842)]
+        public void WhitherCanada_ProblematicMetadataIds_AreMadeRouteSafeAndRoundTrip(int mediaId)
         {
             var internalId = TestData.MetadataId(
-                3842,
+                mediaId,
                 TitloviSubtitleType.Episode,
                 "Srpski",
                 1,
@@ -19,6 +21,27 @@ namespace Titlovi.Tests
                 "sr");
 
             Assert.Contains("/", internalId);
+
+            var routeSafeId = SubtitleIdTransport.ToUrlSafe(internalId);
+
+            Assert.DoesNotContain("/", routeSafeId);
+            Assert.DoesNotContain("+", routeSafeId);
+            Assert.DoesNotContain("=", routeSafeId);
+            Assert.Equal(internalId, SubtitleIdTransport.FromUrlSafe(routeSafeId));
+        }
+
+        [Fact]
+        public void RouteSafeMetadataId_StillRoundTrips()
+        {
+            var internalId = TestData.MetadataId(
+                54462,
+                TitloviSubtitleType.Episode,
+                "Srpski",
+                1,
+                1,
+                "Whither Canada?",
+                0,
+                "sr");
 
             var routeSafeId = SubtitleIdTransport.ToUrlSafe(internalId);
 
