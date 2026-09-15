@@ -480,6 +480,9 @@ namespace Titlovi.Common
             if (candidates.Count == 0)
                 return 0;
 
+            // Titlovi sometimes describes more than one compatible release in the
+            // same field. Score each release independently and keep the best one.
+            // Never combine tokens from different releases into one artificial match.
             var bestScore = int.MinValue;
             foreach (var candidate in candidates)
             {
@@ -491,7 +494,9 @@ namespace Titlovi.Common
             return bestScore == int.MinValue ? 0 : bestScore;
         }
 
-        private static int CalculateSingleReleaseMatchScore(ReleaseFingerprint media, string release)
+        private static int CalculateSingleReleaseMatchScore(
+            ReleaseFingerprint media,
+            string release)
         {
             var candidate = BuildReleaseFingerprint(release);
             if (string.IsNullOrWhiteSpace(candidate.Normalized))
@@ -499,17 +504,30 @@ namespace Titlovi.Common
 
             var score = 0;
 
+            // Near-verbatim technical release text is the strongest metadata-only
+            // signal available. This is intentionally a bonus rather than a filter.
             if (candidate.Tokens.Count >= 2
                 && media.Normalized.IndexOf(candidate.Normalized, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
                 score += 100;
+            }
 
+            // Release group is highly useful, but only when both sides expose a
+            // credible group. A different group is a mild penalty: another group can
+            // still be synchronized to the same source.
             if (!string.IsNullOrWhiteSpace(media.ReleaseGroup)
                 && !string.IsNullOrWhiteSpace(candidate.ReleaseGroup))
             {
-                score += media.ReleaseGroup.Equals(candidate.ReleaseGroup, StringComparison.OrdinalIgnoreCase) ? 80 : -15;
+                score += media.ReleaseGroup.Equals(candidate.ReleaseGroup, StringComparison.OrdinalIgnoreCase)
+                    ? 80
+                    : -15;
             }
 
-            if (!string.IsNullOrWhiteSpace(media.Source) && !string.IsNullOrWhiteSpace(candidate.Source))
+            // Source/cut timing matters much more than resolution or codec. WEB-DL
+            // and WEBRip get partial credit as members of the same web family; a
+            // known cross-family mismatch is strongly penalized.
+            if (!string.IsNullOrWhiteSpace(media.Source)
+                && !string.IsNullOrWhiteSpace(candidate.Source))
             {
                 if (media.Source.Equals(candidate.Source, StringComparison.OrdinalIgnoreCase))
                     score += 70;
@@ -520,23 +538,56 @@ namespace Titlovi.Common
                     score -= 70;
             }
 
-            if (!string.IsNullOrWhiteSpace(media.FrameRate) && !string.IsNullOrWhiteSpace(candidate.FrameRate))
-                score += media.FrameRate.Equals(candidate.FrameRate, StringComparison.OrdinalIgnoreCase) ? 60 : -60;
+            // Explicit frame-rate metadata is rare but highly relevant to subtitle
+            // timing. Only compare it when both sides actually state an FPS value.
+            if (!string.IsNullOrWhiteSpace(media.FrameRate)
+                && !string.IsNullOrWhiteSpace(candidate.FrameRate))
+            {
+                score += media.FrameRate.Equals(candidate.FrameRate, StringComparison.OrdinalIgnoreCase)
+                    ? 60
+                    : -60;
+            }
 
-            if (!string.IsNullOrWhiteSpace(media.Cut) && !string.IsNullOrWhiteSpace(candidate.Cut))
-                score += media.Cut.Equals(candidate.Cut, StringComparison.OrdinalIgnoreCase) ? 50 : -60;
+            // Distinct cuts/editions can have different runtimes. Missing edition
+            // metadata is not penalized, but two explicitly different cuts are.
+            if (!string.IsNullOrWhiteSpace(media.Cut)
+                && !string.IsNullOrWhiteSpace(candidate.Cut))
+            {
+                score += media.Cut.Equals(candidate.Cut, StringComparison.OrdinalIgnoreCase)
+                    ? 50
+                    : -60;
+            }
 
+            // Other edition/repack flags provide useful tie-breaking information,
+            // but are less decisive than source, group, FPS or a named cut.
             score += CountIntersection(media.VariantFlags, candidate.VariantFlags) * 20;
 
-            if (!string.IsNullOrWhiteSpace(media.Resolution) && !string.IsNullOrWhiteSpace(candidate.Resolution))
-                score += media.Resolution.Equals(candidate.Resolution, StringComparison.OrdinalIgnoreCase) ? 15 : -2;
+            // Resolution and codec are deliberately weak signals. Different encodes
+            // of the same source commonly share subtitle timing.
+            if (!string.IsNullOrWhiteSpace(media.Resolution)
+                && !string.IsNullOrWhiteSpace(candidate.Resolution))
+            {
+                score += media.Resolution.Equals(candidate.Resolution, StringComparison.OrdinalIgnoreCase)
+                    ? 15
+                    : -2;
+            }
 
-            if (!string.IsNullOrWhiteSpace(media.Codec) && !string.IsNullOrWhiteSpace(candidate.Codec))
-                score += media.Codec.Equals(candidate.Codec, StringComparison.OrdinalIgnoreCase) ? 10 : -2;
+            if (!string.IsNullOrWhiteSpace(media.Codec)
+                && !string.IsNullOrWhiteSpace(candidate.Codec))
+            {
+                score += media.Codec.Equals(candidate.Codec, StringComparison.OrdinalIgnoreCase)
+                    ? 10
+                    : -2;
+            }
 
-            if (CountIntersection(media.HdrFlags, candidate.HdrFlags) > 0) score += 8;
-            if (CountIntersection(media.AudioFlags, candidate.AudioFlags) > 0) score += 4;
+            if (CountIntersection(media.HdrFlags, candidate.HdrFlags) > 0)
+                score += 8;
 
+            if (CountIntersection(media.AudioFlags, candidate.AudioFlags) > 0)
+                score += 4;
+
+            // Generic shared words are only a small tie-breaker. Cap the contribution
+            // so title words can never outweigh technical synchronization signals.
             var genericMatches = media.Tokens
                 .Where(x => candidate.Tokens.Contains(x) && IsGenericReleaseToken(x))
                 .Take(12)
@@ -629,7 +680,11 @@ namespace Titlovi.Common
 
         private static string ExtractSource(HashSet<string> tokens)
         {
-            var known = new[] { "webdl", "webrip", "bluray", "bdrip", "brrip", "remux", "hdtv", "dvdrip", "dvd", "hdrip", "web" };
+            var known = new[]
+            {
+                "webdl", "webrip", "bluray", "bdrip", "brrip", "remux",
+                "hdtv", "dvdrip", "dvd", "hdrip", "web"
+            };
             return known.FirstOrDefault(tokens.Contains);
         }
 
@@ -653,37 +708,63 @@ namespace Titlovi.Common
 
         private static string ExtractFrameRate(string value)
         {
-            if (string.IsNullOrWhiteSpace(value)) return null;
-            var decimalMatch = Regex.Match(value, @"(?<!\d)(?<fps>23[\.,](?:976|98)|29[\.,]97|59[\.,]94)(?:\s*fps)?(?!\d)", RegexOptions.IgnoreCase);
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            var decimalMatch = Regex.Match(
+                value,
+                @"(?<!\d)(?<fps>23[\.,](?:976|98)|29[\.,]97|59[\.,]94)(?:\s*fps)?(?!\d)",
+                RegexOptions.IgnoreCase);
             if (decimalMatch.Success)
             {
                 var fps = decimalMatch.Groups["fps"].Value.Replace(',', '.');
-                if (fps.StartsWith("23.98", StringComparison.Ordinal)) return "23.976";
+                if (fps.StartsWith("23.98", StringComparison.Ordinal))
+                    return "23.976";
                 return fps;
             }
-            var integerMatch = Regex.Match(value, @"(?<!\d)(?<fps>24|25|30|50|60)(?:[\.,]0+)?\s*fps(?!\d)", RegexOptions.IgnoreCase);
+
+            var integerMatch = Regex.Match(
+                value,
+                @"(?<!\d)(?<fps>24|25|30|50|60)(?:[\.,]0+)?\s*fps(?!\d)",
+                RegexOptions.IgnoreCase);
             return integerMatch.Success ? integerMatch.Groups["fps"].Value : null;
         }
 
         private static string ExtractReleaseGroup(string value)
         {
-            if (string.IsNullOrWhiteSpace(value)) return null;
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
             var match = Regex.Match(value.Trim(), @"-(?<group>[A-Za-z0-9][A-Za-z0-9._]{1,30})$");
-            if (!match.Success) return null;
+            if (!match.Success)
+                return null;
+
             var prefix = value.Substring(0, match.Index);
-            if (!ContainsTechnicalReleaseMarker(prefix)) return null;
+            if (!ContainsTechnicalReleaseMarker(prefix))
+                return null;
+
             var groupTokens = NormalizeReleaseText(match.Groups["group"].Value)
                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(CanonicalizeReleaseToken).ToList();
-            if (groupTokens.Count == 0 || groupTokens.All(IsTechnicalOrNoiseToken)) return null;
+                .Select(CanonicalizeReleaseToken)
+                .ToList();
+
+            if (groupTokens.Count == 0 || groupTokens.All(IsTechnicalOrNoiseToken))
+                return null;
+
             return string.Join(" ", groupTokens);
         }
 
         private static bool ContainsTechnicalReleaseMarker(string value)
         {
             var normalized = NormalizeReleaseText(value);
-            var tokens = new HashSet<string>(normalized.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(CanonicalizeReleaseToken), StringComparer.OrdinalIgnoreCase);
-            return ExtractResolution(tokens) != null || ExtractSource(tokens) != null || ExtractCodec(tokens) != null;
+            var tokens = new HashSet<string>(
+                normalized.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(CanonicalizeReleaseToken),
+                StringComparer.OrdinalIgnoreCase);
+
+            return ExtractResolution(tokens) != null
+                || ExtractSource(tokens) != null
+                || ExtractCodec(tokens) != null;
         }
 
         private static string ExtractCut(HashSet<string> tokens)
@@ -692,21 +773,54 @@ namespace Titlovi.Common
             return known.FirstOrDefault(tokens.Contains);
         }
 
-        private static HashSet<string> ExtractVariantFlags(HashSet<string> tokens) => ExtractFlags(tokens, new[] { "remastered", "specialedition", "proper", "rerip" });
-        private static HashSet<string> ExtractFlags(HashSet<string> tokens, IEnumerable<string> known) => new HashSet<string>(known.Where(tokens.Contains), StringComparer.OrdinalIgnoreCase);
-        private static int CountIntersection(HashSet<string> left, HashSet<string> right) => left == null || right == null || left.Count == 0 || right.Count == 0 ? 0 : left.Count(x => right.Contains(x));
-        private static bool IsGenericReleaseToken(string token) => !string.IsNullOrWhiteSpace(token) && token.Length >= 4 && !token.All(char.IsDigit) && !IsTechnicalOrNoiseToken(token);
+        private static HashSet<string> ExtractVariantFlags(HashSet<string> tokens)
+        {
+            return ExtractFlags(tokens, new[] { "remastered", "specialedition", "proper", "rerip" });
+        }
+
+        private static HashSet<string> ExtractFlags(HashSet<string> tokens, IEnumerable<string> known)
+        {
+            return new HashSet<string>(known.Where(tokens.Contains), StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static int CountIntersection(HashSet<string> left, HashSet<string> right)
+        {
+            if (left == null || right == null || left.Count == 0 || right.Count == 0)
+                return 0;
+
+            return left.Count(x => right.Contains(x));
+        }
+
+        private static bool IsGenericReleaseToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token) || token.Length < 4 || token.All(char.IsDigit))
+                return false;
+
+            return !IsTechnicalOrNoiseToken(token);
+        }
 
         private static bool IsTechnicalOrNoiseToken(string token)
         {
-            if (string.IsNullOrWhiteSpace(token)) return true;
-            if (Regex.IsMatch(token, @"^(?:4320|2160|1080|720|576|540|480|360)p$")) return true;
+            if (string.IsNullOrWhiteSpace(token))
+                return true;
+
+            if (Regex.IsMatch(token, @"^(?:4320|2160|1080|720|576|540|480|360)p$"))
+                return true;
+
             switch (token.ToLowerInvariant())
             {
-                case "dl": case "rip": case "webdl": case "webrip": case "web": case "bluray": case "bdrip": case "brrip": case "remux": case "hdtv": case "dvdrip": case "dvd": case "hdrip":
-                case "x264": case "x265": case "av1": case "xvid": case "mpeg2": case "hdr": case "hdr10": case "hdr10plus": case "dolbyvision": case "dv": case "aac": case "ac3": case "ddp": case "dts": case "truehd": case "atmos": case "flac":
-                case "theatrical": case "extended": case "directorscut": case "unrated": case "uncut": case "imax": case "remastered": case "specialedition": case "proper": case "rerip": case "complete": case "sub": case "subs": case "en": return true;
+                case "dl": case "rip": case "webdl": case "webrip": case "web":
+                case "bluray": case "bdrip": case "brrip": case "remux": case "hdtv":
+                case "dvdrip": case "dvd": case "hdrip":
+                case "x264": case "x265": case "av1": case "xvid": case "mpeg2":
+                case "hdr": case "hdr10": case "hdr10plus": case "dolbyvision": case "dv":
+                case "aac": case "ac3": case "ddp": case "dts": case "truehd": case "atmos": case "flac":
+                case "theatrical": case "extended": case "directorscut": case "unrated": case "uncut": case "imax":
+                case "remastered": case "specialedition": case "proper": case "rerip":
+                case "complete": case "sub": case "subs": case "en":
+                    return true;
             }
+
             return false;
         }
 
@@ -729,60 +843,182 @@ namespace Titlovi.Common
         public async Task<CoreSubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
         {
             var metadata = DecodeMetadata(id);
-            TitloviDiagnostics.Debug("Subtitle download requested: mediaId=" + metadata.Id + ", type=" + metadata.Type + ", providerLanguage='" + (metadata.Language ?? string.Empty) + "', languageCode='" + (metadata.LanguageCode ?? string.Empty) + "', season=" + metadata.Season + ", episode=" + metadata.Episode + ", episodeEnd=" + metadata.EpisodeEnd + ", episodeName='" + (metadata.EpisodeName ?? string.Empty) + "'.");
+            TitloviDiagnostics.Debug(
+                "Subtitle download requested: mediaId=" + metadata.Id
+                + ", type=" + metadata.Type
+                + ", providerLanguage='" + (metadata.Language ?? string.Empty) + "'"
+                + ", languageCode='" + (metadata.LanguageCode ?? string.Empty) + "'"
+                + ", season=" + metadata.Season
+                + ", episode=" + metadata.Episode
+                + ", episodeEnd=" + metadata.EpisodeEnd
+                + ", episodeName='" + (metadata.EpisodeName ?? string.Empty) + "'.");
+
             var bytes = await _api.DownloadAsync(metadata.Id, metadata.Type, cancellationToken).ConfigureAwait(false);
             TitloviDiagnostics.Debug("Downloaded payload size=" + (bytes == null ? 0 : bytes.Length) + " bytes.");
-            var files = ExtractSubtitles(bytes).Where(IsAcceptedDownloadedSubtitle).ToList();
-            TitloviDiagnostics.Debug("Accepted extracted subtitle candidates=" + files.Count + ": " + string.Join(" | ", files.Select(x => (x.Path ?? "<raw>") + " [" + (x.Bytes == null ? 0 : x.Bytes.Length) + " bytes]")));
-            if (files.Count == 0) { TitloviDiagnostics.Log("Downloaded payload contained no usable subtitle file."); throw new InvalidOperationException("Titlovi.com returned no usable subtitle file."); }
-            DownloadedSubtitleFile selected = metadata.Type == TitloviSubtitleType.Episode ? SelectEpisodeSubtitle(files, metadata) : files[0];
-            if (selected == null) throw new InvalidOperationException("Could not identify the requested episode subtitle inside the downloaded archive.");
+            var files = ExtractSubtitles(bytes)
+                .Where(IsAcceptedDownloadedSubtitle)
+                .ToList();
+            TitloviDiagnostics.Debug(
+                "Accepted extracted subtitle candidates=" + files.Count + ": "
+                + string.Join(" | ", files.Select(x => (x.Path ?? "<raw>") + " [" + (x.Bytes == null ? 0 : x.Bytes.Length) + " bytes]")));
+            if (files.Count == 0)
+            {
+                TitloviDiagnostics.Log("Downloaded payload contained no usable subtitle file.");
+                throw new InvalidOperationException("Titlovi.com returned no usable subtitle file.");
+            }
+
+            DownloadedSubtitleFile selected = null;
+            if (metadata.Type == TitloviSubtitleType.Episode)
+            {
+                TitloviDiagnostics.Debug(
+                    "Episode archive selection: target S" + metadata.Season + "E" + metadata.Episode
+                    + (metadata.EpisodeEnd > metadata.Episode ? "-E" + metadata.EpisodeEnd : string.Empty)
+                    + ", episodeName='" + (metadata.EpisodeName ?? string.Empty) + "', files="
+                    + string.Join(" | ", files.Select(x => x.Path ?? string.Empty)));
+
+                selected = SelectEpisodeSubtitle(files, metadata);
+            }
+            else
+            {
+                selected = files[0];
+            }
+
+            if (selected == null)
+                throw new InvalidOperationException("Could not identify the requested episode subtitle inside the downloaded archive.");
+
             var outputBytes = selected.Bytes;
             var config = _configuration;
             if (config != null && config.ConvertDownloadedSubtitlesToUtf8)
             {
-                outputBytes = SubtitleEncodingConverter.ConvertToUtf8IfNeeded(selected.Bytes, metadata.Language, out var detectedEncoding, out var converted);
-                TitloviDiagnostics.Debug("Encoding analysis: detected='" + detectedEncoding + "', converted=" + converted + ".");
-                if (converted) TitloviDiagnostics.Log("Subtitle converted to UTF-8 from " + detectedEncoding + ".");
+                outputBytes = SubtitleEncodingConverter.ConvertToUtf8IfNeeded(
+                    selected.Bytes,
+                    metadata.Language,
+                    out var detectedEncoding,
+                    out var converted);
+
+                TitloviDiagnostics.Debug(
+                    "Encoding analysis: detected='" + detectedEncoding + "', converted=" + converted + ".");
+                if (converted)
+                    TitloviDiagnostics.Log("Subtitle converted to UTF-8 from " + detectedEncoding + ".");
             }
+
             var outputFormat = GetSubtitleFormat(selected);
-            var outputLanguage = !string.IsNullOrWhiteSpace(metadata.LanguageCode) ? metadata.LanguageCode : LanguageMap.FromProviderLanguage(metadata.Language);
-            TitloviDiagnostics.Debug("Returning selected subtitle: path='" + (selected.Path ?? string.Empty) + "', format='" + outputFormat + "', providerLanguage='" + (metadata.Language ?? string.Empty) + "', storedLanguageCode='" + (metadata.LanguageCode ?? string.Empty) + "', hostLanguage='" + outputLanguage + "', bytes=" + outputBytes.Length + ".");
-            return new CoreSubtitleResponse { Format = outputFormat, IsForced = false, IsHearingImpaired = false, LanguageCode = outputLanguage, Data = outputBytes };
+            // The exact ISO language code is embedded into the search result id.
+            // Do not derive it again from the original host search language at
+            // download time: an alternative B/S/H result must keep its own language.
+            var outputLanguage = !string.IsNullOrWhiteSpace(metadata.LanguageCode)
+                ? metadata.LanguageCode
+                : LanguageMap.FromProviderLanguage(metadata.Language);
+            TitloviDiagnostics.Debug(
+                "Returning selected subtitle: path='" + (selected.Path ?? string.Empty)
+                + "', format='" + outputFormat
+                + "', providerLanguage='" + (metadata.Language ?? string.Empty)
+                + "', storedLanguageCode='" + (metadata.LanguageCode ?? string.Empty)
+                + "', hostLanguage='" + outputLanguage
+                + "', bytes=" + outputBytes.Length + ".");
+
+            return new CoreSubtitleResponse
+            {
+                Format = outputFormat,
+                IsForced = false,
+                IsHearingImpaired = false,
+                LanguageCode = outputLanguage,
+                Data = outputBytes
+            };
         }
 
         private async Task<TitloviToken> GetTokenAsync(CancellationToken cancellationToken)
         {
             var config = _configuration;
-            if (config.Token != null && !config.Token.IsExpired) { TitloviDiagnostics.Debug("Using cached Titlovi.com API token."); return config.Token; }
+            if (config.Token != null && !config.Token.IsExpired)
+            {
+                TitloviDiagnostics.Debug("Using cached Titlovi.com API token.");
+                return config.Token;
+            }
+
             TitloviDiagnostics.Debug("Cached Titlovi.com API token is missing or expired; authentication will be refreshed.");
+
             await TokenLock.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 config = _configuration;
-                if (config.Token != null && !config.Token.IsExpired) { TitloviDiagnostics.Debug("Another request refreshed the API token while waiting for the token lock."); return config.Token; }
+                if (config.Token != null && !config.Token.IsExpired)
+                {
+                    TitloviDiagnostics.Debug("Another request refreshed the API token while waiting for the token lock.");
+                    return config.Token;
+                }
                 var token = await _api.GetTokenAsync(config.Username, config.Password, cancellationToken).ConfigureAwait(false);
-                config.Token = token; config.Save();
+                config.Token = token;
+                config.Save();
                 TitloviDiagnostics.Debug("Titlovi.com API token refreshed and cached successfully.");
                 return token;
             }
-            finally { TokenLock.Release(); }
+            finally
+            {
+                TokenLock.Release();
+            }
         }
 
         private CoreRemoteSubtitleInfo ToRemoteInfo(TitloviSubtitle subtitle, string requestedEpisodeName, int requestedEpisodeEnd, bool showLanguageInResultName)
         {
-            var metadata = new SubtitleMetadata { Id = subtitle.Id, Type = subtitle.Type, Language = subtitle.Lang ?? string.Empty, LanguageCode = !string.IsNullOrWhiteSpace(subtitle.LanguageCode) ? subtitle.LanguageCode : LanguageMap.FromProviderLanguage(subtitle.Lang), Season = subtitle.Season, Episode = subtitle.Episode, EpisodeEnd = subtitle.Type == TitloviSubtitleType.Episode && requestedEpisodeEnd > subtitle.Episode ? requestedEpisodeEnd : 0, EpisodeName = subtitle.Type == TitloviSubtitleType.Episode ? (requestedEpisodeName ?? string.Empty) : string.Empty };
+            var metadata = new SubtitleMetadata
+            {
+                Id = subtitle.Id,
+                Type = subtitle.Type,
+                Language = subtitle.Lang ?? string.Empty,
+                LanguageCode = !string.IsNullOrWhiteSpace(subtitle.LanguageCode)
+                    ? subtitle.LanguageCode
+                    : LanguageMap.FromProviderLanguage(subtitle.Lang),
+                Season = subtitle.Season,
+                Episode = subtitle.Episode,
+                EpisodeEnd = subtitle.Type == TitloviSubtitleType.Episode && requestedEpisodeEnd > subtitle.Episode
+                    ? requestedEpisodeEnd
+                    : 0,
+                EpisodeName = subtitle.Type == TitloviSubtitleType.Episode ? (requestedEpisodeName ?? string.Empty) : string.Empty
+            };
+
             var hostLanguage = metadata.LanguageCode;
             var legacyThreeLetterLanguage = LanguageMap.ToThreeLetterIso(metadata.Language);
             var resultName = subtitle.Title ?? string.Empty;
-            if (showLanguageInResultName && !string.IsNullOrWhiteSpace(subtitle.Lang)) resultName += " — " + subtitle.Lang;
-            TitloviDiagnostics.Debug("Preparing host result: mediaId=" + subtitle.Id + ", providerLanguage='" + (metadata.Language ?? string.Empty) + "', hostLanguage='" + (hostLanguage ?? string.Empty) + "', legacyThreeLetterLanguage='" + (legacyThreeLetterLanguage ?? string.Empty) + "'.");
-            return new CoreRemoteSubtitleInfo { Id = EncodeMetadata(metadata), DateCreated = subtitle.Date, DownloadCount = subtitle.DownloadCount, Name = resultName, ProviderName = ProviderName, CommunityRating = subtitle.Rating, Comment = subtitle.Release ?? string.Empty, Format = "srt", LanguageCode = hostLanguage, ThreeLetterIsoLanguageName = legacyThreeLetterLanguage, IsForced = false, IsHearingImpaired = false };
+            if (showLanguageInResultName && !string.IsNullOrWhiteSpace(subtitle.Lang))
+                resultName += " — " + subtitle.Lang;
+
+            TitloviDiagnostics.Debug(
+                "Preparing host result: mediaId=" + subtitle.Id
+                + ", providerLanguage='" + (metadata.Language ?? string.Empty) + "'"
+                + ", hostLanguage='" + (hostLanguage ?? string.Empty) + "'"
+                + ", legacyThreeLetterLanguage='" + (legacyThreeLetterLanguage ?? string.Empty) + "'.");
+
+            return new CoreRemoteSubtitleInfo
+            {
+                Id = EncodeMetadata(metadata),
+                DateCreated = subtitle.Date,
+                DownloadCount = subtitle.DownloadCount,
+                Name = resultName,
+                ProviderName = ProviderName,
+                CommunityRating = subtitle.Rating,
+                Comment = subtitle.Release ?? string.Empty,
+                Format = "srt",
+                LanguageCode = hostLanguage,
+                ThreeLetterIsoLanguageName = legacyThreeLetterLanguage,
+                IsForced = false,
+                IsHearingImpaired = false
+            };
         }
 
         private static string EncodeMetadata(SubtitleMetadata m)
         {
-            var raw = string.Join("\t", new[] { m.Id.ToString(), ((int)m.Type).ToString(), m.Language ?? string.Empty, m.Season.ToString(), m.Episode.ToString(), (m.EpisodeName ?? string.Empty).Replace("\t", " "), m.EpisodeEnd.ToString(), m.LanguageCode ?? string.Empty });
+            var raw = string.Join("\t", new[]
+            {
+                m.Id.ToString(),
+                ((int)m.Type).ToString(),
+                m.Language ?? string.Empty,
+                m.Season.ToString(),
+                m.Episode.ToString(),
+                (m.EpisodeName ?? string.Empty).Replace("\t", " "),
+                m.EpisodeEnd.ToString(),
+                m.LanguageCode ?? string.Empty
+            });
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(raw));
         }
 
@@ -790,80 +1026,196 @@ namespace Titlovi.Common
         {
             var raw = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
             var parts = raw.Split('\t');
-            if (parts.Length != 5 && parts.Length != 6 && parts.Length != 7 && parts.Length != 8) throw new FormatException("Invalid internal Titlovi subtitle id.");
-            return new SubtitleMetadata { Id = int.Parse(parts[0]), Type = (TitloviSubtitleType)int.Parse(parts[1]), Language = parts[2], Season = int.Parse(parts[3]), Episode = int.Parse(parts[4]), EpisodeName = parts.Length >= 6 ? parts[5] : string.Empty, EpisodeEnd = parts.Length >= 7 ? int.Parse(parts[6]) : 0, LanguageCode = parts.Length >= 8 ? parts[7] : string.Empty };
+            if (parts.Length != 5 && parts.Length != 6 && parts.Length != 7 && parts.Length != 8)
+                throw new FormatException("Invalid internal Titlovi subtitle id.");
+
+            return new SubtitleMetadata
+            {
+                Id = int.Parse(parts[0]),
+                Type = (TitloviSubtitleType)int.Parse(parts[1]),
+                Language = parts[2],
+                Season = int.Parse(parts[3]),
+                Episode = int.Parse(parts[4]),
+                EpisodeName = parts.Length >= 6 ? parts[5] : string.Empty,
+                EpisodeEnd = parts.Length >= 7 ? int.Parse(parts[6]) : 0,
+                LanguageCode = parts.Length >= 8 ? parts[7] : string.Empty
+            };
         }
 
-        private static DownloadedSubtitleFile SelectEpisodeSubtitle(List<DownloadedSubtitleFile> files, SubtitleMetadata metadata)
+        private static DownloadedSubtitleFile SelectEpisodeSubtitle(
+            List<DownloadedSubtitleFile> files,
+            SubtitleMetadata metadata)
         {
             var isMultiEpisodeRequest = metadata.EpisodeEnd > metadata.Episode;
+
+            // A subtitle that covers several joined episodes is only valid when the
+            // video itself spans exactly the same episode range.  Never return an
+            // "Ep 1,2,3" / "123" bundle for an ordinary single E1 video.
             if (isMultiEpisodeRequest)
             {
                 foreach (var file in files)
                 {
-                    if (FilenameGroupMatchesEpisodeRange(file.Path, metadata.Season, metadata.Episode, metadata.EpisodeEnd, out var groupFormat))
-                    { TitloviDiagnostics.Debug("Episode archive matched by exact multi-episode range (" + groupFormat + "): " + file.Path); return file; }
+                    if (FilenameGroupMatchesEpisodeRange(
+                        file.Path,
+                        metadata.Season,
+                        metadata.Episode,
+                        metadata.EpisodeEnd,
+                        out var groupFormat))
+                    {
+                        TitloviDiagnostics.Debug(
+                            "Episode archive matched by exact multi-episode range (" + groupFormat + "): " + file.Path);
+                        return file;
+                    }
                 }
-                TitloviDiagnostics.Log("Episode archive match FAILED for multi-episode S" + metadata.Season + "E" + metadata.Episode + "-E" + metadata.EpisodeEnd + ". No subtitle file covers the exact requested range.");
+
+                TitloviDiagnostics.Log(
+                    "Episode archive match FAILED for multi-episode S" + metadata.Season
+                    + "E" + metadata.Episode + "-E" + metadata.EpisodeEnd
+                    + ". No subtitle file covers the exact requested range.");
+                TitloviDiagnostics.Debug(
+                    "Multi-episode archive match FAILED candidates: "
+                    + string.Join(" | ", files.Select(x => x.Path ?? string.Empty)));
                 return null;
             }
+
+            // 1) Strongest match: the filename explicitly identifies both season and episode.
+            // Grouped subtitles are skipped here even if the generic Titlovi regex could
+            // partially read "Ep 1,2,3" as just E1.
             foreach (var file in files)
             {
-                if (IsGroupedEpisodeFilename(file.Path)) continue;
-                if (!TryParseEpisodeFromFilename(file.Path, out var season, out var episode, out var format)) continue;
-                if (season.HasValue && season.Value == metadata.Season && episode == metadata.Episode) { TitloviDiagnostics.Debug("Episode archive matched by parsed season/episode (" + format + "): " + file.Path); return file; }
+                if (IsGroupedEpisodeFilename(file.Path))
+                    continue;
+
+                if (!TryParseEpisodeFromFilename(file.Path, out var season, out var episode, out var format))
+                    continue;
+
+                if (season.HasValue && season.Value == metadata.Season && episode == metadata.Episode)
+                {
+                    TitloviDiagnostics.Debug(
+                        "Episode archive matched by parsed season/episode (" + format + "): " + file.Path);
+                    return file;
+                }
             }
+
+            // 2) Episode-only numbering is common in season packs: E01, Part 1,
+            //    "01 - title", or Titlovi.com's three-digit ordinals "001 - title".
             foreach (var file in files)
             {
-                if (IsGroupedEpisodeFilename(file.Path)) continue;
-                if (!TryParseEpisodeFromFilename(file.Path, out var season, out var episode, out var format)) continue;
-                if (!season.HasValue && episode == metadata.Episode) { TitloviDiagnostics.Debug("Episode archive matched by parsed episode-only filename (" + format + "): " + file.Path); return file; }
+                if (IsGroupedEpisodeFilename(file.Path))
+                    continue;
+
+                if (!TryParseEpisodeFromFilename(file.Path, out var season, out var episode, out var format))
+                    continue;
+
+                if (!season.HasValue && episode == metadata.Episode)
+                {
+                    TitloviDiagnostics.Debug(
+                        "Episode archive matched by parsed episode-only filename (" + format + "): " + file.Path);
+                    return file;
+                }
             }
+
+            // 3) Some packs contain the episode title but no usable episode number.
             var normalizedEpisodeName = NormalizeMatchText(metadata.EpisodeName);
             if (normalizedEpisodeName.Length >= 4)
             {
                 foreach (var file in files)
                 {
-                    if (IsGroupedEpisodeFilename(file.Path)) continue;
+                    if (IsGroupedEpisodeFilename(file.Path))
+                        continue;
+
                     var normalizedPath = NormalizeMatchText(Path.GetFileNameWithoutExtension(file.Path ?? string.Empty));
-                    if (normalizedPath.Contains(normalizedEpisodeName)) { TitloviDiagnostics.Debug("Episode archive matched by episode title: " + file.Path); return file; }
+                    if (normalizedPath.Contains(normalizedEpisodeName))
+                    {
+                        TitloviDiagnostics.Debug("Episode archive matched by episode title: " + file.Path);
+                        return file;
+                    }
                 }
             }
-            if (files.Count == 1 && !IsGroupedEpisodeFilename(files[0].Path)) return files[0];
-            TitloviDiagnostics.Log("Episode archive match FAILED for S" + metadata.Season + "E" + metadata.Episode + ". Enable detailed debug logging to inspect candidate filenames.");
+
+            // 4) A lone subtitle is a safe fallback only when it is not explicitly
+            // marked as covering multiple episodes.
+            if (files.Count == 1 && !IsGroupedEpisodeFilename(files[0].Path))
+            {
+                TitloviDiagnostics.Debug("Episode archive has one subtitle only; using it as fallback: " + files[0].Path);
+                return files[0];
+            }
+
+            TitloviDiagnostics.Log(
+                "Episode archive match FAILED for S" + metadata.Season + "E" + metadata.Episode
+                + ". Enable detailed debug logging to inspect candidate filenames.");
+            TitloviDiagnostics.Debug(
+                "Episode archive match FAILED candidates: "
+                + string.Join(" | ", files.Select(x => x.Path ?? string.Empty)));
             return null;
         }
 
-        private static bool FilenameGroupMatchesEpisodeRange(string path, int targetSeason, int targetEpisodeStart, int targetEpisodeEnd, out string format)
+        private static bool FilenameGroupMatchesEpisodeRange(
+            string path,
+            int targetSeason,
+            int targetEpisodeStart,
+            int targetEpisodeEnd,
+            out string format)
         {
             format = string.Empty;
             var fullName = (path ?? string.Empty).Replace('\\', '/');
             var fileName = Path.GetFileNameWithoutExtension(path ?? string.Empty);
-            if (string.IsNullOrWhiteSpace(fileName) || targetEpisodeStart <= 0 || targetEpisodeEnd <= targetEpisodeStart) return false;
+            if (string.IsNullOrWhiteSpace(fileName)
+                || targetEpisodeStart <= 0
+                || targetEpisodeEnd <= targetEpisodeStart)
+            {
+                return false;
+            }
+
+            // Explicit episode lists: "Ep 1,2,3", "Episode 4/5/6", etc.
             foreach (Match listMatch in EpisodeListRegex.Matches(fileName))
             {
                 var episodes = ParseEpisodeList(listMatch.Groups["list"].Value);
-                if (!EpisodesExactlyMatchRange(episodes, targetEpisodeStart, targetEpisodeEnd)) continue;
+                if (!EpisodesExactlyMatchRange(episodes, targetEpisodeStart, targetEpisodeEnd))
+                    continue;
+
                 var seasonHint = FindArabicSeasonHint(fullName, fullName.Length);
-                if (seasonHint.HasValue && seasonHint.Value != targetSeason) continue;
-                format = seasonHint.HasValue ? "episode-list with season" : "episode-list"; return true;
+                if (seasonHint.HasValue && seasonHint.Value != targetSeason)
+                    continue;
+
+                format = seasonHint.HasValue ? "episode-list with season" : "episode-list";
+                return true;
             }
+
+            // Roman season + compact episode bundle: BlackAdder_I_123_ser.
             foreach (Match romanMatch in RomanSeasonNumberRegex.Matches(fileName))
             {
                 var romanSeason = RomanToInt(romanMatch.Groups["roman"].Value);
-                if (romanSeason <= 0 || romanSeason != targetSeason) continue;
+                if (romanSeason <= 0 || romanSeason != targetSeason)
+                    continue;
+
                 var token = romanMatch.Groups["number"].Value.TrimStart('0');
-                if (IsSequentialEpisodeBundle(token, out var bundledEpisodes) && EpisodesExactlyMatchRange(bundledEpisodes, targetEpisodeStart, targetEpisodeEnd)) { format = "roman-season episode-bundle"; return true; }
+                if (IsSequentialEpisodeBundle(token, out var bundledEpisodes)
+                    && EpisodesExactlyMatchRange(bundledEpisodes, targetEpisodeStart, targetEpisodeEnd))
+                {
+                    format = "roman-season episode-bundle";
+                    return true;
+                }
             }
+
+            // Legacy compact bundles such as s2_123black.adder123. Require an
+            // explicit Arabic season hint to avoid interpreting unrelated numbers.
             var explicitSeason = FindArabicSeasonHint(fullName, fullName.Length);
-            if (!explicitSeason.HasValue || explicitSeason.Value != targetSeason) return false;
+            if (!explicitSeason.HasValue || explicitSeason.Value != targetSeason)
+                return false;
+
             foreach (Match bundleMatch in CompactEpisodeBundleRegex.Matches(fileName))
             {
-                if (IsCompactBundleInsideExplicitEpisodeToken(fileName, bundleMatch)) continue;
-                if (!IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out var bundledEpisodes)) continue;
-                if (!EpisodesExactlyMatchRange(bundledEpisodes, targetEpisodeStart, targetEpisodeEnd)) continue;
-                format = "season + compact episode-bundle"; return true;
+                if (!IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out var bundledEpisodes))
+                    continue;
+
+                if (!EpisodesExactlyMatchRange(bundledEpisodes, targetEpisodeStart, targetEpisodeEnd))
+                    continue;
+
+                format = "season + compact episode-bundle";
+                return true;
             }
+
             return false;
         }
 
@@ -871,53 +1223,69 @@ namespace Titlovi.Common
         {
             var fullName = (path ?? string.Empty).Replace('\\', '/');
             var fileName = Path.GetFileNameWithoutExtension(path ?? string.Empty);
-            if (string.IsNullOrWhiteSpace(fileName)) return false;
-            if (EpisodeListRegex.IsMatch(fileName)) return true;
+            if (string.IsNullOrWhiteSpace(fileName))
+                return false;
+
+            if (EpisodeListRegex.IsMatch(fileName))
+                return true;
+
             foreach (Match romanMatch in RomanSeasonNumberRegex.Matches(fileName))
             {
                 var token = romanMatch.Groups["number"].Value.TrimStart('0');
-                if (IsSequentialEpisodeBundle(token, out _)) return true;
+                if (IsSequentialEpisodeBundle(token, out _))
+                    return true;
             }
+
             if (FindArabicSeasonHint(fullName, fullName.Length).HasValue)
             {
                 foreach (Match bundleMatch in CompactEpisodeBundleRegex.Matches(fileName))
                 {
-                    if (IsCompactBundleInsideExplicitEpisodeToken(fileName, bundleMatch)) continue;
-                    if (IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out _)) return true;
+                    if (IsSequentialEpisodeBundle(bundleMatch.Groups["bundle"].Value, out _))
+                        return true;
                 }
             }
+
             return false;
         }
 
-        private static bool IsCompactBundleInsideExplicitEpisodeToken(string fileName, Match bundleMatch)
+        private static bool EpisodesExactlyMatchRange(
+            IEnumerable<int> episodes,
+            int startEpisode,
+            int endEpisode)
         {
-            var bundle = bundleMatch == null ? null : bundleMatch.Groups["bundle"];
-            if (bundle == null || !bundle.Success) return false;
-            var bundleStart = bundle.Index;
-            var bundleEnd = bundle.Index + bundle.Length;
-            foreach (Match episodeToken in EpisodeTokenRegex.Matches(fileName ?? string.Empty))
+            var ordered = (episodes ?? Enumerable.Empty<int>())
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            if (ordered.Count != endEpisode - startEpisode + 1)
+                return false;
+
+            for (var i = 0; i < ordered.Count; i++)
             {
-                if (bundleStart >= episodeToken.Index && bundleEnd <= episodeToken.Index + episodeToken.Length)
-                    return true;
+                if (ordered[i] != startEpisode + i)
+                    return false;
             }
-            return false;
-        }
 
-        private static bool EpisodesExactlyMatchRange(IEnumerable<int> episodes, int startEpisode, int endEpisode)
-        {
-            var ordered = (episodes ?? Enumerable.Empty<int>()).Distinct().OrderBy(x => x).ToList();
-            if (ordered.Count != endEpisode - startEpisode + 1) return false;
-            for (var i = 0; i < ordered.Count; i++) if (ordered[i] != startEpisode + i) return false;
             return true;
         }
 
         private static int? FindArabicSeasonHint(string fileName, int beforeIndex)
         {
-            int? season = null; var bestIndex = -1;
+            int? season = null;
+            var bestIndex = -1;
             foreach (Match match in SeasonTokenRegex.Matches(fileName ?? string.Empty))
             {
-                if (!match.Success || match.Index >= beforeIndex) continue;
-                if (int.TryParse(match.Groups["season"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsed) && parsed > 0 && match.Index > bestIndex) { bestIndex = match.Index; season = parsed; }
+                if (!match.Success || match.Index >= beforeIndex)
+                    continue;
+
+                if (int.TryParse(match.Groups["season"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsed)
+                    && parsed > 0
+                    && match.Index > bestIndex)
+                {
+                    bestIndex = match.Index;
+                    season = parsed;
+                }
             }
             return season;
         }
@@ -926,21 +1294,35 @@ namespace Titlovi.Common
         {
             var result = new List<int>();
             foreach (var part in Regex.Split(value ?? string.Empty, @"\s*[,;+&/]\s*"))
-                if (int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out var episode) && episode > 0 && !result.Contains(episode)) result.Add(episode);
+            {
+                if (int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out var episode)
+                    && episode > 0
+                    && !result.Contains(episode))
+                {
+                    result.Add(episode);
+                }
+            }
             return result;
         }
 
         private static bool IsSequentialEpisodeBundle(string digits, out List<int> episodes)
         {
             episodes = new List<int>();
-            if (string.IsNullOrWhiteSpace(digits) || digits.Length < 2 || digits.Length > 4) return false;
+            if (string.IsNullOrWhiteSpace(digits) || digits.Length < 2 || digits.Length > 4)
+                return false;
+
             var previous = -1;
             foreach (var ch in digits)
             {
-                if (ch < '1' || ch > '9') return false;
+                if (ch < '1' || ch > '9')
+                    return false;
+
                 var current = ch - '0';
-                if (previous >= 0 && current != previous + 1) return false;
-                episodes.Add(current); previous = current;
+                if (previous >= 0 && current != previous + 1)
+                    return false;
+
+                episodes.Add(current);
+                previous = current;
             }
             return true;
         }
@@ -949,79 +1331,247 @@ namespace Titlovi.Common
         {
             switch ((roman ?? string.Empty).Trim().ToUpperInvariant())
             {
-                case "I": return 1; case "II": return 2; case "III": return 3; case "IV": return 4; case "V": return 5; case "VI": return 6; case "VII": return 7; case "VIII": return 8; case "IX": return 9; case "X": return 10; case "XI": return 11; case "XII": return 12; default: return 0;
+                case "I": return 1;
+                case "II": return 2;
+                case "III": return 3;
+                case "IV": return 4;
+                case "V": return 5;
+                case "VI": return 6;
+                case "VII": return 7;
+                case "VIII": return 8;
+                case "IX": return 9;
+                case "X": return 10;
+                case "XI": return 11;
+                case "XII": return 12;
+                default: return 0;
             }
         }
 
-        private static bool TryParseEpisodeFromFilename(string path, out int? season, out int episode, out string format)
+        private static bool TryParseEpisodeFromFilename(
+            string path,
+            out int? season,
+            out int episode,
+            out string format)
         {
-            season = null; episode = 0; format = string.Empty;
+            season = null;
+            episode = 0;
+            format = string.Empty;
+
             var fileName = Path.GetFileNameWithoutExtension(path ?? string.Empty);
-            if (string.IsNullOrWhiteSpace(fileName)) return false;
+            if (string.IsNullOrWhiteSpace(fileName))
+                return false;
+
+            // Season and episode tokens can be separated by the series title, e.g.
+            // season_01_blackadder_season_01_episode_01.  Pair an episode token
+            // with the closest explicit season token that appears before it.
             foreach (Match episodeToken in EpisodeTokenRegex.Matches(fileName))
             {
                 var seasonHint = FindArabicSeasonHint(fileName, episodeToken.Index);
-                if (!seasonHint.HasValue) continue;
-                if (int.TryParse(episodeToken.Groups["episode"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var separatedEpisode) && separatedEpisode > 0) { season = seasonHint.Value; episode = separatedEpisode; format = "separated season/episode tokens"; return true; }
+                if (!seasonHint.HasValue)
+                    continue;
+
+                if (int.TryParse(episodeToken.Groups["episode"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var separatedEpisode)
+                    && separatedEpisode > 0)
+                {
+                    season = seasonHint.Value;
+                    episode = separatedEpisode;
+                    format = "separated season/episode tokens";
+                    TitloviDiagnostics.Debug(
+                        "Filename parser selected " + format + ": season=" + season.Value
+                        + ", episode=" + episode + ".");
+                    return true;
+                }
             }
+
+            // Older subtitle packs sometimes use Roman numerals for the season:
+            // black_adder_i_01, black_adder_ii_03, etc.  A sequential multi-digit
+            // token such as 123/456 is intentionally left to the grouped parser.
             foreach (Match romanMatch in RomanSeasonNumberRegex.Matches(fileName))
             {
-                var romanSeason = RomanToInt(romanMatch.Groups["roman"].Value); var token = romanMatch.Groups["number"].Value.TrimStart('0');
-                if (romanSeason <= 0 || token.Length == 0 || IsSequentialEpisodeBundle(token, out _)) continue;
-                if (int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out var romanEpisode) && romanEpisode > 0) { season = romanSeason; episode = romanEpisode; format = "roman-season episode-number"; return true; }
+                var romanSeason = RomanToInt(romanMatch.Groups["roman"].Value);
+                var token = romanMatch.Groups["number"].Value.TrimStart('0');
+                if (romanSeason <= 0 || token.Length == 0 || IsSequentialEpisodeBundle(token, out _))
+                    continue;
+
+                if (int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out var romanEpisode)
+                    && romanEpisode > 0)
+                {
+                    season = romanSeason;
+                    episode = romanEpisode;
+                    format = "roman-season episode-number";
+                    TitloviDiagnostics.Debug(
+                        "Filename parser selected " + format + ": season=" + season.Value
+                        + ", episode=" + episode + ".");
+                    return true;
+                }
             }
+
+            // Titlovi.com API approach: inspect every regex match and prefer one
+            // that explicitly contains both season and episode.  Otherwise prefer
+            // the longest episode-only token, which is less likely to be incidental.
             var matches = EpisodeCandidateRegex.Matches(fileName).Cast<Match>().ToList();
-            var best = matches.FirstOrDefault(m => m.Groups["season"].Success && m.Groups["episode"].Success) ?? matches.OrderByDescending(m => m.Value.Length).FirstOrDefault();
-            if (best != null && best.Success && int.TryParse(best.Groups["episode"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedEpisode) && parsedEpisode > 0)
+            TitloviDiagnostics.Debug(
+                "Filename parser: '" + fileName + "' regexMatches="
+                + (matches.Count == 0 ? "<none>" : string.Join(" | ", matches.Select(m => "'" + m.Value + "'"))) + ".");
+            var best = matches.FirstOrDefault(m => m.Groups["season"].Success && m.Groups["episode"].Success)
+                ?? matches.OrderByDescending(m => m.Value.Length).FirstOrDefault();
+
+            if (best != null
+                && best.Success
+                && int.TryParse(best.Groups["episode"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedEpisode)
+                && parsedEpisode > 0)
             {
                 episode = parsedEpisode;
-                if (best.Groups["season"].Success && int.TryParse(best.Groups["season"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedSeason) && parsedSeason > 0) { season = parsedSeason; format = "Titlovi-regex season/episode"; }
-                else format = "Titlovi-regex episode-only";
+                if (best.Groups["season"].Success
+                    && int.TryParse(best.Groups["season"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedSeason)
+                    && parsedSeason > 0)
+                {
+                    season = parsedSeason;
+                    format = "Titlovi-regex season/episode";
+                }
+                else
+                {
+                    format = "Titlovi-regex episode-only";
+                }
+
+                TitloviDiagnostics.Debug(
+                    "Filename parser selected " + format + ": season="
+                    + (season.HasValue ? season.Value.ToString(CultureInfo.InvariantCulture) : "<none>")
+                    + ", episode=" + episode + ".");
                 return true;
             }
+
+            // Extension for packs such as the real Seinfeld archive supplied for testing:
+            // 001 - The Seinfeld Chronicles.srt, 002 - The Stakeout.srt, ...
             var leading = LeadingNumberRegex.Match(fileName);
-            if (!leading.Success) return false;
+            if (!leading.Success)
+                return false;
+
             var digits = leading.Groups["number"].Value;
-            if (!int.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out var number) || number <= 0) return false;
-            if (digits.Length >= 3 && digits[0] == '0') { episode = number; format = "leading-ordinal"; return true; }
+            if (!int.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out var number)
+                || number <= 0)
+            {
+                return false;
+            }
+
+            // Leading zeroes denote a simple ordinal: 001 => episode 1, 012 => episode 12.
+            if (digits.Length >= 3 && digits[0] == '0')
+            {
+                episode = number;
+                format = "leading-ordinal";
+                return true;
+            }
+
+            // Older TV release naming often uses a compact season+episode number:
+            // 101 => S1E01, 110 => S1E10, 1001 => S10E01.
             if (digits.Length >= 3)
             {
-                var seasonText = digits.Substring(0, digits.Length - 2); var episodeText = digits.Substring(digits.Length - 2);
-                if (int.TryParse(seasonText, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedSeason) && int.TryParse(episodeText, NumberStyles.None, CultureInfo.InvariantCulture, out parsedEpisode) && parsedSeason > 0 && parsedEpisode > 0) { season = parsedSeason; episode = parsedEpisode; format = "compact-TV-number"; return true; }
+                var seasonText = digits.Substring(0, digits.Length - 2);
+                var episodeText = digits.Substring(digits.Length - 2);
+
+                if (int.TryParse(seasonText, NumberStyles.None, CultureInfo.InvariantCulture, out var parsedSeason)
+                    && int.TryParse(episodeText, NumberStyles.None, CultureInfo.InvariantCulture, out parsedEpisode)
+                    && parsedSeason > 0
+                    && parsedEpisode > 0)
+                {
+                    season = parsedSeason;
+                    episode = parsedEpisode;
+                    format = "compact-TV-number";
+                    return true;
+                }
             }
-            episode = number; format = "leading-ordinal"; return true;
+
+            // One- or two-digit number at the beginning is treated as an episode ordinal.
+            episode = number;
+            format = "leading-ordinal";
+            return true;
         }
 
         private static string NormalizeMatchText(string value)
         {
             if (string.IsNullOrWhiteSpace(value)) return string.Empty;
-            var decomposed = value.Normalize(NormalizationForm.FormD); var sb = new StringBuilder(decomposed.Length);
-            foreach (var ch in decomposed) { if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark) continue; if (char.IsLetterOrDigit(ch)) sb.Append(char.ToLowerInvariant(ch)); }
+
+            var decomposed = value.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(decomposed.Length);
+            foreach (var ch in decomposed)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
+                    continue;
+                if (char.IsLetterOrDigit(ch))
+                    sb.Append(char.ToLowerInvariant(ch));
+            }
             return sb.ToString();
         }
 
-        private List<DownloadedSubtitleFile> ExtractSubtitles(byte[] buffer) { var result = new List<DownloadedSubtitleFile>(); ExtractSubtitlesRecursive(buffer, string.Empty, 0, result); return result; }
-
-        private void ExtractSubtitlesRecursive(byte[] buffer, string pathPrefix, int depth, List<DownloadedSubtitleFile> result)
+        private List<DownloadedSubtitleFile> ExtractSubtitles(byte[] buffer)
         {
-            if (buffer == null || buffer.Length == 0 || depth > 3) return;
+            var result = new List<DownloadedSubtitleFile>();
+            ExtractSubtitlesRecursive(buffer, string.Empty, 0, result);
+            return result;
+        }
+
+        private void ExtractSubtitlesRecursive(
+            byte[] buffer,
+            string pathPrefix,
+            int depth,
+            List<DownloadedSubtitleFile> result)
+        {
+            if (buffer == null || buffer.Length == 0)
+                return;
+
+            // Defensive recursion limit for ZIP-inside-ZIP packs.
+            if (depth > 3)
+            {
+                TitloviDiagnostics.Debug(
+                    "Nested ZIP recursion limit reached at '" + (pathPrefix ?? string.Empty) + "'.");
+                return;
+            }
+
             try
             {
                 using (var ms = new MemoryStream(buffer, writable: false))
                 using (var archive = new ZipArchive(ms, ZipArchiveMode.Read, leaveOpen: false))
                 {
+                    TitloviDiagnostics.Debug(
+                        (depth == 0 ? "Downloaded payload" : "Nested payload '" + pathPrefix + "'")
+                        + " recognized as ZIP archive with " + archive.Entries.Count + " entries.");
+
+                    TitloviDiagnostics.Debug(
+                        "ZIP entries" + (string.IsNullOrWhiteSpace(pathPrefix) ? string.Empty : " in '" + pathPrefix + "'")
+                        + ": " + string.Join(" | ", archive.Entries.Select(entry =>
+                            (string.IsNullOrWhiteSpace(entry.FullName) ? "<unnamed>" : entry.FullName)
+                            + " [" + entry.Length + " bytes]")));
+
                     foreach (var entry in archive.Entries)
                     {
-                        if (string.IsNullOrWhiteSpace(entry.Name)) continue;
-                        var fullPath = string.IsNullOrWhiteSpace(pathPrefix) ? entry.FullName : pathPrefix + "!/" + entry.FullName;
+                        // Directory entry.
+                        if (string.IsNullOrWhiteSpace(entry.Name))
+                            continue;
+
+                        var fullPath = string.IsNullOrWhiteSpace(pathPrefix)
+                            ? entry.FullName
+                            : pathPrefix + "!/" + entry.FullName;
+
                         if (IsSupportedSubtitleFile(entry.Name))
                         {
-                            using (var source = entry.Open()) using (var target = new MemoryStream()) { source.CopyTo(target); result.Add(new DownloadedSubtitleFile(fullPath, target.ToArray())); }
+                            using (var source = entry.Open())
+                            using (var target = new MemoryStream())
+                            {
+                                source.CopyTo(target);
+                                result.Add(new DownloadedSubtitleFile(fullPath, target.ToArray()));
+                            }
                             continue;
                         }
+
+                        // Some older subtitle packs contain per-episode ZIPs inside the downloaded ZIP.
                         if (entry.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
                         {
-                            using (var source = entry.Open()) using (var target = new MemoryStream()) { source.CopyTo(target); ExtractSubtitlesRecursive(target.ToArray(), fullPath, depth + 1, result); }
+                            using (var source = entry.Open())
+                            using (var target = new MemoryStream())
+                            {
+                                source.CopyTo(target);
+                                ExtractSubtitlesRecursive(target.ToArray(), fullPath, depth + 1, result);
+                            }
                         }
                     }
                     return;
@@ -1029,42 +1579,123 @@ namespace Titlovi.Common
             }
             catch (InvalidDataException)
             {
-                if (depth == 0) result.Add(new DownloadedSubtitleFile(string.Empty, buffer));
+                if (depth == 0)
+                {
+                    TitloviDiagnostics.Debug(
+                        "Downloaded payload is not a ZIP archive; treating it as a raw subtitle file.");
+                    result.Add(new DownloadedSubtitleFile(string.Empty, buffer));
+                }
+                else
+                {
+                    TitloviDiagnostics.Debug(
+                        "Nested .zip entry '" + (pathPrefix ?? string.Empty)
+                        + "' was not a readable ZIP archive; ignoring it.");
+                }
             }
         }
 
-        private bool IsSupportedSubtitleFile(string name) => !string.IsNullOrWhiteSpace(name) && IsAcceptedExtension(Path.GetExtension(name).TrimStart('.').ToLowerInvariant());
-        private bool IsAcceptedDownloadedSubtitle(DownloadedSubtitleFile file) => file != null && (!string.IsNullOrWhiteSpace(file.Path) ? IsAcceptedExtension(Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant()) : IsAcceptedExtension(GetSubtitleFormat(file)));
+        private bool IsSupportedSubtitleFile(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return false;
+
+            var extension = Path.GetExtension(name).TrimStart('.').ToLowerInvariant();
+            return IsAcceptedExtension(extension);
+        }
+
+        private bool IsAcceptedDownloadedSubtitle(DownloadedSubtitleFile file)
+        {
+            if (file == null)
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(file.Path))
+            {
+                var extension = Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
+                if (!string.IsNullOrWhiteSpace(extension))
+                    return IsAcceptedExtension(extension);
+            }
+
+            // A raw subtitle response has no filename/extension. Detect the actual
+            // text format and apply the corresponding accepted-format setting.
+            return IsAcceptedExtension(GetSubtitleFormat(file));
+        }
 
         private bool IsAcceptedExtension(string extension)
         {
             var config = _configuration;
-            if (config == null) return extension == "srt" || extension == "sub" || extension == "txt" || extension == "ssa" || extension == "ass";
-            switch ((extension ?? string.Empty).Trim().TrimStart('.').ToLowerInvariant()) { case "srt": return config.AcceptSrt; case "sub": return config.AcceptSub; case "txt": return config.AcceptTxt; case "ssa": return config.AcceptSsa; case "ass": return config.AcceptAss; default: return false; }
+            if (config == null)
+            {
+                return extension == "srt" || extension == "sub" || extension == "txt"
+                    || extension == "ssa" || extension == "ass";
+            }
+
+            switch ((extension ?? string.Empty).Trim().TrimStart('.').ToLowerInvariant())
+            {
+                case "srt": return config.AcceptSrt;
+                case "sub": return config.AcceptSub;
+                case "txt": return config.AcceptTxt;
+                case "ssa": return config.AcceptSsa;
+                case "ass": return config.AcceptAss;
+                default: return false;
+            }
         }
 
         private static string GetSubtitleFormat(DownloadedSubtitleFile file)
         {
-            if (file == null) return "srt";
-            var extension = string.IsNullOrWhiteSpace(file.Path) ? string.Empty : Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
-            if (extension == "sub" || extension == "ssa" || extension == "ass" || extension == "srt") return extension;
+            if (file == null)
+                return "srt";
+
+            var extension = string.IsNullOrWhiteSpace(file.Path)
+                ? string.Empty
+                : Path.GetExtension(file.Path).TrimStart('.').ToLowerInvariant();
+
+            if (extension == "sub")
+                return "sub";
+            if (extension == "ssa")
+                return "ssa";
+            if (extension == "ass")
+                return "ass";
+            if (extension == "srt")
+                return "srt";
+
+            // .txt or extensionless subtitle payloads can still contain a known text format.
+            // The identifying markers are ASCII, so this probe is safe before legacy-codepage
+            // conversion and does not expose subtitle contents in the log.
             var detected = DetectTextSubtitleFormat(file.Bytes);
-            return string.IsNullOrWhiteSpace(detected) ? "srt" : detected;
+            if (!string.IsNullOrWhiteSpace(detected))
+                return detected;
+
+            // SRT remains the safest fallback for unknown text payloads.
+            return "srt";
         }
 
         private static string DetectTextSubtitleFormat(byte[] bytes)
         {
             var probeLength = Math.Min(bytes == null ? 0 : bytes.Length, 8192);
-            if (probeLength <= 0) return null;
+            if (probeLength <= 0)
+                return null;
+
             var probe = Encoding.ASCII.GetString(bytes, 0, probeLength);
-            if (Regex.IsMatch(probe, @"(?m)^\s*\{\d+\}\{\d+\}")) return "sub";
-            if (probe.Contains("-->")) return "srt";
-            if (probe.IndexOf("[Script Info]", StringComparison.OrdinalIgnoreCase) >= 0 && probe.IndexOf("[Events]", StringComparison.OrdinalIgnoreCase) >= 0)
+
+            if (Regex.IsMatch(probe, @"(?m)^\s*\{\d+\}\{\d+\}"))
+                return "sub";
+            if (probe.Contains("-->"))
+                return "srt";
+
+            // ASS uses the V4+ style section; classic SSA uses V4 Styles. Both normally
+            // also contain [Script Info] and [Events]. Check ASS first because it is the
+            // newer superset and its header is more specific.
+            if (probe.IndexOf("[Script Info]", StringComparison.OrdinalIgnoreCase) >= 0
+                && probe.IndexOf("[Events]", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                if (probe.IndexOf("[V4+ Styles]", StringComparison.OrdinalIgnoreCase) >= 0) return "ass";
-                if (probe.IndexOf("[V4 Styles]", StringComparison.OrdinalIgnoreCase) >= 0) return "ssa";
+                if (probe.IndexOf("[V4+ Styles]", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "ass";
+                if (probe.IndexOf("[V4 Styles]", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "ssa";
             }
+
             return null;
         }
+
     }
 }
