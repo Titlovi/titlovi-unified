@@ -55,7 +55,11 @@ namespace Emby.Titlovi
             };
 
             var results = await _engine.Search(coreRequest, cancellationToken).ConfigureAwait(false);
-            return results.Select(ToEmbyResult).ToList();
+            var filteredResults = SeriesSearchResultFilter.Apply(
+                results,
+                coreRequest.ContentType,
+                coreRequest.SeriesName);
+            return filteredResults.Select(ToEmbyResult).ToList();
         }
 
         public async Task<SubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
