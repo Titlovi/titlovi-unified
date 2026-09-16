@@ -1,5 +1,4 @@
 Titlovi.com.Unified
-Version 1.1.9
 
 Titlovi.com.Unified provides the unofficial "Titlovi.com (Unofficial)"
 subtitle provider for Emby and Jellyfin.

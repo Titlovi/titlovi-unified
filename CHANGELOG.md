@@ -1,26 +1,34 @@
 # Changelog
 
+Notable changes to **Titlovi.com.Unified** are documented here.
+
 ## Unreleased
 
-- Added cross-platform shared filename parsing so Windows (`\`) and Unix (`/`) media/archive paths are handled consistently without rewriting host-native filesystem paths.
-- Added regression coverage for separator-independent episode/archive parsing, Linux/Docker-style media paths and release ranking; the current offline baseline is 148 tests.
-- Added GitHub Actions regression runs on both Windows and Ubuntu.
-- Added Linux runtime smoke validation using the official Emby 4.10.0.40 and Jellyfin 12 server containers.
-- Added explicitly triggered live Linux end-to-end validation for both hosts, covering authenticated Titlovi.com movie/episode search, download, host-side subtitle saving and UTF-8 output.
-- Confirmed Emby 4.10 supplies parent-series IMDb metadata through `SeriesProviderIds` in the tested Linux flow, while preserving the existing `SeriesName` fallback behavior.
-- Reorganized build infrastructure into `scripts/windows` and `scripts/linux`, with equivalent build/test entry points for both operating systems.
-- Centralized generated compiler/intermediate/reference/log state under root `.build/`, keeping `bin`, `obj` and host reference files out of `src/`.
-- Centralized installable build artifacts under root `dist/Emby` and `dist/Jellyfin`; Windows and Linux builds use the same host-oriented distribution layout rather than separate OS products.
-- Added migration cleanup and MSBuild exclusions so ignored pre-refactor `bin`/`obj`/`output`/`embylibs` folders left behind by `git pull` cannot cause duplicate generated assembly attributes.
-- Changed B/S/H alternative-language priority so Serbian is the first alternative for Croatian and Bosnian searches, while Croatian is the first alternative for Serbian searches.
-- Filtered clear fuzzy-title collisions returned by the Titlovi.com search API for both episodes and movies, so requests such as `The Wire` no longer accept `Wire in the Blood`; unrelated localized or alternative titles are preserved when there is no definite title collision.
-- Treat Titlovi.com `AKA` title segments as equivalent alternative titles during result validation, preserving matches by either the original or translated/international title without weakening fuzzy-match protection; a standalone title equal to `AKA` remains a normal title.
-- Confirmed `AKA` aliases discovered on an exact title result are also used to validate sibling results from the same search, so a host request exposing only `Rebelové` can use the matching `Rebelové AKA Rebels` result to reject fuzzy `Rebel Ridge` matches without guessing aliases when no exact anchor exists.
-- Linux runtime smoke now builds through the canonical Linux packaging scripts and loads the resulting `dist/` artifacts into the official server containers.
-- Updated installation/developer documentation for Windows/Linux validation, the centralized build layout and the current manually installed Jellyfin repository-metadata limitation.
-- No plugin version bump is made for these development changes; versions are bumped only when preparing a release.
+### Added
 
-## 1.1.9 — Initial Titlovi.com.Unified release
+- Added cross-platform shared filename and archive-entry parsing for Windows (`\`) and Unix (`/`) paths.
+- Added regression testing on both Windows and Ubuntu through GitHub Actions.
+- Added Linux runtime smoke validation using supported Emby 4.10 and Jellyfin 12 server containers.
+- Added explicitly triggered live Linux end-to-end validation for both hosts, covering authenticated Titlovi.com search, download and host-side subtitle saving.
+
+### Changed
+
+- Changed B/S/H alternative-language priority so Serbian is the first alternative for Croatian and Bosnian searches, while Croatian is the first alternative for Serbian searches.
+- Reorganized Windows and Linux build infrastructure under `scripts/windows` and `scripts/linux`.
+- Centralized generated build, test, reference and log state under `.build/`.
+- Centralized installable artifacts under `dist/Emby` and `dist/Jellyfin`, using the same host-oriented distribution layout on Windows and Linux.
+- Improved project documentation for installation, development, architecture and supported host behavior.
+
+### Fixed
+
+- Improved title-result validation so clear fuzzy-title collisions returned by Titlovi.com are rejected without treating release matching as a strict filter.
+- Added support for Titlovi.com `AKA` title segments when validating original, translated or international titles.
+- Improved validation of sibling search results by using alternative titles confirmed by an exact matching result.
+- Added cleanup and MSBuild exclusions for generated directories left behind by older repository layouts, preventing stale build state from causing duplicate assembly metadata errors.
+
+## 1.1.9 — 2026-09-15
+
+Initial **Titlovi.com.Unified** release.
 
 - First packaged release under the **Titlovi.com.Unified** name.
 - Emby and Jellyfin plugins are both presented to users as **Titlovi.com (Unofficial)** while retaining host-specific assembly names and GUIDs.

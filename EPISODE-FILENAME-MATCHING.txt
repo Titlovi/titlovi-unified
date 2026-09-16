@@ -1,5 +1,5 @@
-Episode filename matching - Titlovi.com.Unified 1.1.9
-======================================================
+Episode filename matching - Titlovi.com.Unified
+===============================================
 
 This note documents the Common engine rules used when a downloaded archive
 contains several possible subtitle files for an episode.
