@@ -59,7 +59,11 @@ namespace Jellyfin.Titlovi
             };
 
             var results = await _engine.Search(coreRequest, cancellationToken).ConfigureAwait(false);
-            return results.Select(ToJellyfinResult).ToList();
+            var filteredResults = SeriesSearchResultFilter.Apply(
+                results,
+                coreRequest.ContentType,
+                coreRequest.SeriesName);
+            return filteredResults.Select(ToJellyfinResult).ToList();
         }
 
         public async Task<SubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
