@@ -103,6 +103,32 @@ namespace Titlovi.Tests
         }
 
         [Fact]
+        public void StandaloneAkaTitle_IsNotTreatedAsAliasSeparator()
+        {
+            Assert.False(SeriesSearchResultFilter.IsClearlyDifferentSeriesTitle("AKA", "AKA"));
+
+            var results = ApplyEpisodeFilter("AKA", "AKA");
+            Assert.Single(results);
+        }
+
+        [Fact]
+        public void MovieNamedAka_IsReturnedUnchanged()
+        {
+            var input = new[]
+            {
+                new CoreRemoteSubtitleInfo { Name = "AKA" }
+            };
+
+            var results = SeriesSearchResultFilter.Apply(
+                input,
+                TitloviContentType.Movie,
+                "AKA");
+
+            Assert.Single(results);
+            Assert.Equal("AKA", results[0].Name);
+        }
+
+        [Fact]
         public void Movies_AreNotFilteredByEpisodeSeriesRule()
         {
             var input = new[]
