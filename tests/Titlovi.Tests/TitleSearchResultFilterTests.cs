@@ -138,6 +138,33 @@ namespace Titlovi.Tests
         }
 
         [Fact]
+        public void RebeloveRequest_UsesConfirmedAkaAliasToRejectSiblingRebelRidgeResults()
+        {
+            var input = new[]
+            {
+                new CoreRemoteSubtitleInfo { Name = "Rebelové AKA Rebels" },
+                new CoreRemoteSubtitleInfo { Name = "Rebel Ridge" },
+                new CoreRemoteSubtitleInfo { Name = "Rebel Ridge" }
+            };
+
+            var results = TitleSearchResultFilter.Apply(
+                input,
+                TitloviContentType.Movie,
+                "Rebelové");
+
+            Assert.Single(results);
+            Assert.Equal("Rebelové AKA Rebels", results[0].Name);
+        }
+
+        [Fact]
+        public void RebeloveRequest_PreservesUnrelatedTitleWithoutConfirmedAkaAlias()
+        {
+            var results = ApplyMovieFilter("Rebelové", "Rebel Ridge");
+
+            Assert.Single(results);
+        }
+
+        [Fact]
         public void MovieLocalizedAlternativeTitle_IsPreservedWhenThereIsNoClearCollision()
         {
             var results = ApplyMovieFilter("La vita è bella", "Life Is Beautiful");

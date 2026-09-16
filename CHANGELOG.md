@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Added cross-platform shared filename parsing so Windows (`\`) and Unix (`/`) media/archive paths are handled consistently without rewriting host-native filesystem paths.
-- Added regression coverage for separator-independent episode/archive parsing, Linux/Docker-style media paths and release ranking; the current offline baseline is 146 tests.
+- Added regression coverage for separator-independent episode/archive parsing, Linux/Docker-style media paths and release ranking; the current offline baseline is 148 tests.
 - Added GitHub Actions regression runs on both Windows and Ubuntu.
 - Added Linux runtime smoke validation using the official Emby 4.10.0.40 and Jellyfin 12 server containers.
 - Added explicitly triggered live Linux end-to-end validation for both hosts, covering authenticated Titlovi.com movie/episode search, download, host-side subtitle saving and UTF-8 output.
@@ -13,8 +13,9 @@
 - Centralized installable build artifacts under root `dist/Emby` and `dist/Jellyfin`; Windows and Linux builds use the same host-oriented distribution layout rather than separate OS products.
 - Added migration cleanup and MSBuild exclusions so ignored pre-refactor `bin`/`obj`/`output`/`embylibs` folders left behind by `git pull` cannot cause duplicate generated assembly attributes.
 - Changed B/S/H alternative-language priority so Serbian is the first alternative for Croatian and Bosnian searches, while Croatian is the first alternative for Serbian searches.
-- Filtered clear fuzzy-title collisions returned by the Titlovi.com search API for both episodes and movies, so requests such as `The Wire` no longer accept `Wire in the Blood` and `Rebelové AKA Rebels` no longer accepts `Rebel Ridge`; unrelated localized or alternative titles are preserved when there is no definite title collision.
+- Filtered clear fuzzy-title collisions returned by the Titlovi.com search API for both episodes and movies, so requests such as `The Wire` no longer accept `Wire in the Blood`; unrelated localized or alternative titles are preserved when there is no definite title collision.
 - Treat Titlovi.com `AKA` title segments as equivalent alternative titles during result validation, preserving matches by either the original or translated/international title without weakening fuzzy-match protection; a standalone title equal to `AKA` remains a normal title.
+- Confirmed `AKA` aliases discovered on an exact title result are also used to validate sibling results from the same search, so a host request exposing only `Rebelové` can use the matching `Rebelové AKA Rebels` result to reject fuzzy `Rebel Ridge` matches without guessing aliases when no exact anchor exists.
 - Linux runtime smoke now builds through the canonical Linux packaging scripts and loads the resulting `dist/` artifacts into the official server containers.
 - Updated installation/developer documentation for Windows/Linux validation, the centralized build layout and the current manually installed Jellyfin repository-metadata limitation.
 - No plugin version bump is made for these development changes; versions are bumped only when preparing a release.
