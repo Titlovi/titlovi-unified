@@ -66,12 +66,22 @@ namespace Titlovi.Common
             if (!includeBshAlternatives || !IsBshLanguage(primary))
                 return result;
 
-            // The host-selected language is always first. The remaining B/S/H
-            // languages follow in a stable order so the result grouping is predictable.
-            foreach (var language in new[] { "Bosanski", "Hrvatski", "Srpski" })
+            // The host-selected language is always first. Serbian is the preferred
+            // alternative for Croatian and Bosnian, while Croatian is preferred for Serbian.
+            if (primary.Equals("Srpski", StringComparison.OrdinalIgnoreCase))
             {
-                if (!language.Equals(primary, StringComparison.OrdinalIgnoreCase))
-                    result.Add(language);
+                result.Add("Hrvatski");
+                result.Add("Bosanski");
+            }
+            else if (primary.Equals("Hrvatski", StringComparison.OrdinalIgnoreCase))
+            {
+                result.Add("Srpski");
+                result.Add("Bosanski");
+            }
+            else
+            {
+                result.Add("Srpski");
+                result.Add("Hrvatski");
             }
 
             return result;

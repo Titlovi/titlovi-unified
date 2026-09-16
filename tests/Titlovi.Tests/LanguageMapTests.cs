@@ -38,23 +38,23 @@ namespace Titlovi.Tests
         }
 
         [Fact]
-        public void SerbianAlternativeOrder_IsStable()
+        public void SerbianAlternativeOrder_PrefersCroatian()
         {
-            Assert.Equal(new[] { "Srpski", "Bosanski", "Hrvatski" },
+            Assert.Equal(new[] { "Srpski", "Hrvatski", "Bosanski" },
                 LanguageMap.GetSearchLanguages("sr", true).ToArray());
         }
 
         [Fact]
-        public void CroatianAlternativeOrder_IsStable()
+        public void CroatianAlternativeOrder_PrefersSerbian()
         {
-            Assert.Equal(new[] { "Hrvatski", "Bosanski", "Srpski" },
+            Assert.Equal(new[] { "Hrvatski", "Srpski", "Bosanski" },
                 LanguageMap.GetSearchLanguages("hr", true).ToArray());
         }
 
         [Fact]
-        public void BosnianAlternativeOrder_IsStable()
+        public void BosnianAlternativeOrder_PrefersSerbian()
         {
-            Assert.Equal(new[] { "Bosanski", "Hrvatski", "Srpski" },
+            Assert.Equal(new[] { "Bosanski", "Srpski", "Hrvatski" },
                 LanguageMap.GetSearchLanguages("bs", true).ToArray());
         }
 

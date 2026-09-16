@@ -36,10 +36,10 @@ namespace Titlovi.Tests
 
             var results = (await TestData.Engine(api, config).Search(request, CancellationToken.None)).ToList();
 
-            Assert.Equal(new[] { "sr", "bs", "hr" }, results.Select(x => x.LanguageCode).ToArray());
+            Assert.Equal(new[] { "sr", "hr", "bs" }, results.Select(x => x.LanguageCode).ToArray());
             Assert.Contains("Srpski", results[0].Name);
-            Assert.Contains("Bosanski", results[1].Name);
-            Assert.Contains("Hrvatski", results[2].Name);
+            Assert.Contains("Hrvatski", results[1].Name);
+            Assert.Contains("Bosanski", results[2].Name);
         }
 
         [Fact]
@@ -73,9 +73,9 @@ namespace Titlovi.Tests
                 SearchHandler = call =>
                 {
                     if (call.Language == "Srpski")
-                        return FakeTitloviApiClient.Page(TestData.Subtitle(20, "Movie", "Hrvatski", release: "OLD"));
-                    if (call.Language == "Bosanski")
-                        return FakeTitloviApiClient.Page(TestData.Subtitle(20, "Movie", "Bosanski", release: "BETTER"));
+                        return FakeTitloviApiClient.Page(TestData.Subtitle(20, "Movie", "Bosanski", release: "OLD"));
+                    if (call.Language == "Hrvatski")
+                        return FakeTitloviApiClient.Page(TestData.Subtitle(20, "Movie", "Hrvatski", release: "BETTER"));
                     return FakeTitloviApiClient.EmptyPage();
                 }
             };
@@ -88,7 +88,7 @@ namespace Titlovi.Tests
                 Language = "sr"
             }, CancellationToken.None)).Single();
 
-            Assert.Equal("bs", result.LanguageCode);
+            Assert.Equal("hr", result.LanguageCode);
             Assert.Equal("BETTER", result.Comment);
         }
 

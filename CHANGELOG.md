@@ -12,6 +12,7 @@
 - Centralized generated compiler/intermediate/reference/log state under root `.build/`, keeping `bin`, `obj` and host reference files out of `src/`.
 - Centralized installable build artifacts under root `dist/Emby` and `dist/Jellyfin`; Windows and Linux builds use the same host-oriented distribution layout rather than separate OS products.
 - Added migration cleanup and MSBuild exclusions so ignored pre-refactor `bin`/`obj`/`output`/`embylibs` folders left behind by `git pull` cannot cause duplicate generated assembly attributes.
+- Changed B/S/H alternative-language priority so Serbian is the first alternative for Croatian and Bosnian searches, while Croatian is the first alternative for Serbian searches.
 - Linux runtime smoke now builds through the canonical Linux packaging scripts and loads the resulting `dist/` artifacts into the official server containers.
 - Updated installation/developer documentation for Windows/Linux validation, the centralized build layout and the current manually installed Jellyfin repository-metadata limitation.
 - No plugin version bump is made for these development changes; versions are bumped only when preparing a release.
