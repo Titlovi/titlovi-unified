@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Titlovi.Common
 {
-    internal static class SeriesSearchResultFilter
+    internal static class TitleSearchResultFilter
     {
         private static readonly HashSet<string> NoiseTokens = new HashSet<string>(
             new[] { "the", "a", "an", "of", "in", "and" },
@@ -16,21 +16,22 @@ namespace Titlovi.Common
         public static List<CoreRemoteSubtitleInfo> Apply(
             IEnumerable<CoreRemoteSubtitleInfo> results,
             TitloviContentType contentType,
-            string requestedSeriesTitle)
+            string requestedTitle)
         {
             var materialized = (results ?? Enumerable.Empty<CoreRemoteSubtitleInfo>()).ToList();
-            if (contentType != TitloviContentType.Episode || string.IsNullOrWhiteSpace(requestedSeriesTitle))
+            if (string.IsNullOrWhiteSpace(requestedTitle))
                 return materialized;
 
             var filtered = new List<CoreRemoteSubtitleInfo>(materialized.Count);
             foreach (var result in materialized)
             {
                 var providerTitle = StripLanguageSuffix(result?.Name);
-                if (IsClearlyDifferentSeriesTitle(requestedSeriesTitle, providerTitle))
+                if (IsClearlyDifferentTitle(requestedTitle, providerTitle))
                 {
                     TitloviDiagnostics.Debug(
-                        "Discarding episode search result from a clearly different series: requestedSeries='"
-                        + requestedSeriesTitle + "', providerTitle='" + (providerTitle ?? string.Empty) + "'.");
+                        "Discarding " + (contentType == TitloviContentType.Episode ? "episode" : "movie")
+                        + " search result from a clearly different title: requestedTitle='"
+                        + requestedTitle + "', providerTitle='" + (providerTitle ?? string.Empty) + "'.");
                     continue;
                 }
 
@@ -40,7 +41,7 @@ namespace Titlovi.Common
             return filtered;
         }
 
-        internal static bool IsClearlyDifferentSeriesTitle(string requestedTitle, string candidateTitle)
+        internal static bool IsClearlyDifferentTitle(string requestedTitle, string candidateTitle)
         {
             if (string.IsNullOrWhiteSpace(requestedTitle) || string.IsNullOrWhiteSpace(candidateTitle))
                 return false;
@@ -52,7 +53,7 @@ namespace Titlovi.Common
 
             // Titlovi.com commonly joins an original title and an English/international
             // title with "AKA". Treat every AKA segment as an equal title identity.
-            // If any requested/candidate alias matches exactly, this is not a cross-series
+            // If any requested/candidate alias matches exactly, this is not a fuzzy-title
             // collision even when the full provider display title contains extra aliases.
             if (requestedAliases.Any(requested =>
                 candidateAliases.Any(candidate => requested.SetEquals(candidate))))
@@ -60,12 +61,13 @@ namespace Titlovi.Common
                 return false;
             }
 
-            // Titlovi.com's fuzzy title search can return another series whose title
-            // extends the requested one, e.g. "The Wire" -> "Wire in the Blood".
-            // After checking exact AKA aliases above, treat strict token-set containment
-            // between any alias pair as a definite cross-series collision. Completely
-            // different/localized titles remain untouched because there is insufficient
-            // evidence to reject them safely.
+            // Titlovi.com's fuzzy search can return a different movie/series whose title
+            // extends the requested one, e.g. "The Wire" -> "Wire in the Blood" or
+            // "Rebels" -> "Rebel Ridge". After exact AKA matching, treat strict token-set
+            // containment as a definite collision. For containment only, allow the narrow
+            // English-style singular/plural pair foo/foos so "Rebels" can match the token
+            // "Rebel" without introducing broad stemming. Completely different/localized
+            // titles remain untouched because there is insufficient evidence to reject them.
             foreach (var requested in requestedAliases)
             {
                 foreach (var candidate in candidateAliases)
@@ -83,7 +85,44 @@ namespace Titlovi.Common
 
         private static bool IsStrictSubset(HashSet<string> subset, HashSet<string> superset)
         {
-            return subset.Count < superset.Count && subset.All(superset.Contains);
+            return subset.Count < superset.Count
+                && subset.All(subsetToken =>
+                    superset.Any(supersetToken => TokensEquivalentForContainment(subsetToken, supersetToken)));
+        }
+
+        private static bool TokensEquivalentForContainment(string left, string right)
+        {
+            if (string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return IsSimplePluralOf(left, right) || IsSimplePluralOf(right, left);
+        }
+
+        private static bool IsSimplePluralOf(string plural, string singular)
+        {
+            if (string.IsNullOrWhiteSpace(plural)
+                || string.IsNullOrWhiteSpace(singular)
+                || plural.Length < 5
+                || singular.Length < 4
+                || !plural.EndsWith("s", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // Keep this deliberately conservative: these common singular endings happen
+            // to end in 's' but are not simple English plurals formed by appending one 's'.
+            if (plural.EndsWith("ss", StringComparison.OrdinalIgnoreCase)
+                || plural.EndsWith("us", StringComparison.OrdinalIgnoreCase)
+                || plural.EndsWith("is", StringComparison.OrdinalIgnoreCase)
+                || plural.EndsWith("as", StringComparison.OrdinalIgnoreCase)
+                || plural.EndsWith("ous", StringComparison.OrdinalIgnoreCase)
+                || plural.EndsWith("ics", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return plural.Substring(0, plural.Length - 1)
+                .Equals(singular, StringComparison.OrdinalIgnoreCase);
         }
 
         private static List<HashSet<string>> GetComparableTitleAliases(string value)
@@ -97,7 +136,7 @@ namespace Titlovi.Common
         private static HashSet<string> GetComparableTitleTokens(string value)
         {
             // Parenthetical year/country qualifiers are commonly metadata rather than
-            // part of the series identity: "The Office (US)" should match "The Office".
+            // part of the title identity: "The Office (US)" should match "The Office".
             var prepared = Regex.Replace(value ?? string.Empty, @"\([^)]*\)", " ");
             var decomposed = prepared.Normalize(NormalizationForm.FormD);
             var sb = new StringBuilder(decomposed.Length);
