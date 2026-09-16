@@ -55,10 +55,13 @@ namespace Emby.Titlovi
             };
 
             var results = await _engine.Search(coreRequest, cancellationToken).ConfigureAwait(false);
-            var filteredResults = SeriesSearchResultFilter.Apply(
+            var requestedTitle = coreRequest.ContentType == TitloviContentType.Episode
+                ? coreRequest.SeriesName
+                : coreRequest.Name;
+            var filteredResults = TitleSearchResultFilter.Apply(
                 results,
                 coreRequest.ContentType,
-                coreRequest.SeriesName);
+                requestedTitle);
             return filteredResults.Select(ToEmbyResult).ToList();
         }
 
