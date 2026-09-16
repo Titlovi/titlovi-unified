@@ -22,11 +22,56 @@ namespace Titlovi.Common
             if (string.IsNullOrWhiteSpace(requestedTitle))
                 return materialized;
 
+            var requestedAliases = GetComparableTitleAliases(requestedTitle);
+            if (requestedAliases.Count == 0)
+                return materialized;
+
+            // Emby/Jellyfin can expose only one localized/original title even when the
+            // matching Titlovi.com result contains a confirmed AKA alias. Learn only the
+            // aliases from results that contain an exact requested-title alias, then use
+            // those confirmed aliases to validate sibling fuzzy-search results. This keeps
+            // the expansion conservative and avoids transitive alias guessing.
+            var referenceAliases = requestedAliases
+                .Select(alias => new HashSet<string>(alias, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var result in materialized)
+            {
+                var providerTitle = StripLanguageSuffix(result?.Name);
+                var candidateAliases = GetComparableTitleAliases(providerTitle);
+                if (candidateAliases.Count < 2)
+                    continue;
+
+                var isExactRequestedTitleResult = requestedAliases.Any(requested =>
+                    candidateAliases.Any(candidate => requested.SetEquals(candidate)));
+                if (!isExactRequestedTitleResult)
+                    continue;
+
+                var addedAlias = false;
+                foreach (var candidate in candidateAliases)
+                {
+                    if (referenceAliases.Any(existing => existing.SetEquals(candidate)))
+                        continue;
+
+                    referenceAliases.Add(new HashSet<string>(candidate, StringComparer.OrdinalIgnoreCase));
+                    addedAlias = true;
+                }
+
+                if (addedAlias)
+                {
+                    TitloviDiagnostics.Debug(
+                        "Using AKA aliases from exact "
+                        + (contentType == TitloviContentType.Episode ? "episode" : "movie")
+                        + " search result to validate sibling results: requestedTitle='"
+                        + requestedTitle + "', providerTitle='" + (providerTitle ?? string.Empty) + "'.");
+                }
+            }
+
             var filtered = new List<CoreRemoteSubtitleInfo>(materialized.Count);
             foreach (var result in materialized)
             {
                 var providerTitle = StripLanguageSuffix(result?.Name);
-                if (IsClearlyDifferentTitle(requestedTitle, providerTitle))
+                if (IsClearlyDifferentTitle(referenceAliases, providerTitle))
                 {
                     TitloviDiagnostics.Debug(
                         "Discarding " + (contentType == TitloviContentType.Episode ? "episode" : "movie")
@@ -47,16 +92,26 @@ namespace Titlovi.Common
                 return false;
 
             var requestedAliases = GetComparableTitleAliases(requestedTitle);
+            return IsClearlyDifferentTitle(requestedAliases, candidateTitle);
+        }
+
+        private static bool IsClearlyDifferentTitle(
+            IList<HashSet<string>> referenceAliases,
+            string candidateTitle)
+        {
+            if (referenceAliases == null || referenceAliases.Count == 0 || string.IsNullOrWhiteSpace(candidateTitle))
+                return false;
+
             var candidateAliases = GetComparableTitleAliases(candidateTitle);
-            if (requestedAliases.Count == 0 || candidateAliases.Count == 0)
+            if (candidateAliases.Count == 0)
                 return false;
 
             // Titlovi.com commonly joins an original title and an English/international
             // title with "AKA". Treat every AKA segment as an equal title identity.
-            // If any requested/candidate alias matches exactly, this is not a fuzzy-title
+            // If any reference/candidate alias matches exactly, this is not a fuzzy-title
             // collision even when the full provider display title contains extra aliases.
-            if (requestedAliases.Any(requested =>
-                candidateAliases.Any(candidate => requested.SetEquals(candidate))))
+            if (referenceAliases.Any(reference =>
+                candidateAliases.Any(candidate => reference.SetEquals(candidate))))
             {
                 return false;
             }
@@ -68,12 +123,12 @@ namespace Titlovi.Common
             // English-style singular/plural pair foo/foos so "Rebels" can match the token
             // "Rebel" without introducing broad stemming. Completely different/localized
             // titles remain untouched because there is insufficient evidence to reject them.
-            foreach (var requested in requestedAliases)
+            foreach (var reference in referenceAliases)
             {
                 foreach (var candidate in candidateAliases)
                 {
-                    if (IsStrictSubset(requested, candidate)
-                        || IsStrictSubset(candidate, requested))
+                    if (IsStrictSubset(reference, candidate)
+                        || IsStrictSubset(candidate, reference))
                     {
                         return true;
                     }
