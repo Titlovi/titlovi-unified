@@ -45,26 +45,53 @@ namespace Titlovi.Common
             if (string.IsNullOrWhiteSpace(requestedTitle) || string.IsNullOrWhiteSpace(candidateTitle))
                 return false;
 
-            var requestedTokens = GetComparableTitleTokens(requestedTitle);
-            var candidateTokens = GetComparableTitleTokens(candidateTitle);
-            if (requestedTokens.Count == 0 || candidateTokens.Count == 0)
+            var requestedAliases = GetComparableTitleAliases(requestedTitle);
+            var candidateAliases = GetComparableTitleAliases(candidateTitle);
+            if (requestedAliases.Count == 0 || candidateAliases.Count == 0)
                 return false;
 
-            if (requestedTokens.SetEquals(candidateTokens))
+            // Titlovi.com commonly joins an original title and an English/international
+            // title with "AKA". Treat every AKA segment as an equal title identity.
+            // If any requested/candidate alias matches exactly, this is not a cross-series
+            // collision even when the full provider display title contains extra aliases.
+            if (requestedAliases.Any(requested =>
+                candidateAliases.Any(candidate => requested.SetEquals(candidate))))
+            {
                 return false;
+            }
 
-            // Titlovi.com's title search can return another series whose title simply
+            // Titlovi.com's fuzzy title search can return another series whose title
             // extends the requested one, e.g. "The Wire" -> "Wire in the Blood".
-            // Treat only strict token-set containment as a definite cross-series collision.
-            // Completely different/localized titles remain untouched because there is
-            // insufficient evidence to reject them safely.
-            return IsStrictSubset(requestedTokens, candidateTokens)
-                || IsStrictSubset(candidateTokens, requestedTokens);
+            // After checking exact AKA aliases above, treat strict token-set containment
+            // between any alias pair as a definite cross-series collision. Completely
+            // different/localized titles remain untouched because there is insufficient
+            // evidence to reject them safely.
+            foreach (var requested in requestedAliases)
+            {
+                foreach (var candidate in candidateAliases)
+                {
+                    if (IsStrictSubset(requested, candidate)
+                        || IsStrictSubset(candidate, requested))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static bool IsStrictSubset(HashSet<string> subset, HashSet<string> superset)
         {
             return subset.Count < superset.Count && subset.All(superset.Contains);
+        }
+
+        private static List<HashSet<string>> GetComparableTitleAliases(string value)
+        {
+            return Regex.Split(value ?? string.Empty, @"\s+\bAKA\b\s+", RegexOptions.IgnoreCase)
+                .Select(GetComparableTitleTokens)
+                .Where(tokens => tokens.Count > 0)
+                .ToList();
         }
 
         private static HashSet<string> GetComparableTitleTokens(string value)

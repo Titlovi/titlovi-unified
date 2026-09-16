@@ -55,6 +55,79 @@ namespace Titlovi.Tests
             Assert.Empty(results);
         }
 
+        [Theory]
+        [InlineData(
+            "Dedictví aneb Kurvahosigutntag",
+            "Dedictví aneb Kurvahosigutntag AKA The Inheritance or Fuckoffguysgoodday")]
+        [InlineData(
+            "The Inheritance or Fuckoffguysgoodday",
+            "Dedictví aneb Kurvahosigutntag AKA The Inheritance or Fuckoffguysgoodday")]
+        [InlineData(
+            "Bröderna Lejonhjärta",
+            "Bröderna Lejonhjärta AKA The Brothers Lionheart")]
+        [InlineData(
+            "The Brothers Lionheart",
+            "Bröderna Lejonhjärta AKA The Brothers Lionheart")]
+        [InlineData(
+            "Honig im Kopf",
+            "Honig im Kopf AKA Head Full of Honey")]
+        [InlineData(
+            "Head Full of Honey",
+            "Honig im Kopf AKA Head Full of Honey")]
+        public void AkaTitles_PreserveEitherAlias(string requestedTitle, string providerTitle)
+        {
+            Assert.False(SeriesSearchResultFilter.IsClearlyDifferentSeriesTitle(requestedTitle, providerTitle));
+
+            var results = ApplyEpisodeFilter(requestedTitle, providerTitle);
+            Assert.Single(results);
+        }
+
+        [Fact]
+        public void AkaTitle_WithLanguageSuffix_PreservesMatchingAlias()
+        {
+            var results = ApplyEpisodeFilter(
+                "Head Full of Honey",
+                "Honig im Kopf AKA Head Full of Honey — Hrvatski");
+
+            Assert.Single(results);
+        }
+
+        [Fact]
+        public void AkaTitle_DoesNotDisableCrossSeriesProtection()
+        {
+            var results = ApplyEpisodeFilter(
+                "The Wire",
+                "Wire in the Blood AKA Sangre en la sangre");
+
+            Assert.Empty(results);
+        }
+
+        [Fact]
+        public void StandaloneAkaTitle_IsNotTreatedAsAliasSeparator()
+        {
+            Assert.False(SeriesSearchResultFilter.IsClearlyDifferentSeriesTitle("AKA", "AKA"));
+
+            var results = ApplyEpisodeFilter("AKA", "AKA");
+            Assert.Single(results);
+        }
+
+        [Fact]
+        public void MovieNamedAka_IsReturnedUnchanged()
+        {
+            var input = new[]
+            {
+                new CoreRemoteSubtitleInfo { Name = "AKA" }
+            };
+
+            var results = SeriesSearchResultFilter.Apply(
+                input,
+                TitloviContentType.Movie,
+                "AKA");
+
+            Assert.Single(results);
+            Assert.Equal("AKA", results[0].Name);
+        }
+
         [Fact]
         public void Movies_AreNotFilteredByEpisodeSeriesRule()
         {
