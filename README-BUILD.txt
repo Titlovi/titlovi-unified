@@ -199,6 +199,30 @@ The generated ZIP contains these three files directly at its root:
 Both Windows and Linux packaging paths produce the same Jellyfin distribution
 layout. meta.json is written as UTF-8 without BOM.
 
+GITHUB ACTIONS MINUTE CONSERVATION
+----------------------------------
+
+GitHub Actions minutes are a limited resource. Minimize CI usage throughout
+development without skipping validation required for functional correctness.
+
+- Prefer local tests and builds during implementation and troubleshooting.
+- Run the offline regression suite when a functional change needs validation,
+  not after every small edit. A functional change is not complete until its
+  regression tests have passed.
+- Build both host plugins when changes can affect compilation or packaging.
+  Prefer local builds; avoid repeating successful builds without new changes.
+- Avoid repeated pushes and PR updates that trigger duplicate CI runs.
+  Consolidate changes and use GitHub Actions only when CI provides necessary
+  additional verification.
+- Skip CI for documentation-only commits when possible (for example, by using
+  [skip ci] in the commit message). Do not launch workflows solely to confirm
+  a documentation update.
+- Run runtime smoke tests and live end-to-end tests only when relevant;
+  never trigger additional live/API tests without a concrete reason.
+
+This is a development workflow policy; it does not change existing CI triggers
+or reduce the regression coverage required before completing code changes.
+
 REGRESSION TESTS
 ----------------
 
