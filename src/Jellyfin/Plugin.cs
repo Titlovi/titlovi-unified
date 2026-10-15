@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
@@ -12,7 +13,7 @@ namespace Jellyfin.Titlovi
     public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     {
         public const string PluginVersion = "1.1.9";
-        public static readonly Guid PluginId = Guid.Parse("8d8e1f97-ae88-4b46-acac-a16f6a2d88dd");
+        public static readonly Guid PluginId = Guid.Parse("6e25df50-638e-4109-a50b-03c14fc93fdd");
 
         public static Plugin Instance { get; private set; }
 
@@ -20,6 +21,7 @@ namespace Jellyfin.Titlovi
             : base(applicationPaths, xmlSerializer)
         {
             Instance = this;
+            ImportLegacyConfigurationIfNeeded(applicationPaths.PluginConfigurationsPath);
             try
             {
                 TitloviDiagnostics.Initialize(
@@ -31,6 +33,30 @@ namespace Jellyfin.Titlovi
             catch
             {
                 // Diagnostics are best-effort only.
+            }
+        }
+
+        private void ImportLegacyConfigurationIfNeeded(string configurationDirectory)
+        {
+            if (!LegacyConfigurationImport.TryReadForImport(configurationDirectory, out var legacy))
+                return;
+
+            try
+            {
+                // Save through Jellyfin's own XML serializer under Jellyfin.Titlovi.xml.
+                // The source Titlovi.Plugin.xml remains intact for rollback.
+                // A legacy token is intentionally not reused because its model differs.
+                SaveConfiguration(new PluginConfiguration
+                {
+                    Username = legacy.Username,
+                    Password = legacy.Password,
+                    Token = null
+                });
+            }
+            catch
+            {
+                // Credential import is best-effort. Never block normal plugin startup
+                // or include potentially sensitive configuration details in logs.
             }
         }
 
