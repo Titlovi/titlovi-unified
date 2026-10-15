@@ -35,7 +35,7 @@ Generated test state is centralized under:
 .build/logs/Tests/test.log
 ```
 
-GitHub Actions runs the complete suite on Windows and Ubuntu. The current baseline is **110 passing tests** on each operating system.
+GitHub Actions runs the complete suite on Windows and Ubuntu. The migration branch regression suite currently contains **160 tests** (Linux validation passed on 2026-10-15; Windows validation is tracked in CI).
 
 ## Coverage
 
@@ -52,6 +52,7 @@ The suite covers, among other things:
 - UTF-8/BOM, UTF-16 and Windows-1250 conversion;
 - IMDb/title fallback and zero-result behavior;
 - token reuse/refresh behavior;
+- original Jellyfin plugin configuration XML import, preservation of credentials, existing-config precedence, and malformed/unsafe XML rejection;
 - synchronization-aware release ranking.
 
 ## Filename fixture note
