@@ -6,7 +6,7 @@ E2E_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/titlovi-jellyfin-e2e.XXXXXX")"
 JELLYFIN_IMAGE="${JELLYFIN_IMAGE:-ghcr.io/jellyfin/jellyfin:12.0}"
 JELLYFIN_CONTAINER="titlovi-jellyfin-e2e"
 BASE_URL="http://127.0.0.1:18096"
-PLUGIN_ID="8d8e1f97-ae88-4b46-acac-a16f6a2d88dd"
+PLUGIN_ID="6e25df50-638e-4109-a50b-03c14fc93fdd"
 ADMIN_USER="titlovi-e2e-admin"
 ADMIN_PASSWORD="$(python3 - <<'PY'
 import secrets
@@ -139,7 +139,7 @@ cat > "$JF_PLUGIN/meta.json" <<'JSON'
   "category": "Subtitles",
   "changelog": "Manual Linux end-to-end validation package",
   "description": "Unofficial Titlovi.com subtitle provider for Jellyfin.",
-  "guid": "8d8e1f97-ae88-4b46-acac-a16f6a2d88dd",
+  "guid": "6e25df50-638e-4109-a50b-03c14fc93fdd",
   "name": "Titlovi.com (Unofficial)",
   "overview": "Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.",
   "owner": "Unofficial community plugin",
