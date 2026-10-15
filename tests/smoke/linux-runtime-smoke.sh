@@ -108,6 +108,19 @@ JF_CONFIG="$SMOKE_ROOT/jellyfin-config"
 JF_PLUGIN="$JF_CONFIG/plugins/$(basename "$JF_PACKAGE")"
 mkdir -p "$JF_PLUGIN"
 cp -a "$JF_PACKAGE/." "$JF_PLUGIN/"
+
+# Emulate credentials left behind by Matko's original Jellyfin plugin.
+# The import occurs during startup, without contacting Titlovi.com.
+JF_LEGACY_CONFIG="$JF_CONFIG/plugins/configurations/Titlovi.Plugin.xml"
+mkdir -p "$(dirname "$JF_LEGACY_CONFIG")"
+cat > "$JF_LEGACY_CONFIG" <<'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<TitloviConfiguration>
+  <Username>migration-smoke-user</Username>
+  <Password>migration-smoke-password</Password>
+  <Token><Id>obsolete-test-token</Id><UserId>42</UserId></Token>
+</TitloviConfiguration>
+XML
 docker run -d \
   --name "$JELLYFIN_CONTAINER" \
   --user 0:0 \
@@ -125,6 +138,37 @@ JF_LOG="$SMOKE_ROOT/jellyfin.log"
 collect_logs "$JELLYFIN_CONTAINER" "$JF_CONFIG" "$JF_LOG"
 assert_no_loader_error "$JF_LOG" "Jellyfin\\.Titlovi" "Jellyfin"
 assert_log_contains "$JF_LOG" "Loaded assembly Jellyfin\\.Titlovi|Jellyfin\\.Titlovi.*Titlovi\\.com \\(Unofficial\\)|Titlovi\\.com \\(Unofficial\\).*Jellyfin\\.Titlovi" "Jellyfin"
+
+echo "==> Verifying original Jellyfin configuration import"
+JF_NEW_CONFIG="$JF_CONFIG/plugins/configurations/Jellyfin.Titlovi.xml"
+for _ in $(seq 1 20); do
+  if [ -s "$JF_NEW_CONFIG" ]; then
+    break
+  fi
+  sleep 1
+done
+test -s "$JF_NEW_CONFIG" || { echo "ERROR: Jellyfin did not create the imported configuration file." >&2; exit 1; }
+
+python3 - "$JF_LEGACY_CONFIG" "$JF_NEW_CONFIG" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+def fields(path):
+    root = ET.parse(path).getroot()
+    return {child.tag.split("}")[-1]: child.text for child in root}, ET.tostring(root, encoding="unicode")
+
+legacy, original_xml = fields(sys.argv[1])
+new, imported_xml = fields(sys.argv[2])
+if legacy.get("Username") != "migration-smoke-user" or legacy.get("Password") != "migration-smoke-password":
+    raise SystemExit("Original plugin credentials changed unexpectedly.")
+if new.get("Username") != legacy["Username"] or new.get("Password") != legacy["Password"]:
+    raise SystemExit("Original plugin credentials were not imported correctly.")
+if "obsolete-test-token" in imported_xml:
+    raise SystemExit("Incompatible original authentication token was copied to the new plugin.")
+if "obsolete-test-token" not in original_xml:
+    raise SystemExit("Original plugin token/configuration was unexpectedly modified.")
+print("Jellyfin original configuration import verified.")
+PY
 docker rm -f "$JELLYFIN_CONTAINER" >/dev/null
 
 echo "==> Starting Emby 4.10 Linux container with packaged Titlovi plugin"
