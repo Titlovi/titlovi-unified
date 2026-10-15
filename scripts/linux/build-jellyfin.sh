@@ -57,7 +57,7 @@ meta = {
     "category": "Subtitles",
     "changelog": "Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking.",
     "description": "Unofficial Titlovi.com subtitle provider for Jellyfin.",
-    "guid": "8d8e1f97-ae88-4b46-acac-a16f6a2d88dd",
+    "guid": "6e25df50-638e-4109-a50b-03c14fc93fdd",
     "name": "Titlovi.com (Unofficial)",
     "overview": "Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.",
     "owner": "Unofficial community plugin",
