@@ -68,7 +68,7 @@ async function loadConfiguration(view, pluginId) {
 }
 
 export default function (view) {
-    const pluginId = '8d8e1f97-ae88-4b46-acac-a16f6a2d88dd';
+    const pluginId = '6e25df50-638e-4109-a50b-03c14fc93fdd';
     const form = view.querySelector('#JellyfinTitloviConfigForm');
 
     form.addEventListener('submit', function (event) {
