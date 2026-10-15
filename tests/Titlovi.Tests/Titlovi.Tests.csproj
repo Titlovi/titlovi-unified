@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="../../src/Common/*.cs" Link="Common/%(Filename)%(Extension)" />
+    <Compile Include="../../src/Jellyfin/Configuration/LegacyConfigurationImport.cs" Link="Jellyfin/LegacyConfigurationImport.cs" />
   </ItemGroup>
 
   <ItemGroup>
