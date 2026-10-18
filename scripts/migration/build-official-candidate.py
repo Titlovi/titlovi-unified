@@ -133,6 +133,8 @@ def main() -> None:
             ("overview = 'Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.'",
              "overview = 'Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree.'"),
             ("owner = 'Unofficial community plugin'", "owner = 'Titlovi.com'"),
+            ("changelog = 'Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking.'",
+             "changelog = 'Official Unified 2.0 preview: Jellyfin 12 support, preservation of Matko credentials, shared Emby and Jellyfin subtitle engine.'"),
             ("if ($parsedMeta.name -ne 'Titlovi.com (Unofficial)')",
              "if ($parsedMeta.name -ne 'Titlovi.com')"),
             ('$zip = Join-Path $dist "Titlovi.com.Unified-$version-Jellyfin-12.zip"',
