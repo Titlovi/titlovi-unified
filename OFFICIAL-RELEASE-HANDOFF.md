@@ -1,8 +1,13 @@
 # Official Titlovi.com Unified release handoff (preparation only)
 
 **Status:** Candidate preparation; **NOT approval to publish**. Working source of
-truth: `mihvel/Titlovi.com.Unified`. Future public source and releases:
-`Titlovi/titlovi-jellyfin`. No official repository writes occur in this work.
+truth: `mihvel/Titlovi.com.Unified`. **Agreed architecture (2026-10-18):**
+canonical source in a new proposed `Titlovi/titlovi-unified`, existing
+`Titlovi/titlovi-jellyfin` for Jellyfin-only packages and its historic plugin
+catalogue, and a new proposed `Titlovi/titlovi-emby` for **manual Emby DLL
+downloads and installation instructions**. Emby has no third-party repository
+installation in the supported distribution workflow. All official provisioning
+and publication await Nikola's authorization.
 
 ## Release boundaries
 
@@ -35,6 +40,28 @@ truth: `mihvel/Titlovi.com.Unified`. Future public source and releases:
 - A full Jellyfin 10.11 **server database** migration to 12 did not finish in a
   separate CI rehearsal. This is not a failure of plugin migration, but neither
   is it a passed end-to-end host upgrade.
+
+## Agreed official repository split (2026-10-18)
+
+- **`Titlovi/titlovi-unified` (new, proposed):** the sole canonical source
+  and developer repository with `src/Common`, `src/Emby`, `src/Jellyfin`,
+  regression tests, release orchestration and common source tags. One build
+  produces two self-contained host plugins, without a Common/Core runtime DLL.
+- **`Titlovi/titlovi-jellyfin` (existing):** Jellyfin-only release ZIP,
+  existing immutable 1.x release assets/history and unchanged Jellyfin
+  catalogue at `https://titlovi.github.io/titlovi-jellyfin/repository.json`.
+- **`Titlovi/titlovi-emby` (new, proposed):** only the
+  `Emby.Titlovi.dll` release downloads and manual Emby 4.10.x install/upgrade
+  documentation. Do **not** prepare an Emby third-party plugin feed or promise
+  automatic installation/updating via a repository.
+
+The initial candidate build scripts and read-only Jellyfin catalogue validator
+remain useful, but they are not a complete implementation of the new
+cross-repository release workflow. Do not distribute Emby artifacts via the
+Jellyfin repo. Host distribution repos link to the matching canonical
+Unified source tag/commit. GitHub Actions cross-repo publication needs
+separately authorized, narrowly scoped credentials and must be verified
+before use.
 
 ## Existing upstream state — do not overwrite silently
 
@@ -109,8 +136,8 @@ the new version first and all previously published version **objects unchanged**
 It fails closed for wrong GUID, unexpected version/ABI, missing older versions,
 invalid ZIP or an already-published 2.0.0.0 entry.
 
-The proposed source URL deliberately points to a **future**
-`Titlovi/titlovi-jellyfin` release asset
+Under the agreed three-repository split, this source URL correctly points
+to a **future Jellyfin-only** `Titlovi/titlovi-jellyfin` release asset
 `v2.0.0/titlovi-com_2.0.0.0.zip`. The catalog is **not publishable** until
 that exact release and asset exist and the published ZIP checksum is verified
 against the new catalogue entry. An asset upload and catalogue update must
@@ -127,54 +154,51 @@ versions or publishing any release:
 These are candidate packaging tests. The final source version and official
 GitHub Release have **not** been updated.
 
-## Prepared upstream publication workflow (disabled template)
+## Existing publication template — superseded, DO NOT deploy
 
-`scripts/migration/templates/official-publish.yml` is a **non-executable
-template in this repository**, not a deployed GitHub Actions workflow. It is
-specifically restricted to the initial `v2.0.0` official release in
-`Titlovi/titlovi-jellyfin`, and requires explicit upstream review.
+`scripts/migration/templates/official-publish.yml` is deliberately
+**non-executable** in this repository. It assumed the *old* architecture:
+source code and both host assets would live in
+`Titlovi/titlovi-jellyfin`. It is now **superseded** by the agreed
+three-repository structure. Keep it only as a reference for version,
+checksum and historical-catalogue safety checks. **Do not copy it as-is
+into any official repository or enable it.**
 
-After the official source branch has been merged and checked, upstream
-maintainers can adapt and enable the template **instead of** the current
-Matko build/publish workflows. It runs the suite, builds both host packages,
-validates the official identity and ZIP contents, creates Matko-compatible
-release checksum sidecars, uploads only allowlisted assets, downloads the
-actual release ZIP again and checks its content, then generates a new
-`gh-pages` catalogue from the existing historical manifest with old release
-objects untouched.
+A replacement pipeline must build/test once from a tagged
+`Titlovi/titlovi-unified` source commit; publish only the Jellyfin ZIP
+to `titlovi-jellyfin` and only the Emby DLL to `titlovi-emby`; verify
+published checksums, and update the old Jellyfin catalogue only after the
+new ZIP is actually accessible. Publishing rights should be limited to
+the necessary destination repos and gated by explicit maintainer approval.
 
-It should be verified on a controlled draft release/isolated fork before
-being trusted to change the actual official catalogue. **Do not copy it
-unchanged into production without testing and without coordination with
-Nikola.** Verify the permissions, release event semantics, and the live
-GitHub Pages branch protection first. Official packaging scripts also need
-the final tracked official version/name update before the template can run.
+## Preparing the canonical source handoff
 
-## Preparing the upstream source PR
+After Nikola grants access, create the new canonical
+`Titlovi/titlovi-unified` project and transfer the reviewed Unified
+source there using a dedicated branch/PR or another explicitly agreed,
+auditable initial import. Do not migrate source development into
+`titlovi-jellyfin`.
 
-After explicit upstream agreement, work in a dedicated **official repository
-branch** created from its actual latest `main` (not force-push or reset).
-
-- Preserve Git history and 1.x releases/tags. Replacing tracked source paths
-  with a focused commit is fine; rewriting prior commits is not.
-- Remove obsolete Matko-specific build source/dependencies only as part of
-  the approved source replacement; keep all legally required notices.
-- Transfer the reviewed Unified source, both host project definitions, tests,
-  platform-specific build scripts and **English** documentation. Do not transfer
-  `.build`, `dist`, caches, local settings, tokens or secrets.
-- Adapt `README.md`, `INSTALL.md`, `README-BUILD.txt`, `ARCHITECTURE.md`,
-  `CHANGELOG.md`, `NOTICE.txt` and release notes for the official status.
-  `INSTALL.md` must provide supported server versions, in-place migration
-  instructions, a backup/rollback warning and the retained Jellyfin catalogue.
-  Preserve Matko's authorship and distinguish GPLv3 copyright acknowledgments
-  from Titlovi.com branding and trademark permission.
-- Replace upstream build/release actions with tested **Unified** actions
-  respecting Jellyfin 12/.NET10 and Emby 4.10. Limit pushes and automatic CI
-  triggers to conserve GitHub Actions minutes. Publish only on an authorized
-  release event with correct versions, asset allowlist and checksums.
-- Get maintainers' review on the source PR, compare upstream PR #5's unique
-  fixes, run a one-time full regression + two host builds and final runtime
-  acceptance. Do not merge with an automatic release trigger still active.
+- Transfer both host projects, shared Common code, regression tests,
+  platform-specific build scripts and **English** documentation. Do not
+  transfer `.build`, `dist`, caches, local settings, credentials or tokens.
+- Preserve required GPLv3 notices and Matko's attribution in historical
+  source/release references. Explicitly link the new central source to
+  the legacy Jellyfin project/history.
+- Keep the existing `titlovi-jellyfin` Git history, tags, nine
+  released versions, original GUID, `gh-pages` catalogue and user links.
+  Its distribution workflow should handle **only Jellyfin** assets.
+- Agree how to handle upstream draft PR #5 and compare any unique fixes
+  with our existing Jellyfin 12 implementation before the first release.
+- Use `titlovi-emby` as an Emby 4.10 **manual-download** location.
+  Distribute `Emby.Titlovi.dll` with documentation and checksums, not
+  a Jellyfin ZIP or third-party Emby plugin-repository manifest.
+- Prepare host-specific READMEs/INSTALLs linking back to the same
+  central Unified tagged source. The Emby installation instructions
+  should cover stopping the server, copying the DLL into the actual
+  plugins folder, restarting and checking subtitles.
+- Review cross-repository build/publish permissions and final freeze
+  gates with Nikola before enabling any official release workflow.
 
 ## Draft publication documentation
 
