@@ -13,6 +13,21 @@ namespace Jellyfin.Titlovi.Configuration
         internal const string LegacyFileName = "Titlovi.Plugin.xml";
         internal const string CurrentFileName = "Jellyfin.Titlovi.xml";
 
+        // The current file's presence alone is not evidence of user configuration:
+        // Jellyfin can create an empty XML file before the old credentials are imported.
+        // Only the host plugin decides whether existing settings must take precedence.
+        internal static bool ShouldImportCredentials(
+            string currentUsername,
+            string currentPassword,
+            bool hasCurrentToken,
+            bool migrationAlreadyHandled)
+        {
+            return !migrationAlreadyHandled &&
+                string.IsNullOrWhiteSpace(currentUsername) &&
+                string.IsNullOrWhiteSpace(currentPassword) &&
+                !hasCurrentToken;
+        }
+
         internal static bool TryReadForImport(string configurationDirectory, out LegacyCredentials credentials)
         {
             credentials = null;
@@ -21,11 +36,6 @@ namespace Jellyfin.Titlovi.Configuration
 
             try
             {
-                // The new configuration always takes precedence, including an intentionally
-                // unconfigured or unreadable file. Never overwrite it with old credentials.
-                if (File.Exists(System.IO.Path.Combine(configurationDirectory, CurrentFileName)))
-                    return false;
-
                 var legacyPath = System.IO.Path.Combine(configurationDirectory, LegacyFileName);
                 if (!File.Exists(legacyPath))
                     return false;
