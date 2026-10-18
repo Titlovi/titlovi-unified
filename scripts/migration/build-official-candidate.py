@@ -94,7 +94,8 @@ def main() -> None:
             ])
             patch(tree, f"src/{host}/Plugin.cs", [
                 ('PluginVersion = "1.1.9"', f'PluginVersion = "{VERSION}"'),
-                ('"Titlovi.com (Unofficial)"', '"Titlovi.com"'),
+                ('public override string Name => "Titlovi.com (Unofficial)"',
+                 'public override string Name => "Titlovi.com"'),
                 (f'"Unofficial Titlovi.com subtitle provider for {host}."',
                  f'"Titlovi.com subtitle provider for {host}."'),
                 ('DisplayName = "Titlovi.com (Unofficial)"',
