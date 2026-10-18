@@ -176,6 +176,22 @@ branch** created from its actual latest `main` (not force-push or reset).
   fixes, run a one-time full regression + two host builds and final runtime
   acceptance. Do not merge with an automatic release trigger still active.
 
+## Draft publication documentation
+
+The following working documents have been prepared in English on this
+**migration branch only**; do not replace current end-user material while the
+plugin remains unofficial:
+
+- `OFFICIAL-RELEASE-NOTES-DRAFT.md` — release notes for proposed 2.0,
+  compatibility, migrated credentials, features, limitations and attribution.
+- `OFFICIAL-INSTALL-DRAFT.md` — Jellyfin 12 fresh install and original-plugin
+  upgrade, Jellyfin 10.11 server-upgrade boundaries, Emby 4.10 manual install,
+  credential troubleshooting and rollback.
+
+At actual release preparation, integrate the reviewed content into the
+official `README.md`, `INSTALL.md`, `CHANGELOG.md`, `NOTICE.txt` and
+release notes. Do not replace current stable development docs prematurely.
+
 ## Remaining release gates
 
 - Confirm current official repository ownership, commit privileges and explicit
