@@ -1,0 +1,93 @@
+name: Verify official 2.0 candidate (NO publication)
+
+# Deliberately opt-in only: no regular source push, PR or release runs.
+on:
+  push:
+    branches:
+      - migration/official-release-preparation
+    paths:
+      - scripts/migration/run-official-candidate.txt
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    name: Emby 4.10 and Jellyfin 12 official candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out candidate preparation branch
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Python syntax check (no repository write)
+        shell: bash
+        run: |
+          python3 -m py_compile \
+            scripts/migration/build-official-candidate.py \
+            scripts/migration/prepare-official-catalogue.py
+
+      - name: Run offline regression suite
+        shell: bash
+        run: bash scripts/linux/run-tests.sh
+
+      - name: Compile both host plugins and validate official candidate
+        shell: bash
+        env:
+          EMBY_IMAGE: emby/embyserver:4.10.0.40
+        run: python3 scripts/migration/build-official-candidate.py
+
+      - name: Read historical official Jellyfin catalogue (read-only)
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error --retry 2 \
+            --output dist/official-candidate/original-repository.json \
+            https://raw.githubusercontent.com/Titlovi/titlovi-jellyfin/gh-pages/repository.json
+
+      - name: Prepare and validate offline catalogue history preservation
+        shell: bash
+        run: |
+          python3 scripts/migration/prepare-official-catalogue.py \
+            dist/official-candidate/original-repository.json \
+            dist/official-candidate/titlovi-com_2.0.0.0.zip
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+
+          folder = Path('dist/official-candidate')
+          before = json.loads((folder / 'original-repository.json').read_text(encoding='utf-8'))
+          after = json.loads((folder / 'repository.review-only.json').read_text(encoding='utf-8'))
+          old = before[0]['versions']
+          new = after[0]['versions']
+          assert len(new) == len(old) + 1
+          assert new[1:] == old
+          assert new[0]['version'] == '2.0.0.0'
+          assert new[0]['targetAbi'] == '12.0.0.0'
+          assert new[0]['sourceUrl'] == (
+              'https://github.com/Titlovi/titlovi-jellyfin/releases/download/'
+              'v2.0.0/titlovi-com_2.0.0.0.zip'
+          )
+          data = (folder / 'titlovi-com_2.0.0.0.zip').read_bytes()
+          assert hashlib.md5(data).hexdigest() == new[0]['checksum']
+          for line in (folder / 'SHA256SUMS.txt').read_text().splitlines():
+              sha, name = line.split()
+              assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == sha
+          assert (folder / 'Emby.Titlovi.dll').stat().st_size > 0
+          print('Validated 2.0.0.0 candidate, two host files and retained',
+                len(old), 'historical Jellyfin releases.')
+          print('NO GITHUB RELEASE OR CATALOGUE UPDATES WERE PERFORMED.')
+          PY
+
+      - name: Store internal candidate for review (no public release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-official-2.0-candidate-NOT-FOR-RELEASE
+          path: dist/official-candidate/*
+          if-no-files-found: error
+          retention-days: 5
+          compression-level: 0
