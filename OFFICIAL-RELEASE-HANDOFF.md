@@ -54,16 +54,24 @@ At preparation time `Titlovi/titlovi-jellyfin` has:
   self-contained `Jellyfin.Titlovi.dll`. Replace/disable that workflow before
   any official 2.x release/tag.
 
-## Safe local release-candidate preview (Linux)
+## Safe local release-candidate preview (Windows and Linux)
 
 From the isolated migration preparation branch:
 
+```bat
+REM Windows, from the repository root:
+scripts\windows\build-official-candidate.cmd
+```
+
 ```bash
+# Linux, from the repository root:
 python3 scripts/migration/build-official-candidate.py
 ```
 
-Requirements: .NET 10 SDK, Python 3, Bash, NuGet access and Docker if Emby
-4.10 reference assemblies are not available locally. The script:
+Requirements: Python 3, stable .NET 10 SDK and NuGet access. Windows uses
+the existing PowerShell build machinery, which can download the appropriate
+Emby reference archives if needed; Linux uses Bash and Docker if Emby 4.10
+reference assemblies are not already installed. The script:
 
 1. Copies source to an ephemeral directory (ignoring `.git`, build and dist).
 2. Patches **only the ephemeral copy** to version 2.0.0.0 and official naming
