@@ -121,6 +121,19 @@ cat > "$JF_LEGACY_CONFIG" <<'XML'
   <Token><Id>obsolete-test-token</Id><UserId>42</UserId></Token>
 </TitloviConfiguration>
 XML
+
+# Regression: a prior preview install can leave a BLANK new-format XML behind.
+# The old importer incorrectly treated that file's mere existence as "migrated".
+JF_NEW_CONFIG="$JF_CONFIG/plugins/configurations/Jellyfin.Titlovi.xml"
+cat > "$JF_NEW_CONFIG" <<'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<PluginConfiguration>
+  <Username></Username>
+  <Password></Password>
+  <IncludeBshAlternativeLanguages>true</IncludeBshAlternativeLanguages>
+  <EnableDebugLogging>false</EnableDebugLogging>
+</PluginConfiguration>
+XML
 docker run -d \
   --name "$JELLYFIN_CONTAINER" \
   --user 0:0 \
@@ -167,7 +180,11 @@ if "obsolete-test-token" in imported_xml:
     raise SystemExit("Incompatible original authentication token was copied to the new plugin.")
 if "obsolete-test-token" not in original_xml:
     raise SystemExit("Original plugin token/configuration was unexpectedly modified.")
-print("Jellyfin original configuration import verified.")
+if new.get("LegacyCredentialsImportHandled", "").lower() != "true":
+    raise SystemExit("Import completion marker not persisted.")
+if new.get("IncludeBshAlternativeLanguages", "").lower() != "true":
+    raise SystemExit("Existing plugin options were not preserved during import.")
+print("Jellyfin original configuration import into existing blank XML verified.")
 PY
 docker rm -f "$JELLYFIN_CONTAINER" >/dev/null
 
