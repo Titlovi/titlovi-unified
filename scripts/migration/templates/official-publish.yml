@@ -1,0 +1,150 @@
+# TEMPLATE ONLY. Not active until copied into Titlovi/titlovi-jellyfin
+# after Unified has replaced the old source and official maintainers approve it.
+#
+# WARNING: before activation, change production Linux/Windows packaging scripts
+# to the official name + 2.x version in TRACKED source and ensure they produce
+# dist/Jellyfin/titlovi-com_<version>.zip and dist/Emby/Emby.Titlovi.dll.
+# Existing Matko 1.x Git tags/releases/gh-pages history MUST NOT be deleted.
+name: Official Unified release (review-required template)
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: titlovi-official-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'Titlovi/titlovi-jellyfin'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out official tagged source with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Validate first official release tag and source version
+        id: release-version
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_NAME" == v2.0.0 ]] || { echo 'Template permits ONLY initial v2.0.0 release' >&2; exit 1; }
+          jfv="$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' src/Jellyfin/Jellyfin.Titlovi.csproj | head -n1)"
+          embyv="$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' src/Emby/Emby.Titlovi.csproj | head -n1)"
+          [[ "$jfv" == 2.0.0.0 && "$embyv" == "$jfv" ]] || { echo 'Release versions mismatched' >&2; exit 1; }
+          echo "version=$jfv" >> "$GITHUB_OUTPUT"
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Run the regression suite
+        shell: bash
+        run: bash scripts/linux/run-tests.sh
+
+      - name: Build independent Emby 4.10 and Jellyfin 12 packages
+        shell: bash
+        env:
+          EMBY_IMAGE: emby/embyserver:4.10.0.40
+        run: bash scripts/linux/build-all.sh
+
+      - name: Validate release assets and generate checksum sidecars
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/official-release
+          cp "dist/Jellyfin/titlovi-com_$RELEASE_VERSION.zip" dist/official-release/
+          cp dist/Emby/Emby.Titlovi.dll dist/official-release/
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          folder = pathlib.Path('dist/official-release')
+          version = os.environ['RELEASE_VERSION']
+          jellyfin = folder / f'titlovi-com_{version}.zip'
+          emby = folder / 'Emby.Titlovi.dll'
+          if not jellyfin.is_file() or not emby.is_file() or not emby.stat().st_size:
+              raise SystemExit('Emby or Jellyfin release asset missing')
+          with zipfile.ZipFile(jellyfin) as archive:
+              if set(archive.namelist()) != {'Jellyfin.Titlovi.dll','meta.json','thumb.png'}:
+                  raise SystemExit('Unexpected Jellyfin package contents')
+              metadata = json.loads(archive.read('meta.json'))
+          checks = {'guid':'6e25df50-638e-4109-a50b-03c14fc93fdd',
+                    'version':version, 'targetAbi':'12.0.0.0', 'name':'Titlovi.com'}
+          for key, expected in checks.items():
+              if metadata.get(key) != expected:
+                  raise SystemExit(f'Invalid official Jellyfin metadata {key}')
+          for path in (jellyfin, emby):
+              payload = path.read_bytes()
+              (folder / (path.name + '.md5')).write_text(hashlib.md5(payload).hexdigest() + '\n')
+              (folder / (path.name + '.sha256')).write_text(hashlib.sha256(payload).hexdigest() + '\n')
+          print('Validated official release assets and checksums')
+          PY
+
+      - name: Upload only allowlisted release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          cd dist/official-release
+          gh release upload "$GITHUB_REF_NAME" \
+            "titlovi-com_$RELEASE_VERSION.zip" \
+            "titlovi-com_$RELEASE_VERSION.zip.md5" \
+            "titlovi-com_$RELEASE_VERSION.zip.sha256" \
+            Emby.Titlovi.dll Emby.Titlovi.dll.md5 Emby.Titlovi.dll.sha256
+
+      - name: Verify actual published Jellyfin asset checksum
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/published-verification
+          gh release download "$GITHUB_REF_NAME" \
+            --pattern "titlovi-com_$RELEASE_VERSION.zip" \
+            --dir dist/published-verification
+          cmp "dist/published-verification/titlovi-com_$RELEASE_VERSION.zip" \
+              "dist/official-release/titlovi-com_$RELEASE_VERSION.zip"
+
+      - name: Prepare review-only historical-catalogue preservation update
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch origin gh-pages
+          mkdir -p dist/catalogue-input
+          git show origin/gh-pages:repository.json > dist/catalogue-input/repository.json
+          python3 scripts/migration/prepare-official-catalogue.py \
+            dist/catalogue-input/repository.json \
+            "dist/official-release/titlovi-com_$RELEASE_VERSION.zip"
+          test -s dist/official-release/repository.review-only.json
+
+      - name: Publish updated catalogue ONLY after release asset is verified
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git worktree add --detach dist/official-gh-pages origin/gh-pages
+          cp dist/official-release/repository.review-only.json \
+            dist/official-gh-pages/repository.json
+          git -C dist/official-gh-pages diff --check
+          git -C dist/official-gh-pages add repository.json
+          git -C dist/official-gh-pages diff --cached --quiet && {
+            echo 'Catalogue update was unexpectedly empty' >&2; exit 1;
+          }
+          git -C dist/official-gh-pages commit -m 'catalogue: add official Unified Jellyfin 2.0.0.0'
+          git -C dist/official-gh-pages push origin HEAD:gh-pages
+          echo 'Official Jellyfin release and preserved-history catalogue published.'
