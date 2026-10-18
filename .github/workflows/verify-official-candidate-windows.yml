@@ -1,0 +1,67 @@
+name: Windows official 2.0 candidate verification (NO publication)
+
+# Explicit one-time Windows-only package parity check; normal pushes do not run.
+on:
+  push:
+    branches:
+      - migration/official-release-preparation
+    paths:
+      - scripts/migration/run-windows-official-candidate.txt
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows Emby 4.10 and Jellyfin 12 candidate
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out candidate preparation branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Build both official-branded host candidates in isolated copy
+        shell: pwsh
+        run: python scripts/migration/build-official-candidate.py
+
+      - name: Validate generated Windows artifacts and metadata
+        shell: pwsh
+        run: |
+          @'
+          import hashlib, json, zipfile
+          from pathlib import Path
+          d = Path('dist/official-candidate')
+          assert (d / 'Emby.Titlovi.dll').stat().st_size > 0
+          archive = d / 'titlovi-com_2.0.0.0.zip'
+          with zipfile.ZipFile(archive) as z:
+              assert set(z.namelist()) == {'Jellyfin.Titlovi.dll', 'meta.json', 'thumb.png'}
+              meta = json.loads(z.read('meta.json'))
+          assert meta['guid'] == '6e25df50-638e-4109-a50b-03c14fc93fdd'
+          assert meta['name'] == 'Titlovi.com'
+          assert meta['version'] == '2.0.0.0'
+          assert meta['targetAbi'] == '12.0.0.0'
+          for entry in (d / 'SHA256SUMS.txt').read_text(encoding='utf-8').splitlines():
+              sha, name = entry.split()
+              assert hashlib.sha256((d / name).read_bytes()).hexdigest() == sha
+          print('Windows official candidate parity verified: both hosts, correct ZIP and checksums.')
+          print('NO OFFICIAL RELEASE OR CATALOGUE PUBLISHED.')
+          '@ | python -
+
+      - name: Store internal Windows artifact for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-official-2.0-Windows-candidate-NOT-FOR-RELEASE
+          path: dist/official-candidate/*
+          retention-days: 5
+          if-no-files-found: error
+          compression-level: 0
