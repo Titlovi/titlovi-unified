@@ -26,22 +26,24 @@ namespace Titlovi.Tests
         }
 
         [Fact]
-        public void ExistingNewConfiguration_TakesPrecedenceEvenIfEmpty()
+        public void ExistingBlankNewConfigurationFile_DoesNotBlockLegacyImport()
         {
             WithTemporaryDirectory(directory =>
             {
                 WriteLegacy(directory, "original", "original-secret");
                 var current = Path.Combine(directory, LegacyConfigurationImport.CurrentFileName);
-                File.WriteAllText(current, "");
+                File.WriteAllText(current, "<PluginConfiguration><Username /><Password /><IncludeBshAlternativeLanguages>true</IncludeBshAlternativeLanguages></PluginConfiguration>");
 
-                Assert.False(LegacyConfigurationImport.TryReadForImport(directory, out var imported));
-                Assert.Null(imported);
-                Assert.Equal("", File.ReadAllText(current));
+                Assert.True(LegacyConfigurationImport.TryReadForImport(directory, out var imported));
+                Assert.True(LegacyConfigurationImport.ShouldImportCredentials("", "", false, false));
+                Assert.Equal("original", imported.Username);
+                Assert.Equal("original-secret", imported.Password);
+                Assert.Contains("IncludeBshAlternativeLanguages>true", File.ReadAllText(current));
             });
         }
 
         [Fact]
-        public void ExistingNewConfiguration_MakesImportIdempotentOnRestart()
+        public void ExistingNewCredentialsTakePrecedenceEvenWhenOldXmlExists()
         {
             WithTemporaryDirectory(directory =>
             {
@@ -49,11 +51,28 @@ namespace Titlovi.Tests
                 Assert.True(LegacyConfigurationImport.TryReadForImport(directory, out var imported));
                 Assert.Equal("original", imported.Username);
 
-                File.WriteAllText(Path.Combine(directory, LegacyConfigurationImport.CurrentFileName),
-                    "<PluginConfiguration><Username>current</Username><Password>current-secret</Password></PluginConfiguration>");
-
-                Assert.False(LegacyConfigurationImport.TryReadForImport(directory, out _));
+                // The legacy XML can still be read, but the plugin does not apply it.
+                Assert.False(LegacyConfigurationImport.ShouldImportCredentials(
+                    "current", "current-secret", false, false));
             });
+        }
+
+        [Fact]
+        public void CompletedMigrationDoesNotReimportAfterCredentialsAreCleared()
+        {
+            Assert.False(LegacyConfigurationImport.ShouldImportCredentials("", "", false, true));
+            Assert.True(LegacyConfigurationImport.ShouldImportCredentials("", "", false, false));
+        }
+
+        [Theory]
+        [InlineData("configured-user", "", false)]
+        [InlineData("", "configured-secret", false)]
+        [InlineData("", "", true)]
+        public void PartialNewCredentialsOrTokenPreventLegacyOverwrite(
+            string username, string password, bool tokenPresent)
+        {
+            Assert.False(LegacyConfigurationImport.ShouldImportCredentials(
+                username, password, tokenPresent, false));
         }
 
         [Fact]
