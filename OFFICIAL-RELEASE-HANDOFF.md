@@ -116,6 +116,40 @@ that exact release and asset exist and the published ZIP checksum is verified
 against the new catalogue entry. An asset upload and catalogue update must
 follow that order.
 
+## Candidate build verification (2026-10-18)
+
+Both isolated 2.0.0.0 build paths have passed without modifying tracked
+versions or publishing any release:
+
+- **Ubuntu/Linux:** [GitHub Actions #39127480109](https://github.com/mihvel/Titlovi.com.Unified/actions/runs/39127480109). **164/164** regression cases, both host builds, validated Jellyfin ABI/ZIP, MD5/SHA256, historical official catalogue with **nine** entries preserved. Review-only artifact expires 2026-10-23.
+- **Windows:** [GitHub Actions #39127793618](https://github.com/mihvel/Titlovi.com.Unified/actions/runs/39127793618). Both host builds passed; Jellyfin ZIP name, layout, GUID, ABI and SHA256 sidecars verified. Review-only artifact expires 2026-10-23.
+
+These are candidate packaging tests. The final source version and official
+GitHub Release have **not** been updated.
+
+## Prepared upstream publication workflow (disabled template)
+
+`scripts/migration/templates/official-publish.yml` is a **non-executable
+template in this repository**, not a deployed GitHub Actions workflow. It is
+specifically restricted to the initial `v2.0.0` official release in
+`Titlovi/titlovi-jellyfin`, and requires explicit upstream review.
+
+After the official source branch has been merged and checked, upstream
+maintainers can adapt and enable the template **instead of** the current
+Matko build/publish workflows. It runs the suite, builds both host packages,
+validates the official identity and ZIP contents, creates Matko-compatible
+release checksum sidecars, uploads only allowlisted assets, downloads the
+actual release ZIP again and checks its content, then generates a new
+`gh-pages` catalogue from the existing historical manifest with old release
+objects untouched.
+
+It should be verified on a controlled draft release/isolated fork before
+being trusted to change the actual official catalogue. **Do not copy it
+unchanged into production without testing and without coordination with
+Nikola.** Verify the permissions, release event semantics, and the live
+GitHub Pages branch protection first. Official packaging scripts also need
+the final tracked official version/name update before the template can run.
+
 ## Preparing the upstream source PR
 
 After explicit upstream agreement, work in a dedicated **official repository
