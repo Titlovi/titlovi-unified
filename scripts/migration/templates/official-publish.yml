@@ -1,3 +1,9 @@
+# SUPERSEDED DESIGN REFERENCE — DO NOT ACTIVATE OR COPY INTO PRODUCTION.
+# The project now uses one canonical Titlovi/titlovi-unified source repository,
+# Jellyfin-only releases/catalogue at Titlovi/titlovi-jellyfin and manually
+# installed Emby DLL releases at Titlovi/titlovi-emby. The workflow below is
+# OBSOLETE because it assumes both assets are published in the Jellyfin repo.
+# Retained only for its checksum, validation and catalogue-preservation ideas.
 # TEMPLATE ONLY. Not active until copied into Titlovi/titlovi-jellyfin
 # after Unified has replaced the old source and official maintainers approve it.
 #
