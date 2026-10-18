@@ -84,13 +84,18 @@ official Titlovi.com 2.0 plugin and check credentials as above.
 particular Jellyfin server/database upgrade will succeed.** The full server
 upgrade is independent and must be backed up and tested.
 
-## Emby Server 4.10.x
+## Emby Server 4.10.x — manual DLL installation
 
-The unified source produces a separate, self-contained asset:
+**Emby installation is manual in our supported distribution model.**
+There is no Titlovi.com third-party Emby plugin repository/catalogue and no
+repository URL to add to Emby Server. Do not follow the Jellyfin installation
+procedure for Emby.
 
-```
-Emby.Titlovi.dll
-```
+After official publication, download the self-contained
+`Emby.Titlovi.dll` directly from the approved GitHub Releases of the separate
+**`Titlovi/titlovi-emby`** repository. This distribution home is planned but
+has not yet been created. Its releases will link to the matching source tag
+in the canonical `Titlovi/titlovi-unified` repository.
 
 1. Back up existing Emby plugin/configuration data if upgrading.
 2. Stop Emby Server.
