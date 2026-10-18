@@ -10,12 +10,18 @@ Titlovi.com Jellyfin plugin implementation with a **single, shared source
 tree for Jellyfin and Emby**, while retaining the existing official Jellyfin
 plugin identity, catalogue URL and historical versions.
 
-Two independent host builds are included:
+Two independent host builds are compiled from **one canonical source**
+(projected official repository `Titlovi/titlovi-unified`) and distributed
+through separate host-specific repositories:
 
-| Host | Supported server | Downloadable release asset |
-| --- | --- | --- |
-| Jellyfin | 12.x / .NET 10 | `titlovi-com_2.0.0.0.zip` |
-| Emby | 4.10.x | `Emby.Titlovi.dll` |
+| Host | Supported server | Distribution | Downloadable release asset |
+| --- | --- | --- | --- |
+| Jellyfin | 12.x / .NET 10 | Existing `Titlovi/titlovi-jellyfin` catalogue / GitHub Releases | `titlovi-com_2.0.0.0.zip` |
+| Emby | 4.10.x | Proposed `Titlovi/titlovi-emby` GitHub Releases; **manual DLL installation** | `Emby.Titlovi.dll` |
+
+**No Emby third-party repository feed or automatic repository-based installation
+is provided.** The existing Jellyfin plugin catalogue URL and historical
+release assets remain unchanged.
 
 The Jellyfin ZIP contains precisely `Jellyfin.Titlovi.dll`, `meta.json`,
 and `thumb.png`. Both compiled plugins include their shared subtitle
@@ -83,8 +89,9 @@ licensing acknowledgements; see `NOTICE.txt` and the preserved Git history.
 
 ## Pre-publication review checklist
 
-- [ ] Receive official Titlovi.com approval for branding, published assets
-      and distribution ownership.
+- [ ] Receive official Titlovi.com approval to create canonical
+      `titlovi-unified` and manual-install `titlovi-emby` repos, and for branding,
+      host-specific release assets and distribution ownership.
 - [ ] Resolve/explain upstream draft PR #5 (Jellyfin 12 / 1.3.0.0).
 - [ ] Final source/version bump and release notes review.
 - [ ] Regression suite and both host builds pass on final source.
