@@ -84,8 +84,9 @@ jobs:
                   raise SystemExit(f'Invalid official Jellyfin metadata {key}')
           for path in (jellyfin, emby):
               payload = path.read_bytes()
-              (folder / (path.name + '.md5')).write_text(hashlib.md5(payload).hexdigest() + '\n')
-              (folder / (path.name + '.sha256')).write_text(hashlib.sha256(payload).hexdigest() + '\n')
+              sidecar = path.name[:-4] if path.suffix == '.zip' else path.name
+              (folder / (sidecar + '.md5')).write_text(hashlib.md5(payload).hexdigest() + '\n')
+              (folder / (sidecar + '.sha256')).write_text(hashlib.sha256(payload).hexdigest() + '\n')
           print('Validated official release assets and checksums')
           PY
 
@@ -99,8 +100,8 @@ jobs:
           cd dist/official-release
           gh release upload "$GITHUB_REF_NAME" \
             "titlovi-com_$RELEASE_VERSION.zip" \
-            "titlovi-com_$RELEASE_VERSION.zip.md5" \
-            "titlovi-com_$RELEASE_VERSION.zip.sha256" \
+            "titlovi-com_$RELEASE_VERSION.md5" \
+            "titlovi-com_$RELEASE_VERSION.sha256" \
             Emby.Titlovi.dll Emby.Titlovi.dll.md5 Emby.Titlovi.dll.sha256
 
       - name: Verify actual published Jellyfin asset checksum
