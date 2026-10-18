@@ -68,8 +68,6 @@ def validate_zip(path: Path) -> None:
 def main() -> None:
     if len(sys.argv) != 1:
         raise SystemExit("Usage: python3 scripts/migration/build-official-candidate.py")
-    if os.name == "nt":
-        raise SystemExit("Linux/Bash is needed for this isolated candidate script.")
     output = ROOT / "dist" / "official-candidate"
     if output.exists():
         shutil.rmtree(output)
@@ -143,7 +141,15 @@ def main() -> None:
 
         print("Building official-branded CANDIDATE from an isolated source copy", flush=True)
         print("No publication is performed. Release version changes are NOT committed.", flush=True)
-        subprocess.run(["bash", "scripts/linux/build-all.sh"], cwd=tree, check=True)
+        if os.name == "nt":
+            subprocess.run(
+                ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass",
+                 "-File", str(tree / "scripts" / "windows" / "Build.ps1"),
+                 "-Target", "All"],
+                cwd=tree, check=True
+            )
+        else:
+            subprocess.run(["bash", "scripts/linux/build-all.sh"], cwd=tree, check=True)
 
         embedded = tree / "dist"
         jellyfin = embedded / "Jellyfin" / ZIP_NAME
