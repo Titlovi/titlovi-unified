@@ -37,25 +37,37 @@ namespace Jellyfin.Titlovi
 
         private void ImportLegacyConfigurationIfNeeded(string configurationDirectory)
         {
+            // Existing Jellyfin.Titlovi.xml may contain an empty configuration from an
+            // earlier preview installation. Never use file existence as an import guard.
+            var current = Configuration;
+            if (current == null || current.LegacyCredentialsImportHandled)
+                return;
+
             if (!LegacyConfigurationImport.TryReadForImport(configurationDirectory, out var legacy))
                 return;
 
             try
             {
-                // Save through Jellyfin's own XML serializer under Jellyfin.Titlovi.xml.
-                // The source Titlovi.Plugin.xml remains intact for rollback.
-                // A legacy token is intentionally not reused because its model differs.
-                SaveConfiguration(new PluginConfiguration
+                if (LegacyConfigurationImport.ShouldImportCredentials(
+                    current.Username,
+                    current.Password,
+                    current.Token != null,
+                    current.LegacyCredentialsImportHandled))
                 {
-                    Username = legacy.Username,
-                    Password = legacy.Password,
-                    Token = null
-                });
+                    // Preserve all non-credential options already set in Jellyfin.
+                    current.Username = legacy.Username;
+                    current.Password = legacy.Password;
+                    current.Token = null; // Original token uses an incompatible XML model.
+                }
+
+                // Record the decision even if user-supplied new credentials won.
+                // Otherwise clearing them later could silently restore the old login.
+                current.LegacyCredentialsImportHandled = true;
+                SaveConfiguration(current);
             }
             catch
             {
-                // Credential import is best-effort. Never block normal plugin startup
-                // or include potentially sensitive configuration details in logs.
+                // Import must never block startup or log credential values.
             }
         }
 
