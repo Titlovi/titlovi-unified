@@ -1,95 +1,68 @@
-# Titlovi.com — subtitles for Jellyfin and Emby
+# Titlovi.com for Jellyfin and Emby
 
-Subtitle-provider plugins that let Jellyfin and Emby search for and download subtitles from **[Titlovi.com](https://titlovi.com/)**. Both integrations are developed from one shared source tree and distributed as separate, self-contained host plugins.
+**Official Titlovi.com subtitle plugins for Jellyfin and Emby**, developed from a single source codebase. Search for and download subtitles from [Titlovi.com](https://titlovi.com/) directly in your media server.
 
-This is the **official Titlovi GitHub organization's source repository** for the Unified implementation. It is not a plugin catalogue or a release download repository.
+> **Release status:** The first official Unified release, **2.0.0.0**, is being prepared. Installation packages for Jellyfin 12 and Emby 4.10.x have **not yet been published**. This repository contains the source code, not downloadable plugin releases.
 
-> **Release status — 19 October 2026:** The Unified source code has been migrated here, but **Unified 2.0.0.0 has not been released**. The checked-in development builds still identify themselves as **Titlovi.com (Unofficial)** and have version **1.1.9**. Do not mistake a development build or test candidate for an official 2.0 release.
+## Supported platforms
 
-## Downloads and supported servers
-
-| Server | Current availability | Where to get it |
+| Media server | Supported version | Installation and distribution |
 | --- | --- | --- |
-| **Jellyfin 10.10 / 10.11** | Previously published **1.x** plugin releases; choose a release compatible with your Jellyfin server ABI. | [Titlovi Jellyfin releases](https://github.com/Titlovi/titlovi-jellyfin/releases) and [official plugin catalogue](https://titlovi.github.io/titlovi-jellyfin/repository.json) |
-| **Jellyfin 12 / .NET 10** | Unified implementation in this source repository; official **2.0.0.0** package **not yet published**. | The [Jellyfin distribution repository](https://github.com/Titlovi/titlovi-jellyfin) will publish the approved ZIP. |
-| **Emby Server 4.10.x** | Unified implementation in this source repository; official release **not yet published**. | The [Emby distribution repository](https://github.com/Titlovi/titlovi-emby) will publish the approved DLL for manual installation. |
+| **Jellyfin** | **12.x** (.NET 10) | Official plugin catalogue and release packages at [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). The existing catalogue URL will be retained. |
+| **Emby Server** | **4.10.x** | Manual installation of `Emby.Titlovi.dll` from future releases at [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby). |
 
-**Do not install an older Jellyfin 1.x package on Jellyfin 12.** The compatibility requirements for the host and plugin version must match. The existing Jellyfin catalogue and historical releases remain unchanged while Unified 2.0 is being prepared.
+The above versions are the targets of the upcoming Unified release. **Do not attempt to install Unified 2.0 until its official packages are published.** Existing releases in the Jellyfin catalogue remain available for their respective supported server versions.
 
-### Distribution model
+## Features
 
-- **[Titlovi/titlovi-unified](https://github.com/Titlovi/titlovi-unified)** (this repository): canonical source, issues, development, tests and coordinated release preparation.
-- **[Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin)**: Jellyfin ZIP packages, historical 1.x releases and the existing plugin-catalogue URL.
-- **[Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby)**: Emby DLL releases and manual-installation instructions. **There is no third-party Emby plugin feed or automatic repository-based installation** in the supported distribution model.
+The Unified implementation provides:
 
-The planned Jellyfin distribution ZIP contains exactly `Jellyfin.Titlovi.dll`, `meta.json` and `thumb.png`. Emby is distributed as `Emby.Titlovi.dll`. Neither plugin requires a separate Common/Core runtime DLL.
+- **Movies and television series:** subtitle search and download through the media server.
+- **Flexible search:** IMDb-based matching and title fallback when needed.
+- **Serbian, Croatian and Bosnian subtitles:** optional searches across all three languages, with each result identified by the language reported by Titlovi.com.
+- **Release-aware ranking:** preferred results can be ranked using release details without hiding other valid results.
+- **Subtitle archives:** season and complete-series packages, nested ZIP archives, multi-episode files and legacy episode filename patterns.
+- **Subtitle formats:** SRT, SUB, TXT, SSA and ASS, with optional conversion to UTF-8.
+- **Diagnostics:** optional detailed logging to help investigate search or download problems.
+
+Distinct subtitles retain their separate identities: results with different Titlovi.com media IDs are not merged merely because their names or release details are similar.
+
+### Known Emby limitation
+
+Emby Server 4.10.x may save an alternative-language subtitle with a filename suffix corresponding to the language originally requested in the search. For example, a Croatian subtitle found while searching for Serbian may be saved with an `.sr.srt` suffix. The search results still identify the actual subtitle language reported by Titlovi.com.
 
 ## Requirements
 
+- A compatible Jellyfin or Emby Server version.
 - A **Titlovi.com account with API access**. Account eligibility and access conditions are determined by Titlovi.com.
-- A compatible Jellyfin or Emby server version as shown above.
 
-The plugin uses the credentials configured in the media server to authenticate with Titlovi.com. Do not put credentials in GitHub issues or public log attachments.
+A setup guide and upgrade instructions for the official Unified release will accompany its publication.
 
-## What the Unified implementation provides
+## Source code and development
 
-- Subtitle search and download for **movies and TV episodes**.
-- **IMDb-based search**, with title search used as a fallback where needed.
-- Optional searching across **Serbian, Croatian and Bosnian** when one of these languages is requested.
-- Search results that retain the **actual subtitle language reported by Titlovi.com**.
-- **Release-aware ranking** based on signals such as release group, source, frame rate and edition; release matching does **not** remove otherwise valid results.
-- Handling of **season packs, full-series packs, nested ZIP archives and multi-episode subtitle bundles**, including legacy episode naming conventions.
-- Support for **SRT, SUB, TXT, SSA and ASS** subtitles, with optional conversion of downloaded subtitles to UTF-8.
-- Optional detailed diagnostics for troubleshooting.
-
-### Languages and distinct subtitle uploads
-
-When alternative Serbian/Croatian/Bosnian searching is enabled, the plugin can display results in the other two languages. Results are labelled with their actual language as reported by Titlovi.com. Different **Titlovi.com media IDs remain separate choices**, even if the subtitles have similar titles or release names; only repeated results with an identical media ID may be deduplicated.
-
-**Known Emby 4.10.x limitation:** After an alternative-language search, Emby may name the saved external subtitle file using the originally requested language, even if a different actual language is shown in the search results. For example, a Croatian result found during a Serbian search may be saved with an `.sr.srt` suffix. The plugin preserves the correct language in its search results; this Emby host limitation is not worked around by mislabelling subtitles.
-
-## Installing and configuring
-
-Use the **existing Jellyfin catalogue** for compatible, previously published Jellyfin versions. Installation and upgrade instructions for **Unified 2.0.0.0** will become effective **only when that release has been approved and published**.
-
-If you are building from source or evaluating a development build, see the [development-build installation guide](INSTALL.md). The [draft Unified 2.0 installation and upgrade guide](OFFICIAL-INSTALL-DRAFT.md) is available for review but is **not** a published-release installation procedure.
-
-Once a compatible plugin is installed, configure the Titlovi.com username and password in the server's plugin settings. You can then choose accepted subtitle formats and optionally enable B/S/H alternative-language searches, UTF-8 conversion and diagnostic logging.
-
-The planned official Jellyfin successor keeps the **original Jellyfin plugin ID** and the **existing catalogue URL**. Credential migration from the original plugin has been tested against a Unified preview; the final official package still requires acceptance testing before release.
-
-## Development and validation
-
-One source tree builds two host-specific assemblies:
+This is the **canonical source repository** for both plugins. Each plugin is built independently from shared logic; no additional Common/Core DLL is required.
 
 ```text
-src/Common/       Shared subtitle engine and platform-neutral models
-src/Jellyfin/     Jellyfin 12 integration
-src/Emby/         Emby 4.10.x integration
-tests/            Offline regression, runtime smoke and opt-in E2E tests
-scripts/windows/  Windows build and test scripts
-scripts/linux/    Linux build and test scripts
+src/Common/       Shared subtitle search and download engine
+src/Jellyfin/     Jellyfin-specific integration
+src/Emby/         Emby-specific integration
+tests/            Regression and integration tests
+scripts/          Build, packaging and test scripts
 ```
 
-The shared `src/Common` C# files are compiled **directly into each host plugin**; there is no separate runtime Common/Core assembly.
+- [Build and test instructions](README-BUILD.txt)
+- [Architecture and design](ARCHITECTURE.md)
+- [Development changelog](CHANGELOG.md)
+- [Report an issue](https://github.com/Titlovi/titlovi-unified/issues)
 
-- [Build and developer guide](README-BUILD.txt) — requirements, build commands, outputs and troubleshooting.
-- [Architecture](ARCHITECTURE.md) — separation of shared and host-specific responsibilities.
-- [Changelog](CHANGELOG.md) — project change history.
-- [Official release preparation](OFFICIAL-RELEASE-HANDOFF.md) — migration record and remaining 2.0 publication checks.
+Automated tests and builds run on Windows and Linux. Live end-to-end tests against Titlovi.com are run separately, using dedicated credentials and controlled requests.
 
-CI runs the offline regression suite and builds both host plugins on standard Windows and Ubuntu runners. Linux runtime smoke tests check whether the resulting assemblies load into the supported host servers. **Live authenticated Titlovi.com end-to-end tests are opt-in**, not part of ordinary pushes.
-
-## Feedback and security
-
-Please use [GitHub Issues](https://github.com/Titlovi/titlovi-unified/issues) for reproducible bug reports and improvement proposals. Include the **server version**, **plugin version**, relevant title/episode details and the steps needed to reproduce the problem.
-
-**Never publish your Titlovi.com password, API tokens, plugin configuration XML or unredacted sensitive logs.** Diagnostic logs may also contain filenames and media titles.
+**Security:** Never share your Titlovi.com password, API tokens, configuration files containing credentials or unredacted sensitive logs in public issues.
 
 ## License and acknowledgements
 
-Licensed under the **GNU General Public License, version 3**. See [LICENSE](LICENSE) and [NOTICE.txt](NOTICE.txt).
+This project is licensed under the **GNU General Public License v3.0**. See [LICENSE](LICENSE) and [NOTICE.txt](NOTICE.txt).
 
-The project acknowledges **Matko's original open-source Jellyfin plugin and API-client work**, whose repository and historical releases remain available at [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin).
+The original Titlovi.com Jellyfin plugin and its historical releases, developed by Matko, remain preserved in the [Jellyfin repository](https://github.com/Titlovi/titlovi-jellyfin).
 
-Emby and Jellyfin are separate projects; their names and trademarks belong to their respective owners.
+Emby and Jellyfin are independent projects and are not responsible for maintaining this plugin.
