@@ -11,13 +11,13 @@ tree for Jellyfin and Emby**, while retaining the existing official Jellyfin
 plugin identity, catalogue URL and historical versions.
 
 Two independent host builds are compiled from **one canonical source**
-(projected official repository `Titlovi/titlovi-unified`) and distributed
+(now hosted in `Titlovi/titlovi-unified`) and distributed
 through separate host-specific repositories:
 
 | Host | Supported server | Distribution | Downloadable release asset |
 | --- | --- | --- | --- |
 | Jellyfin | 12.x / .NET 10 | Existing `Titlovi/titlovi-jellyfin` catalogue / GitHub Releases | `titlovi-com_2.0.0.0.zip` |
-| Emby | 4.10.x | Proposed `Titlovi/titlovi-emby` GitHub Releases; **manual DLL installation** | `Emby.Titlovi.dll` |
+| Emby | 4.10.x | Future `Titlovi/titlovi-emby` GitHub Releases; **manual DLL installation** | `Emby.Titlovi.dll` |
 
 **No Emby third-party repository feed or automatic repository-based installation
 is provided.** The existing Jellyfin plugin catalogue URL and historical
