@@ -1,6 +1,6 @@
 # Official source migration completeness audit — 2026-10-19
 
-**Status: source recovery PR #3 merged; audit and official 2.0.0.0 release review NOT yet complete.** This is a
+**Status: Git source/PR/branch audit and historical decision reconciliation completed; official 2.0.0.0 release review NOT yet complete.** This is a
 historical verification checkpoint, **not** an assertion that all release
 acceptance tests have passed.
 
@@ -75,7 +75,7 @@ or were intentionally experimental.
 | `migration/test-catalogue` | Temporary preview catalogue build and trial; not production release infrastructure. |
 | `migration/test-catalogue-v1991` | Temporary 1.99.1 upgrade/credentials preview tooling; corresponding credentials behavior is now implemented and separately validated, but preview publishing machinery is not production infrastructure. |
 | `migration/test-catalogue-publisher` | Experimental opt-in test-catalogue publish/dry-run workflow; not to be enabled as official release publishing. |
-| `planning/official-migration` | Former living 40 KB migration plan. Decisions were subsequently reorganized into the official handoff/release preparation documents; **editorial parity of every planning note has not yet been proven**. Retain historical source for comparison. |
+| `planning/official-migration` | Former living migration plan reconciled against [the official release handoff](release-preparation/HANDOFF.md#historical-migration-plan-decision-reconciliation-2026-10-19) and the installation/release drafts on 2026-10-19. Relevant technical/release decisions are recorded there; interim test logs and superseded preparatory workflows remain historical, not production instructions. |
 
 The old repository and its branch references must be preserved for historical
 traceability until maintainers explicitly decide on their long-term archive.
@@ -92,8 +92,11 @@ traceability until maintainers explicitly decide on their long-term archive.
 2. PR #3's Windows/Linux regression and host-build jobs and Linux runtime smoke
    passed before merging. The official 2.0 release candidate must still
    undergo its own fresh build and acceptance tests.
-3. Verify the old migration planning document against current release-preparation
-   guidance for materially missing decisions before final release freeze.
+3. **Completed (2026-10-19):** reconciled the old migration plan's decisions
+   with the [official release handoff](release-preparation/HANDOFF.md) and
+   install/release drafts. Historical preview-publishing and server-upgrade
+   rehearsal scripts remain in the old repository; they are not production
+   release mechanisms. Final release sign-off still requires live acceptance.
 4. Keep published 1.x Jellyfin catalogue and release history unchanged.
 5. Perform final official 2.0 packaging, compatibility, fresh-install and
    actual original-plugin upgrade acceptance checks independently. Explicit
