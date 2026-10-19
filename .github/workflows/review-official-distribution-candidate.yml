@@ -72,12 +72,10 @@ jobs:
               'download/v2.0.0/titlovi-com_2.0.0.0.zip')
           archive = directory / 'titlovi-com_2.0.0.0.zip'
           assert hashlib.md5(archive.read_bytes()).hexdigest() == item['checksum']
-          for name, checksum_filename in (
-              ('Emby.Titlovi.dll', 'SHA256SUMS.txt'),
-              ('titlovi-com_2.0.0.0.zip', 'SHA256SUMS.txt')
-          ):
-              lines = (directory / checksum_filename).read_text('utf-8').splitlines()
-              checksums = dict(line.split() for line in lines)
+          lines = (directory / 'SHA256SUMS.txt').read_text('utf-8').splitlines()
+          # Each checksum file line is SHA256 followed by the file name.
+          checksums = {filename: digest for digest, filename in (line.split() for line in lines)}
+          for name in ('Emby.Titlovi.dll', 'titlovi-com_2.0.0.0.zip'):
               assert hashlib.sha256((directory / name).read_bytes()).hexdigest() == checksums[name]
           print('OFFLINE REVIEW PASSED: both candidates and nine untouched historical versions')
           print('NO TAGS, RELEASES, CATALOGUE WRITES OR PUBLIC ASSET UPLOADS')
@@ -130,7 +128,10 @@ jobs:
                       'version':'2.0.0.0', 'name':'Titlovi.com',
                       'targetAbi':'12.0.0.0'}.items():
               assert meta[k] == v
-          sums = dict(line.split() for line in (directory / 'SHA256SUMS.txt').read_text('utf-8').splitlines())
+          # Each checksum file line is SHA256 followed by the file name.
+          sums = {filename: digest for digest, filename in (
+              line.split() for line in (directory / 'SHA256SUMS.txt').read_text('utf-8').splitlines()
+          )}
           for name in ('Emby.Titlovi.dll', 'titlovi-com_2.0.0.0.zip'):
               assert hashlib.sha256((directory / name).read_bytes()).hexdigest() == sums[name]
           print('WINDOWS OFFLINE REVIEW PASSED. NO PUBLICATION.')
