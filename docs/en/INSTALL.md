@@ -1,170 +1,80 @@
-# Installation of development builds
+# Installing Titlovi.com
 
-**Current status (19 October 2026):** This is the canonical official **source** repository, but official Unified version 2.0.0.0 has **not been released**. The instructions below describe the manual installation of locally built or separately approved development packages, which still show the name **Titlovi.com (Unofficial)**. They are not instructions to install a published official 2.0 release.
+[English](INSTALL.md) · [Hrvatski](../hr/INSTALL.md) · [Српски](../sr-Cyrl/INSTALL.md)
 
-A **Titlovi.com account** is required.
+> **Not yet released:** Unified **2.0.0.0** for **Jellyfin 12** and **Emby Server 4.10.x** is being prepared. The instructions below describe the **intended process after the official release is published**. No official Unified 2.0 download is available yet.
 
-For existing Jellyfin 10.10/10.11-compatible historical releases, use the [existing Titlovi Jellyfin repository and catalogue](https://github.com/Titlovi/titlovi-jellyfin). The future Jellyfin 12 Unified package will be distributed there once approved. Future Emby 4.10.x DLL releases will be available from [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby) for **manual installation only**, without a third-party plugin feed.
+A Titlovi.com account **with API access** is required. Titlovi.com sets account eligibility and access conditions.
 
-To build the current source yourself, follow **[README-BUILD.txt](README-BUILD.txt)**. For the **planned official 2.0 installation and upgrade procedure**, see **[OFFICIAL-INSTALL-DRAFT.md](OFFICIAL-INSTALL-DRAFT.md)**; it is not active end-user release documentation until publication.
+## Jellyfin 12 (.NET 10)
+
+Distribution: [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). The **existing** Jellyfin plugin-catalogue URL will remain:
+
+```text
+https://titlovi.github.io/titlovi-jellyfin/repository.json
+```
+
+**Once an approved Jellyfin 12 Unified release is published:**
+
+1. Open the Jellyfin administration dashboard, then **Plugins → Repositories**.
+2. Confirm that the existing Titlovi catalogue URL is configured; add it if necessary.
+3. In the plugin catalogue, find **Titlovi.com** and install the release explicitly compatible with **Jellyfin 12**.
+4. Restart Jellyfin and open the plugin configuration.
+5. Enter your Titlovi.com username and password, save, then try a subtitle search and download.
+
+The existing catalogue also contains historical releases for **older Jellyfin versions**. Choose only a version compatible with your installed server. Unified 2.0 is **not** intended for Jellyfin 10.10/10.11.
+
+### Upgrading from the original Jellyfin plugin
+
+The successor preserves the original **Jellyfin plugin GUID** and the existing catalogue URL: it is intended as an upgrade, not a separate competing installation.
+
+Before upgrading, **back up the server's data/configuration**, including `plugins/configurations/Titlovi.Plugin.xml` if it exists. On Jellyfin 12, install the compatible official successor from the catalogue after publication and restart the server. Check the username on the configuration page and verify that a subtitle downloads.
+
+The code contains a one-time importer for the original username and password, used only when newer credentials do not already exist. The old configuration file is kept and its cached API token is **not** reused. This was verified against a development preview; the final official package requires its own acceptance test.
+
+**Upgrading the Jellyfin server itself from 10.11 to 12 is separate from upgrading the plugin.** Back up the entire server and follow Jellyfin's server migration instructions. A plugin test does not guarantee a server database upgrade.
+
+### Manual Jellyfin installation
+
+Once the official ZIP has been published, a manual alternative is to stop the server and extract the **entire** approved package into its own directory within the active Jellyfin plugins folder:
+
+```text
+Jellyfin.Titlovi.dll
+meta.json
+thumb.png
+```
+
+Restart the server. Do not install only the DLL or leave duplicate conflicting copies. The catalogue method is preferred for normal installations and updates.
 
 ## Emby Server 4.10.x
 
-Download:
+Distribution: [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby). **Emby is installed manually**; there is no third-party Emby plugin catalogue to add.
+
+**Once the approved DLL is published:**
+
+1. Download `Emby.Titlovi.dll` from the [official Emby releases](https://github.com/Titlovi/titlovi-emby/releases).
+2. Stop Emby Server and back up the existing plugin/configuration if upgrading.
+3. Copy the DLL into your server's **actual** plugins directory, replacing only an older copy of the same plugin if present.
+4. Start Emby Server, open the plugin settings and provide your Titlovi.com username and password.
+5. Verify a subtitle search and download.
+
+Typical plugins directories:
 
 ```text
-Emby.Titlovi.dll
+Windows: C:\Users\<user>\AppData\Roaming\Emby-Server\programdata\plugins
+Linux:   /var/lib/emby/plugins
 ```
 
-Then:
+These are **examples, not guaranteed paths**. Check the active Emby **Server Data Folder** from the dashboard (for example via **Get Server Info**); custom installations and containers differ. For Docker, use a persistent plugins volume.
 
-1. Stop Emby Server.
-2. Copy `Emby.Titlovi.dll` into the plugins directory used by your Emby installation.
-3. If an older `Emby.Titlovi.dll` already exists, replace it.
-4. Start Emby Server.
-5. Open the server dashboard and verify that **Titlovi.com (Unofficial)** appears in the plugin settings.
+**Known Emby 4.10 limitation:** The saved subtitle filename may use the language selected for the search, even if an alternative-language result is correctly identified as Croatian or Bosnian. The plugin does not mislabel the actual language to work around this host behavior.
 
-### Common Emby plugin locations
+## Configuration, troubleshooting and rollback
 
-The Emby `plugins` directory is located directly inside the Emby Server Data Folder.
+After installation, choose subtitle formats and optional Serbian/Croatian/Bosnian alternatives, UTF-8 conversion and diagnostic logging in the plugin configuration. See the [User guide](USER-GUIDE.md).
 
-Common locations include:
+If the plugin does not load, confirm server version, host-specific package, installation directory and server restart. If searches fail, verify Titlovi.com API access, the account credentials and the desired subtitle language.
 
-```text
-Windows:
-C:\Users\<user>\AppData\Roaming\Emby-Server\programdata\plugins
+To roll back, restore a **server-compatible** previous plugin version and your configuration backup. Do **not** downgrade a Jellyfin server database as part of plugin rollback.
 
-Linux:
-/var/lib/emby/plugins
-```
-
-Other platforms, NAS installations and custom configurations may use a different data directory.
-
-The active Emby Server Data Folder can be checked from the server dashboard using **Get Server Info**.
-
-For Docker or other container installations, place the DLL in the persistent Emby plugins directory or volume rather than in the container's temporary filesystem.
-
-## Jellyfin 12
-
-Download:
-
-```text
-Titlovi.com.Unified-<version>-Jellyfin-12.zip
-```
-
-Then:
-
-1. Stop Jellyfin.
-2. Create a dedicated folder inside the Jellyfin plugins directory, for example:
-
-   ```text
-   Titlovi.com (Unofficial)_<version>
-   ```
-
-3. Extract the contents of the downloaded ZIP into that folder.
-4. Make sure these three files are together in the same folder:
-
-   ```text
-   Jellyfin.Titlovi.dll
-   meta.json
-   thumb.png
-   ```
-
-5. Start Jellyfin.
-6. Open the server dashboard and verify that **Titlovi.com (Unofficial)** appears in the plugin settings.
-
-### Common Jellyfin plugin locations
-
-Common locations include:
-
-```text
-Windows installer / tray:
-C:\ProgramData\Jellyfin\Server\plugins
-
-Windows direct or portable installation:
-C:\Users\<user>\AppData\Local\jellyfin\plugins
-
-Linux packages:
-/var/lib/jellyfin/plugins
-
-Docker:
-/config/plugins
-```
-
-The actual location may differ if Jellyfin was configured with a custom data directory.
-
-For Docker or other container installations, place the complete plugin folder inside the persistent Jellyfin plugins volume.
-
-Do not install only `Jellyfin.Titlovi.dll`. The Jellyfin plugin package also requires `meta.json` and `thumb.png`.
-
-### Manual development-build notice
-
-The **development build** described above is installed manually and may not be associated with the official Jellyfin catalogue. However, the original Matko plugin **does** have an existing official catalogue at `https://titlovi.github.io/titlovi-jellyfin/repository.json`. That catalogue is unchanged; a Jellyfin 12 Unified entry has not yet been published.
-
-With a manually installed development build, Jellyfin may display a message such as:
-
-```text
-An error occurred while getting the plugin details from the repository.
-```
-
-The plugin details page may also show **Developer: Unknown** or **Repository: Unknown**.
-
-These messages do not prevent the plugin from being configured or used for subtitle searches and downloads.
-
-## First-time configuration
-
-After installing the plugin and restarting the server:
-
-1. Open the **Titlovi.com (Unofficial)** configuration page.
-2. Enter your Titlovi.com username and password.
-3. Select the subtitle formats you want to accept.
-4. Optionally enable alternative Serbian/Croatian/Bosnian searches.
-5. Optionally enable conversion of downloaded subtitles to UTF-8.
-6. Save the configuration.
-
-Authentication with Titlovi.com is handled automatically when the plugin needs to access the service.
-
-## Upgrading
-
-### Emby
-
-1. Stop Emby Server.
-2. Replace the existing `Emby.Titlovi.dll` with the file from the newer release.
-3. Start Emby Server.
-
-The plugin uses a stable Emby plugin ID, so the existing configuration should be preserved when the DLL is replaced.
-
-### Jellyfin
-
-**Production upgrade note:** Do not use this manual development-build procedure as the official in-place upgrade from Matko's published Jellyfin plugin. Once approved, official 2.0 will use the existing catalogue and preserve the original plugin GUID. See the [draft migration/upgrade guide](OFFICIAL-INSTALL-DRAFT.md).
-
-For manual replacement of an isolated development build:
-
-1. Stop Jellyfin.
-2. Remove the existing **Titlovi.com (Unofficial)** plugin folder.
-3. Create a new plugin folder for the new version.
-4. Extract the complete contents of the newer release ZIP into it.
-5. Start Jellyfin.
-
-Make sure that only one version of **Titlovi.com (Unofficial)** is present in the Jellyfin plugins directory.
-
-## Uninstalling
-
-### Emby
-
-Stop Emby Server, remove `Emby.Titlovi.dll` from the plugins directory, and start the server again.
-
-### Jellyfin
-
-Stop Jellyfin, remove the **Titlovi.com (Unofficial)** plugin folder, and start the server again.
-
-## Troubleshooting
-
-If the plugin does not appear after installation:
-
-- verify that the correct package was downloaded for the server;
-- verify that the plugin files are in the server's active plugins directory;
-- make sure the server was restarted after installing the plugin;
-- for Jellyfin, make sure `Jellyfin.Titlovi.dll`, `meta.json` and `thumb.png` are all present in the same plugin folder.
-
-If subtitle searches fail because of authentication, verify the Titlovi.com username and password on the plugin configuration page.
+**Security:** Never publish passwords, API tokens or configuration XML in public support requests.

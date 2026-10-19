@@ -1,331 +1,112 @@
-Titlovi.com.Unified - Build and developer guide
-================================================
+# Build and developer guide
 
-This repository builds two independent plugins registered as:
+[English](BUILD.md) · [Hrvatski](../hr/BUILD.md) · [Српски](../sr-Cyrl/BUILD.md)
 
-  Titlovi.com (Unofficial)
+This guide describes building the two independent **Jellyfin 12 / .NET 10** and **Emby Server 4.10.x** plugins from the [canonical source repository](https://github.com/Titlovi/titlovi-unified).
 
-Host assemblies:
+> The tracked source currently produces **development builds**, not an officially published Unified 2.0.0.0 release. The development metadata may still display **Titlovi.com (Unofficial)**.
 
-  Emby.Titlovi.dll
-  Jellyfin.Titlovi.dll
+## Source tree and prerequisites
 
-Both host projects compile the same src/Common source directly into their own
-assembly. There is no separate Common/Core runtime DLL and no shared runtime
-dependency between the Emby and Jellyfin plugins.
+```text
+src/Common/       Shared, host-neutral C# subtitle engine
+src/Jellyfin/     Jellyfin 12 integration
+src/Emby/         Emby 4.10.x integration
+tests/            Offline regression, runtime and end-to-end tests
+scripts/windows/  Windows build/test entry points
+scripts/linux/    Linux build/test entry points
+```
 
-For installation of pre-built releases, see INSTALL.md.
+The shared `src/Common` C# files compile **directly into each host DLL**. There is no separately deployed Common/Core runtime DLL.
 
-QUICK START
------------
+| Platform | Requirements |
+| --- | --- |
+| Windows | PowerShell 5.1+, Git, internet access for missing packages and references. **Visual Studio is not required**. |
+| Linux | Bash, Git, stable **.NET 10 SDK or newer**, internet access for uncached NuGet packages. |
+| Jellyfin packaging on Linux | Python 3. |
+| Emby compilation | `MediaBrowser.Model.dll`, `MediaBrowser.Common.dll`, `MediaBrowser.Controller.dll` as **compile-time** host references. |
 
-Windows, from the repository root:
+Windows scripts prefer an installed stable .NET 10 SDK and can fetch the configured portable SDK if none is suitable. They can download official Emby 4.10 references when not locally available; Windows `tar` is needed for extraction. Preview/RC SDKs are not selected.
 
-  scripts\windows\run-tests.cmd
-  scripts\windows\build-emby.cmd
-  scripts\windows\build-jellyfin.cmd
-  scripts\windows\build-all.cmd
+On Linux, Emby references are resolved from `EMBY_REFERENCE_DIR` if set, common local Emby installation directories, or the configured `emby/embyserver:4.10.0.40` Docker image. Docker is needed only for the fallback and extended runtime tests.
 
-Linux, from the repository root:
+## Clone and build
 
-  ./scripts/linux/run-tests.sh
-  ./scripts/linux/build-emby.sh
-  ./scripts/linux/build-jellyfin.sh
-  ./scripts/linux/build-all.sh
+```console
+git clone https://github.com/Titlovi/titlovi-unified.git
+cd titlovi-unified
+```
 
-If executable bits were not preserved, invoke the Linux scripts through Bash:
+Run the following commands from the **repository root**, regardless of where this guide lives.
 
-  bash scripts/linux/run-tests.sh
-  bash scripts/linux/build-all.sh
+### Windows Command Prompt
 
-BUILD LAYOUT
-------------
+```bat
+scripts\windows\run-tests.cmd
+scripts\windows\build-emby.cmd
+scripts\windows\build-jellyfin.cmd
+```
 
-Production source is kept under:
+To compile both host plugins:
 
-  src/Common/
-  src/Emby/
-  src/Jellyfin/
+```bat
+scripts\windows\build-all.cmd
+```
 
-Platform-specific build/test entry points are under:
+### Linux
 
-  scripts/windows/
-  scripts/linux/
+```bash
+bash scripts/linux/run-tests.sh
+bash scripts/linux/build-emby.sh
+bash scripts/linux/build-jellyfin.sh
+```
 
-All generated and intermediate state is written under the repository-root
-.build/ directory. This includes normal .NET bin/obj output, Emby reference
-assemblies, logs, NuGet configuration, test results and temporary SDK/tooling
-state.
+Or build both:
 
-Installable artifacts are collected under:
+```bash
+bash scripts/linux/build-all.sh
+```
 
-  dist/Emby/
-  dist/Jellyfin/
+Set `EMBY_REFERENCE_DIR` to a directory containing all three Emby reference DLLs if you do not want to use the Linux Docker fallback.
 
-There are intentionally no Windows- and Linux-specific distribution
-directories. The generated plugins are host-specific, not operating-system-
-specific.
+## Output and packages
 
-Both .build/ and dist/ are ignored by Git and may be deleted safely.
+Temporary build intermediates, host references, logs and test results go under **`.build/`**. Installable files go to **`dist/`**. Both are excluded from Git.
 
-WINDOWS REQUIREMENTS
---------------------
+| Host | Output |
+| --- | --- |
+| Emby | `dist/Emby/Emby.Titlovi.dll` |
+| Jellyfin | `dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip` |
+| Jellyfin plugin directory | `dist/Jellyfin/Titlovi.com (Unofficial)_<version>/` |
 
-Required:
+The Jellyfin ZIP must contain **exactly** `Jellyfin.Titlovi.dll`, `meta.json` and `thumb.png` at its root. Both Windows and Linux build scripts create the same platform-independent host packages.
 
-- Windows with PowerShell 5.1 or newer.
-- Internet access when required packages, references or build tools are not
-  already available locally.
+Do **not** install the Emby DLL into Jellyfin or the Jellyfin DLL into Emby. For installation, see [Installation](INSTALL.md).
 
-Visual Studio is not required.
+## Tests
 
-The build scripts prefer an installed stable .NET 10 SDK or newer. Preview and
-release-candidate SDKs are not selected.
+The regression suite is **offline** and does not contact Titlovi.com. It compiles the same Common engine as the production plugins and checks subtitle identity, language handling, title and release matching, archives and episode filename rules.
 
-If no suitable installed SDK is found, the scripts download the configured
-portable .NET 10 SDK into:
+The Linux host-loading smoke test also requires Docker, curl and Python 3:
 
-  .build/tooling/windows/
+```bash
+bash tests/smoke/linux-runtime-smoke.sh
+```
 
-An installed Emby Server is not required to build the Emby plugin. If suitable
-Emby reference assemblies cannot be found locally, the Windows build downloads
-the configured official Emby release archive and extracts the required
-assemblies from it.
+This builds and loads both plugins into supported **Emby 4.10** and **Jellyfin 12** Linux server containers, checking host ABI compatibility. It does not contact Titlovi.com.
 
-The fallback Emby-reference path requires the Windows tar command.
+**Live authenticated end-to-end tests are opt-in**. They contact the real service and use repository secrets. See [the E2E instructions](../../tests/e2e/README.md). Never commit credentials, tokens or configuration XML.
 
-LINUX REQUIREMENTS
-------------------
+The public canonical repository runs ordinary offline regression/build CI on Windows and Ubuntu. Standard GitHub-hosted runners in a public repository are not subject to the former private repository's monthly 2,000-minute allowance. Live API tests and costly extended checks remain controlled.
 
-Required for all Linux builds and tests:
+## Diagnostics
 
-- Bash.
-- Stable .NET 10 SDK or newer.
-- Internet access when required NuGet packages are not already cached.
+```text
+.build/logs/Tests/test.log
+.build/logs/Emby/build.log
+.build/logs/Jellyfin/build.log
+```
 
-Additionally:
+To clear stale generated output after switching revisions, delete `.build/` and `dist/`; the scripts recreate them. Check the host-specific log for compiler or restore errors.
 
-- Python 3 is required for Jellyfin packaging.
-- Docker is required by the Emby build only when suitable Emby reference
-  assemblies are not available locally.
-- Docker, Python 3 and curl are required for the Linux runtime smoke test.
-
-EMBY BUILD
-----------
-
-Windows:
-
-  scripts\windows\build-emby.cmd
-
-Linux:
-
-  ./scripts/linux/build-emby.sh
-
-The Emby project targets Emby Server 4.10.x and compiles against these host
-assemblies:
-
-  MediaBrowser.Model.dll
-  MediaBrowser.Common.dll
-  MediaBrowser.Controller.dll
-
-These assemblies are compile-time references only and are not bundled into the
-plugin.
-
-On Windows, the build first looks for a local Emby installation, including a
-running Emby Server. If suitable references are not found, it downloads the
-configured official Emby 4.10 release archive and extracts the required
-assemblies.
-
-On Linux, reference resolution is performed in this order:
-
-  1. EMBY_REFERENCE_DIR, when explicitly supplied.
-  2. Common installed Emby server locations.
-  3. The configured official emby/embyserver Docker image.
-
-If EMBY_REFERENCE_DIR is supplied, it must contain all three required
-MediaBrowser assemblies.
-
-Generated state:
-
-  .build/Emby/bin/
-  .build/Emby/obj/
-  .build/Emby/refs/
-  .build/logs/Emby/build.log
-
-Installable output:
-
-  dist/Emby/Emby.Titlovi.dll
-
-JELLYFIN BUILD
---------------
-
-Windows:
-
-  scripts\windows\build-jellyfin.cmd
-
-Linux:
-
-  ./scripts/linux/build-jellyfin.sh
-
-Target:
-
-  Jellyfin 12
-  .NET 10
-
-Compilation uses the Jellyfin.Controller and Jellyfin.Model 12.0 package
-references. Jellyfin server assemblies are not bundled into the plugin.
-
-Generated state:
-
-  .build/Jellyfin/bin/
-  .build/Jellyfin/obj/
-  .build/logs/Jellyfin/build.log
-
-Installable output:
-
-  dist/Jellyfin/Titlovi.com (Unofficial)_<package-version>/
-      Jellyfin.Titlovi.dll
-      meta.json
-      thumb.png
-
-  dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip
-
-The generated ZIP contains these three files directly at its root:
-
-  Jellyfin.Titlovi.dll
-  meta.json
-  thumb.png
-
-Both Windows and Linux packaging paths produce the same Jellyfin distribution
-layout. meta.json is written as UTF-8 without BOM.
-
-GITHUB ACTIONS POLICY FOR OFFICIAL PUBLIC SOURCE
------------------------------------------------
-
-Titlovi/titlovi-unified is a PUBLIC GitHub repository. Standard GitHub-hosted
-Windows and Ubuntu runners are free for public repositories and are not subject
-to the 2,000-minutes/month private-repository allowance that constrained the
-former private development repository.
-
-- Run offline regression tests and compile/package BOTH host plugins on
-  Windows and Ubuntu through regular pull-request and main-branch CI.
-- Treat passing regression tests as mandatory for functional changes. Build
-  both Emby and Jellyfin after any change affecting compilation or packaging.
-- Use local tests during development when faster, but do NOT skip required CI
-  solely to conserve monthly Actions minutes.
-- Keep workflow triggers and checks deliberate; avoid duplicate work,
-  unnecessary reruns, and obsolete intermediate artifact retention.
-- Documentation-only changes do not need heavy CI solely to confirm prose;
-  [skip ci] may still be used selectively when appropriate.
-- Keep authenticated/live Titlovi.com end-to-end tests explicitly opt-in.
-  Do not increase external API requests or run live tests on each push.
-- Keep costly extended runtime/host-upgrade checks targeted, and do not use
-  separately billed larger runners without explicit approval.
-- The Emby and Jellyfin distribution repositories must NOT duplicate the
-  canonical source builds; a reviewed Unified release produces both outputs.
-
-This policy replaces the earlier private-repository minute-conservation
-guidance. It does not enable publication or change functional behavior.
-
-REGRESSION TESTS
-----------------
-
-Windows:
-
-  scripts\windows\run-tests.cmd
-
-Linux:
-
-  ./scripts/linux/run-tests.sh
-
-The regression suite is fully offline and does not contact Titlovi.com.
-
-It compiles the same src/Common source used by both host plugins, so changes to
-the shared subtitle engine are exercised independently of Emby and Jellyfin
-runtime APIs.
-
-Generated test state:
-
-  .build/Tests/bin/
-  .build/Tests/obj/
-  .build/Tests/results/test-results.trx
-  .build/logs/Tests/test.log
-
-GitHub Actions runs the regression suite on both Windows and Ubuntu.
-
-LINUX RUNTIME SMOKE
--------------------
-
-Run:
-
-  bash tests/smoke/linux-runtime-smoke.sh
-
-The smoke test:
-
-  1. Builds the distributable artifacts through the canonical Linux build
-     scripts.
-  2. Loads the generated Jellyfin package into the official Jellyfin 12 Linux
-     container.
-  3. Loads the generated Emby DLL into the official Emby 4.10 Linux container.
-  4. Verifies the host versions.
-  5. Verifies that each plugin assembly loads without loader/ABI errors.
-
-The runtime smoke test does not contact Titlovi.com.
-
-LIVE END-TO-END VALIDATION
---------------------------
-
-Live Titlovi.com end-to-end tests are intentionally not run on ordinary pushes
-or pull-request updates because they use real account credentials and make
-requests to the external Titlovi.com service.
-
-They validate real host-side search, download and subtitle saving for both
-supported Linux hosts.
-
-See:
-
-  tests/e2e/README.md
-
-for required GitHub Actions secrets, manual workflow triggers and validation
-details.
-
-MANUAL TEST INSTALLATION
-------------------------
-
-For local host testing, install the generated artifacts from dist/ in the same
-way as the corresponding pre-built release.
-
-See INSTALL.md for plugin locations and installation procedure.
-
-Use:
-
-  dist/Emby/Emby.Titlovi.dll
-
-for Emby, and the complete generated Jellyfin plugin folder or ZIP from:
-
-  dist/Jellyfin/
-
-for Jellyfin.
-
-TROUBLESHOOTING
----------------
-
-Build and test logs are centralized under:
-
-  .build/logs/Emby/build.log
-  .build/logs/Jellyfin/build.log
-  .build/logs/Tests/test.log
-
-The canonical Windows and Linux scripts automatically remove generated
-directories used by older repository layouts before building or testing.
-
-This prevents stale bin/obj/output state from earlier versions of the project
-from interfering with the current centralized .build/ layout.
-
-If unusual build errors remain after switching branches or updating an older
-checkout, both generated roots can safely be removed:
-
-  .build/
-  dist/
-
-They will be recreated by the build scripts.
+For implementation details, see [Architecture](../development/ARCHITECTURE.md); for test scenarios, see [the regression corpus](../../tests/TEST-CORPUS.md).
