@@ -29,17 +29,19 @@ namespace Titlovi.Common
         private const string KodiBase = "https://kodi.titlovi.com/api/subtitles/";
         private const string DownloadBase = "https://titlovi.com/download";
         private readonly ITitloviJsonDeserializer _json;
+        private readonly string _searchAppIdentifier;
         private readonly HttpClient _http;
         private readonly HttpClient _downloadHttp;
 
-        public TitloviApiClient(ITitloviJsonDeserializer json)
+        public TitloviApiClient(ITitloviJsonDeserializer json, string searchAppIdentifier)
         {
             _json = json ?? throw new ArgumentNullException(nameof(json));
+            if (string.IsNullOrWhiteSpace(searchAppIdentifier))
+                throw new ArgumentException("A host-specific Search X-App identifier is required.", nameof(searchAppIdentifier));
+            _searchAppIdentifier = searchAppIdentifier;
             _http = new HttpClient();
             _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36");
-            // Inherited from the upstream open-source client. Authentication is still
-            // performed with the user's own Titlovi.com account/API access.
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("X-App", "titlovi-jellyfin");
+            // X-App is applied to individual Search requests, not to token requests.
 
             // Download endpoint: imitate the legacy official Kodi add-on as closely
             // as practical.  Kodi uses Python requests with a fresh GET, no cookies,
@@ -183,7 +185,7 @@ namespace Titlovi.Common
                 Add(parts, "userid", token.UserId.ToString(CultureInfo.InvariantCulture));
 
                 var url = KodiBase + "search?" + string.Join("&", parts);
-                using (var req = new HttpRequestMessage(HttpMethod.Get, url))
+                using (var req = CreateSearchRequest(url, _searchAppIdentifier))
                 using (var response = await _http.SendAsync(req, cancellationToken).ConfigureAwait(false))
                 {
                     TitloviDiagnostics.Debug(
@@ -313,6 +315,13 @@ namespace Titlovi.Common
                 TitloviDiagnostics.Log("API download FAILED: " + ex.GetType().Name + ": " + ex.Message);
                 throw;
             }
+        }
+
+        internal static HttpRequestMessage CreateSearchRequest(string url, string appIdentifier)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("X-App", appIdentifier);
+            return request;
         }
 
         private static void Add(ICollection<string> parts, string name, string value)

@@ -53,9 +53,9 @@ namespace Titlovi.Common
         private readonly ITitloviApiClient _api;
         private readonly ITitloviConfigurationProvider _configuration;
 
-        public TitloviEngine(ITitloviJsonDeserializer jsonDeserializer, ITitloviConfigurationProvider configuration)
+        public TitloviEngine(ITitloviJsonDeserializer jsonDeserializer, ITitloviConfigurationProvider configuration, string searchAppIdentifier)
         {
-            _api = new TitloviApiClient(jsonDeserializer ?? throw new ArgumentNullException(nameof(jsonDeserializer)));
+            _api = new TitloviApiClient(jsonDeserializer ?? throw new ArgumentNullException(nameof(jsonDeserializer)), searchAppIdentifier);
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 

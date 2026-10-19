@@ -20,7 +20,7 @@ namespace Emby.Titlovi
         {
             _engine = new TitloviEngine(
                 new EmbyJsonDeserializer(jsonSerializer),
-                new EmbyConfigurationProvider());
+                new EmbyConfigurationProvider(), "emby-titlovi");
         }
 
         public string Name => "Titlovi.com (Unofficial)";

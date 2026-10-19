@@ -23,7 +23,7 @@ namespace Jellyfin.Titlovi
             _libraryManager = libraryManager ?? throw new ArgumentNullException(nameof(libraryManager));
             _engine = new TitloviEngine(
                 new JellyfinJsonDeserializer(),
-                new JellyfinConfigurationProvider());
+                new JellyfinConfigurationProvider(), "titlovi-jellyfin");
         }
 
         public string Name => "Titlovi.com (Unofficial)";
