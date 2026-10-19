@@ -18,7 +18,8 @@ acceptance tests have passed.
   not the source or test contents **at that historical checkpoint**;
   PR #3 subsequently adds the recovered, missing functionality.
 - **All 49 Git-tracked file paths under `src/` and `tests/` in the selected
-  original source tree have identical Git blob SHAs at official `main`.**
+  original source tree had identical Git blob SHAs at the audited official `main`
+  commit `8949da3` (before PR #3).**
   This establishes exact file-content parity **with the selected migration
   tree**, not necessarily with every unmerged historical development branch.
 
@@ -29,7 +30,7 @@ At this checkpoint the former development repository has **14 PRs**:
 | Former PRs | Git state | Migration disposition |
 | --- | --- | --- |
 | #1–#11 and #14 | Merged | Original `main` is an ancestor of the selected migration ref; changes are included in that ancestry (some later revised). |
-| [#12 — host-specific Search X-App](https://github.com/mihvel/Titlovi.com.Unified/pull/12) | **Open; not merged** | **Confirmed omission.** Original commit `9b4f942e1c1a703924fbcc05345d216dae02048d` is being recovered via [official PR #3](https://github.com/Titlovi/titlovi-unified/pull/3), including `SearchRequestHeaderTests.cs`. No 2.0 release before recovery is verified and merged. |
+| [#12 — host-specific Search X-App](https://github.com/mihvel/Titlovi.com.Unified/pull/12) | **Open; not merged** | **Confirmed omission.** Original commit `9b4f942e1c1a703924fbcc05345d216dae02048d` was recovered in [official PR #3](https://github.com/Titlovi/titlovi-unified/pull/3), merged on 2026-10-19 after passing CI, including `SearchRequestHeaderTests.cs`. |
 | [#13 — official Jellyfin identity](https://github.com/mihvel/Titlovi.com.Unified/pull/13) | Open; not merged as that PR | Its source branch is behind the selected migration ref; later implementation of the original GUID and legacy credentials import and regression cases exists in official `main`. The old PR remains a historical record. |
 
 **Root cause of #12 omission:** Migration selected the preparation branch, but did
@@ -82,8 +83,10 @@ traceability until maintainers explicitly decide on their long-term archive.
 ## Recovery and remaining gates
 
 1. [Official PR #3](https://github.com/Titlovi/titlovi-unified/pull/3)
-   restores only the four changed C# files and the missing host-specific
-   Search-header regression test from original commit `9b4f942`. The public
+   merged after passing Windows/Linux regression and both host builds plus
+   Linux runtime smoke. It restored only the four changed C# files and the
+   missing Search-header regression test from original commit `9b4f942`.
+   The public
    official release changelog intentionally does not import an unrelated
    historical unreleased changelog entry.
 2. PR #3's Windows/Linux regression and host-build jobs and Linux runtime smoke
