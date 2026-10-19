@@ -2,7 +2,7 @@
 
 **Documentation:** **English** · [Hrvatski](docs/hr/README.md) · [Српски](docs/sr-Cyrl/README.md)
 
-**Official Titlovi.com subtitle plugins for Jellyfin and Emby**, developed from a single source codebase. Search for and download subtitles from [Titlovi.com](https://titlovi.com/) directly in your media server.
+**Titlovi.com subtitle integration for Jellyfin and Emby.** Search for and download subtitles from [Titlovi.com](https://titlovi.com/) directly in your media server. This is the **official source repository** for both plugins, developed from one shared codebase.
 
 > **Release status:** The first official Unified release, **2.0.0.0**, is being prepared. Installation packages for Jellyfin 12 and Emby 4.10.x have **not yet been published**. This repository contains the source code, not downloadable plugin releases.
 
