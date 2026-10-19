@@ -51,7 +51,7 @@ or Emby binaries into the historical Jellyfin distribution repository.
 ## Non-publishing review path — available now
 
 Run the manually invoked, **read-only**
-[`review-official-distribution-candidate.yml`](../../.github/workflows/review-official-distribution-candidate.yml)
+[`review-official-distribution-candidate.yml`](../../../.github/workflows/review-official-distribution-candidate.yml)
 workflow on the reviewed source ref. It:
 
 - tests offline and compiles independent Emby/Jellyfin packages on Windows
