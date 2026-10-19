@@ -215,14 +215,14 @@ The following English documents remain **drafts** in the canonical source
 repository. They do not authorize a release or imply that 2.0 binaries are
 available:
 
-- `OFFICIAL-RELEASE-NOTES-DRAFT.md` — release notes for proposed 2.0,
+- `docs/maintainers/release-preparation/RELEASE-NOTES-DRAFT.md` — release notes for proposed 2.0,
   compatibility, migrated credentials, features, limitations and attribution.
-- `OFFICIAL-INSTALL-DRAFT.md` — Jellyfin 12 fresh install and original-plugin
+- `docs/maintainers/release-preparation/INSTALL-DRAFT.md` — Jellyfin 12 fresh install and original-plugin
   upgrade, Jellyfin 10.11 server-upgrade boundaries, Emby 4.10 manual install,
   credential troubleshooting and rollback.
 
 At actual release preparation, integrate the reviewed content into the
-official `README.md`, `INSTALL.md`, `CHANGELOG.md`, `NOTICE.txt` and
+official `README.md`, `docs/en/INSTALL.md`, `CHANGELOG.md`, `NOTICE.txt` and
 release notes. Do not replace current stable development docs prematurely.
 
 ## Remaining release gates

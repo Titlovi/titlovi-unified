@@ -2,7 +2,7 @@
 
 **PRE-RELEASE WORKING DOCUMENT.** This is written for the future official
 Unified 2.0.0.0 release, which has **not been published**. Do not replace the
-current end-user `INSTALL.md` or link to unavailable 2.0 downloads until
+current end-user `docs/en/INSTALL.md` or link to unavailable 2.0 downloads until
 the official release and catalogue update are confirmed.
 
 The proposed unified plugin supports **Jellyfin 12.x / .NET 10** and
