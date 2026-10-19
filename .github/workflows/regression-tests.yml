@@ -42,6 +42,11 @@ jobs:
         shell: cmd
         run: scripts\windows\run-tests.cmd
 
+      - name: Check documentation links and language coverage
+        if: runner.os == 'Linux'
+        shell: bash
+        run: python3 scripts/docs/check_links.py
+
       - name: Run regression suite on Linux
         if: runner.os == 'Linux'
         shell: bash
