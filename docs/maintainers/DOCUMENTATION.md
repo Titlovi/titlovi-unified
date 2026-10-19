@@ -19,6 +19,8 @@ Additional translations, including Macedonian (`docs/mk/`), can be added later w
 - **Maintainers:** `docs/maintainers/release-preparation/` contains unpublished release drafts; `docs/maintainers/archive/` contains historical material not intended for users.
 - **Root:** `README.md`, `CHANGELOG.md`, `LICENSE` and `NOTICE.txt` (plus project/build configuration files).
 
+Historical changelog entries from the private/unofficial development repository are retained at `docs/maintainers/archive/CHANGELOG-PRE-OFFICIAL.md`. The root `CHANGELOG.md` covers official releases starting with 2.0.0.0.
+
 ## Editorial and release rules
 
 1. **English is authoritative.** Update the Croatian and Serbian versions whenever user-visible behavior, requirements, installation procedures or release status changes.
