@@ -1,7 +1,11 @@
 # Official Titlovi.com Unified release handoff (preparation only)
 
-**Status:** Source migration **COMPLETED 2026-10-19**; official binary release
-still pending review and approval. The canonical source is now
+**Status:** Source migration and historical Git/PR audit completed on
+2026-10-19, including recovery of the one confirmed missing functional change
+([official PR #3](https://github.com/Titlovi/titlovi-unified/pull/3)).
+Official binary release **2.0.0.0 has not been approved or published**.
+See [migration completeness audit](../MIGRATION-AUDIT.md) for exact source
+provenance, branch review and remaining verification limitations. The canonical source is now
 `Titlovi/titlovi-unified`, imported from the previously private development
 repository `mihvel/Titlovi.com.Unified` with its original Git ancestry.
 The source import commit is `8161e0686cd22e6e71f5c88f38712bd14bb0df18`,
@@ -34,10 +38,14 @@ publication automation and catalogue update have **not** been performed.
 
 ## What has been proven
 
-- Windows and Ubuntu offline regression suite: **164/164** on the tested
-  migration fix branch, with both Windows host builds.
+- Historical pre-migration acceptance: **164/164** regressions on Windows
+  and Ubuntu (migration fix branch). **Current official main baseline: 166/166**
+  on both Windows and Ubuntu, with both host builds, after recovering the
+  host-specific Search `X-App` regression in [PR #3](https://github.com/Titlovi/titlovi-unified/pull/3)
+  ([CI](https://github.com/Titlovi/titlovi-unified/actions/runs/39325495070)).
 - Jellyfin 12 runtime smoke with original Matko credentials XML and a
   *pre-existing blank new configuration*; Emby 4.10 runtime load.
+  Official PR #3's [Linux runtime smoke](https://github.com/Titlovi/titlovi-unified/actions/runs/39325495191) passed.
 - Real Windows Jellyfin 12: successful upgrade to Unified preview **1.99.1.0**,
   automatic import of the original Matko login and successful download of a
   subtitle after server restart.
@@ -74,12 +82,13 @@ before use.
 At preparation time `Titlovi/titlovi-jellyfin` has:
 
 - `main` for Jellyfin 10.11 / net9.0 at `1.2.5.0`.
-- `jellyfin-12`, a distinct **draft upstream PR #5**
-  (https://github.com/Titlovi/titlovi-jellyfin/pull/5), preparing net10.0,
-  Jellyfin 12 and version **1.3.0.0** with upstream fixes to authorization and
-  episode ZIP selection. Coordinate its disposition with Nikola/maintainers.
-  Do not delete that branch/PR or claim its fixes are automatically present in
-  Unified without comparing behavior.
+- `jellyfin-12`, the historical **draft upstream PR #5**
+  (https://github.com/Titlovi/titlovi-jellyfin/pull/5), which attempted a
+  separate net10.0/Jellyfin 12 adaptation of Matko's plugin. **Decision
+  confirmed with Nikola on 2026-10-19: this approach is superseded and will
+  not be incorporated into Unified.** The PR was closed *without merging*;
+  its branch, commits and discussion were retained as history. This item is
+  **resolved** and is not a release blocker.
 - `gh-pages/repository.json` with **nine** original Jellyfin releases; the
   older versions include both 10.10 and 10.11 ABIs.
 - The historic reusable Jellyfin publish workflow builds the *old*
@@ -197,8 +206,11 @@ Remaining coordination and release-preparation tasks:
 - Keep the existing `titlovi-jellyfin` Git history, tags, nine
   released versions, original GUID, `gh-pages` catalogue and user links.
   Its distribution workflow should handle **only Jellyfin** assets.
-- Agree how to handle upstream draft PR #5 and compare any unique fixes
-  with our existing Jellyfin 12 implementation before the first release.
+- Historical upstream Jellyfin PR #5: **resolved** in agreement with Nikola;
+  archived by closing without merging, retaining its original branch/history.
+- Historical host-specific Search `X-App` PR #12 in the former development
+  repository: **recovered and merged** via official Unified PR #3. Jellyfin
+  sends `titlovi-jellyfin`; Emby sends `emby-titlovi` on Search requests only.
 - Use `titlovi-emby` as an Emby 4.10 **manual-download** location.
   Distribute `Emby.Titlovi.dll` with documentation and checksums, not
   a Jellyfin ZIP or third-party Emby plugin-repository manifest.
@@ -225,10 +237,53 @@ At actual release preparation, integrate the reviewed content into the
 official `README.md`, `docs/en/INSTALL.md`, `CHANGELOG.md`, `NOTICE.txt` and
 release notes. Do not replace current stable development docs prematurely.
 
+
+## Historical migration-plan decision reconciliation (2026-10-19)
+
+The old living `MIGRATION-PLAN.md` (on
+`mihvel/Titlovi.com.Unified:planning/official-migration`) was compared with
+this handoff and the official installation/release drafts. Its applicable
+technical and release decisions are represented here; the historical plan is
+preserved in the old Git repository and is **not** a second release authority.
+
+| Original decision / risk | Current disposition |
+| --- | --- |
+| One source, two self-contained host DLLs | Implemented in `src/Common`, `src/Jellyfin`, `src/Emby`; independent Emby/Jellyfin builds verified. |
+| Jellyfin original GUID and legacy credentials, no old-token reuse | Implemented with one-time migration; real preview 1.99.1.0 credential import and subtitle download passed. Still check the final 2.0 package. |
+| Jellyfin 10.11 to 12 host upgrade is distinct from plugin update | Documented in the official install draft. Full server/database upgrade rehearsal **not passed**; it remains a separate validation/host-support matter, not evidence against plugin credentials import. |
+| Historical catalogue and original 1.x compatibility | Nine existing entries preserved in read-only catalogue checks. Real 2.0 catalogue update, selection by host ABI and 1.x historical download check are **not yet performed**. |
+| Host-specific `X-App` on GET Search | **Recovered** from original unmerged PR #12 and merged into official source via PR #3; both new regression cases passed (166/166 total). |
+| Original Matko Jellyfin 12 draft PR #5 | **Resolved with Nikola:** closed without merging, retained for historical reference; do not revive or port changes automatically. |
+| Release permissions, responsible maintainers and rollback | **Still require explicit release authorization and a restricted cross-repo pipeline**. Preserve catalogue backup, original asset URLs and a hold/rollback path; do not republish old release assets. |
+| Publication sequence | Tag approved Unified source; build/test once; publish Jellyfin ZIP and Emby DLL to their **separate** distribution repos; verify downloaded binaries/checksums; **only then** update the existing Jellyfin catalogue and announce. No Emby feed. |
+| Developer temporary unofficial plugin | No public migration route. Remove/isolate the temporary developer installation during real upgrade acceptance; preserve the official original Jellyfin GUID. |
+| Branding, source version and public documentation | Official display name `Titlovi.com` and first version `2.0.0.0` are **release-time changes**, not yet applied. The English docs are authoritative and Croatian and Serbian Cyrillic translations are maintained; this later documentation decision supersedes the old English-only note. |
+
+The former planning document also described **opt-in experimental** Jellyfin
+test-catalogue publishing and a Jellyfin server-upgrade CI harness. Those are
+historical test tools, not currently authorized production workflows. The
+superseded `scripts/migration/templates/official-publish.yml` must never be
+activated as-is.
+
+### Outstanding decisions for release readiness
+
+- Agree with Nikola who approves the source tag, both distribution releases,
+  the Jellyfin catalogue change and any rollback.
+- Confirm restricted, cross-repository publishing credentials and a staging
+  / dry-run that cannot affect historical releases.
+- Record final Jellyfin 12 fresh-install, original-plugin upgrade and Emby
+  4.10 live validation against the **actual release candidate**.
+- Verify Jellyfin 10.11 catalogue compatibility for historical 1.x releases
+  and correct Jellyfin 12-only ABI targeting for 2.0.
+
 ## Remaining release gates
 
-- Confirm the remaining official release and publication approvals with Nikola;
-  resolve upstream Jellyfin draft PR #5.
+The historical [official migration audit](../MIGRATION-AUDIT.md) and the
+reconciled decision register below are source-completeness evidence, **not**
+a substitute for final 2.0.0.0 install/upgrade and distribution acceptance.
+
+- Confirm the remaining official release and publication approvals with Nikola.
+  Upstream Jellyfin draft PR #5 was already resolved/archived on 2026-10-19.
 - Review **final** official docs, licensing, historical attribution and API
   client request headers for each host.
 - Verify a fresh Jellyfin 12 installation and Emby 4.10 package installation.
