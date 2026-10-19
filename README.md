@@ -1,5 +1,7 @@
 # Titlovi.com for Jellyfin and Emby
 
+**Documentation:** **English** · [Hrvatski](docs/hr/README.md) · [Српски](docs/sr-Cyrl/README.md)
+
 **Official Titlovi.com subtitle plugins for Jellyfin and Emby**, developed from a single source codebase. Search for and download subtitles from [Titlovi.com](https://titlovi.com/) directly in your media server.
 
 > **Release status:** The first official Unified release, **2.0.0.0**, is being prepared. Installation packages for Jellyfin 12 and Emby 4.10.x have **not yet been published**. This repository contains the source code, not downloadable plugin releases.
@@ -36,7 +38,7 @@ Emby Server 4.10.x may save an alternative-language subtitle with a filename suf
 - A compatible Jellyfin or Emby Server version.
 - A **Titlovi.com account with API access**. Account eligibility and access conditions are determined by Titlovi.com.
 
-A setup guide and upgrade instructions for the official Unified release will accompany its publication.
+[Installation](docs/en/INSTALL.md) explains the planned post-release procedure and [the user guide](docs/en/USER-GUIDE.md) describes the configuration and search features. **No official 2.0 package is available yet.**
 
 ## Source code and development
 
@@ -50,8 +52,10 @@ tests/            Regression and integration tests
 scripts/          Build, packaging and test scripts
 ```
 
-- [Build and test instructions](README-BUILD.txt)
-- [Architecture and design](ARCHITECTURE.md)
+- [Installation](docs/en/INSTALL.md)
+- [User guide](docs/en/USER-GUIDE.md)
+- [Build and test instructions](docs/en/BUILD.md)
+- [Architecture and design](docs/development/ARCHITECTURE.md)
 - [Development changelog](CHANGELOG.md)
 - [Report an issue](https://github.com/Titlovi/titlovi-unified/issues)
 
