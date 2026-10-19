@@ -4,7 +4,7 @@
 
 This guide describes building the two independent **Jellyfin 12 / .NET 10** and **Emby Server 4.10.x** plugins from the [canonical source repository](https://github.com/Titlovi/titlovi-unified).
 
-> The tracked source currently produces **development builds**, not an officially published Unified 2.0.0.0 release. The development metadata may still display **Titlovi.com (Unofficial)**.
+> The source on the release-preparation branch produces **unpublished 2.0.0.0 candidates** with the official **Titlovi.com** name. These are **not** publicly released packages; use an approved GitHub Release for installation.
 
 ## Source tree and prerequisites
 
@@ -76,8 +76,8 @@ Temporary build intermediates, host references, logs and test results go under *
 | Host | Output |
 | --- | --- |
 | Emby | `dist/Emby/Emby.Titlovi.dll` |
-| Jellyfin | `dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip` |
-| Jellyfin plugin directory | `dist/Jellyfin/Titlovi.com (Unofficial)_<version>/` |
+| Jellyfin | `dist/Jellyfin/titlovi-com_<version>.zip` |
+| Jellyfin plugin directory | `dist/Jellyfin/Titlovi.com_<version>/` |
 
 The Jellyfin ZIP must contain **exactly** `Jellyfin.Titlovi.dll`, `meta.json` and `thumb.png` at its root. Both Windows and Linux build scripts create the same platform-independent host packages.
 

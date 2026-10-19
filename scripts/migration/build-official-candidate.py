@@ -180,7 +180,7 @@ def main() -> None:
             print("Using already official-branded release-preparation source", flush=True)
 
         print("Building official-branded CANDIDATE from an isolated source copy", flush=True)
-        print("No publication is performed. Release version changes are NOT committed.", flush=True)
+        print("No publication is performed; the checked-out source is not changed.", flush=True)
         if os.name == "nt":
             subprocess.run(
                 ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass",

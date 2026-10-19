@@ -409,7 +409,7 @@ data = json.load(open(src, encoding="utf-8"))
 results = (data.get("Items") or data.get("items") or []) if isinstance(data, dict) else data
 matches = [
     r for r in (results or [])
-    if (r.get("ProviderName") or r.get("providerName")) == "Titlovi.com (Unofficial)"
+    if (r.get("ProviderName") or r.get("providerName")) == "Titlovi.com"
 ]
 if not matches:
     raise SystemExit(f"{label}: Emby returned no Titlovi.com results")

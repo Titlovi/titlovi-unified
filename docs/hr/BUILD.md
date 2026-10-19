@@ -4,7 +4,7 @@
 
 Ovaj vodič opisuje izgradnju dvaju samostalnih dodataka za **Jellyfin 12 / .NET 10** i **Emby Server 4.10.x** iz [središnjeg repozitorija](https://github.com/Titlovi/titlovi-unified).
 
-> Izvorni kod trenutačno proizvodi **razvojne verzije**, a ne već objavljeno službeno izdanje Unified 2.0.0.0. U razvojnoj metapodatkovnoj oznaci još se može pojaviti **Titlovi.com (Unofficial)**.
+> Izvorni kod na grani za pripremu izdanja proizvodi **neobjavljene kandidate 2.0.0.0** sa službenim nazivom **Titlovi.com**. To **nisu** javno objavljena izdanja; za instalaciju koristite isključivo odobreno izdanje na GitHubu.
 
 ## Organizacija i preduvjeti
 
@@ -76,8 +76,8 @@ Privremeni podaci, reference, zapisnici i testni rezultati spremaju se u **`.bui
 | Poslužitelj | Izlazna datoteka |
 | --- | --- |
 | Emby | `dist/Emby/Emby.Titlovi.dll` |
-| Jellyfin | `dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip` |
-| Jellyfin raspakirana mapa | `dist/Jellyfin/Titlovi.com (Unofficial)_<version>/` |
+| Jellyfin | `dist/Jellyfin/titlovi-com_<version>.zip` |
+| Jellyfin raspakirana mapa | `dist/Jellyfin/Titlovi.com_<version>/` |
 
 Jellyfin ZIP mora sadržavati **točno** `Jellyfin.Titlovi.dll`, `meta.json` i `thumb.png` u korijenu arhive. Windows i Linux daju istu strukturu paketa neovisnu o operacijskom sustavu.
 
