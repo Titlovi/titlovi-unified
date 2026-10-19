@@ -1,10 +1,10 @@
 Titlovi.com.Unified
 
 This is the canonical Titlovi.com Unified source repository in the official
-Titlovi GitHub organization. The imported development code still identifies
-its Emby and Jellyfin plugins as "Titlovi.com (Unofficial)" until an approved
-official release updates their metadata. No official Unified 2.0 release has
-been published merely by importing the source.
+Titlovi GitHub organization. On the isolated release-preparation branch, the Emby and Jellyfin plugin
+metadata is staged with the official name "Titlovi.com" and version 2.0.0.0.
+This staging change does not mean an official release or catalogue update has
+been approved or published.
 
 This project is derived from and informed by Matko's original open-source
 Titlovi.com Jellyfin plugin/API-client work, preserved with its history and

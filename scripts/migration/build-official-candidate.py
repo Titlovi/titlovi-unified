@@ -84,62 +84,100 @@ def main() -> None:
             ),
         )
 
-        # Only this throwaway source copy receives an official version/brand.
-        # The canonical version remains 1.1.9 until release authorization.
+        # The preview helper must also work when invoked on a release-preparation
+        # branch that already has the final official branding and version.
+        states = []
         for host in ("Emby", "Jellyfin"):
-            patch(tree, f"src/{host}/{host}.Titlovi.csproj", [
-                ("<Version>1.1.9</Version>", f"<Version>{VERSION}</Version>"),
+            project_text = (tree / f"src/{host}/{host}.Titlovi.csproj").read_text(encoding="utf-8-sig")
+            plugin_text = (tree / f"src/{host}/Plugin.cs").read_text(encoding="utf-8-sig")
+            if "<Version>1.1.9</Version>" in project_text and 'PluginVersion = "1.1.9"' in plugin_text:
+                states.append("development")
+            elif f"<Version>{VERSION}</Version>" in project_text and f'PluginVersion = "{VERSION}"' in plugin_text:
+                states.append("release-preparation")
+            else:
+                raise RuntimeError(f"{host}: unexpected project/plugin version mismatch; cannot build official candidate")
+        if len(set(states)) != 1:
+            raise RuntimeError("Mixed Emby/Jellyfin source versions; refusing candidate build")
+
+        if states[0] == "development":
+            # Only this throwaway source copy receives an official version/brand.
+            # The canonical version remains 1.1.9 until release authorization.
+            for host in ("Emby", "Jellyfin"):
+                patch(tree, f"src/{host}/{host}.Titlovi.csproj", [
+                    ("<Version>1.1.9</Version>", f"<Version>{VERSION}</Version>"),
+                ])
+                patch(tree, f"src/{host}/Plugin.cs", [
+                    ('PluginVersion = "1.1.9"', f'PluginVersion = "{VERSION}"'),
+                    ('public override string Name => "Titlovi.com (Unofficial)"',
+                     'public override string Name => "Titlovi.com"'),
+                    (f'"Unofficial Titlovi.com subtitle provider for {host}."',
+                     f'"Titlovi.com subtitle provider for {host}."'),
+                    ('DisplayName = "Titlovi.com (Unofficial)"',
+                     'DisplayName = "Titlovi.com"'),
+                ])
+                patch(tree, f"src/{host}/TitloviSubtitleProvider.cs", [
+                    ('"Titlovi.com (Unofficial)"', '"Titlovi.com"')
+                ])
+                patch(tree, f"src/{host}/Configuration/configPage.html", [
+                    ("<h1>Titlovi.com (Unofficial)</h1>", "<h1>Titlovi.com</h1>"),
+                    (f"Unofficial Titlovi.com subtitle provider for {host}.",
+                     f"Titlovi.com subtitle provider for {host}."),
+                ])
+
+            patch(tree, "scripts/linux/build-jellyfin.sh", [
+                ('PACKAGE_NAME="Titlovi.com (Unofficial)_$PACKAGE_VERSION"',
+                 'PACKAGE_NAME="Titlovi.com_$PACKAGE_VERSION"'),
+                ('PACKAGE_ZIP="$DIST_DIR/Titlovi.com.Unified-$VERSION-Jellyfin-12.zip"',
+                 'PACKAGE_ZIP="$DIST_DIR/titlovi-com_$PACKAGE_VERSION.zip"'),
+                ('"description": "Unofficial Titlovi.com subtitle provider for Jellyfin."',
+                 '"description": "Titlovi.com subtitle provider for Jellyfin."'),
+                ('"name": "Titlovi.com (Unofficial)"',
+                 '"name": "Titlovi.com"'),
+                ('"overview": "Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine."',
+                 '"overview": "Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree."'),
+                ('"owner": "Unofficial community plugin"',
+                 '"owner": "Titlovi.com"'),
+                ('"Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking."',
+                 '"Official Unified 2.0 preview: Jellyfin 12 support, preservation of Matko credentials, shared Emby and Jellyfin subtitle engine."'),
             ])
-            patch(tree, f"src/{host}/Plugin.cs", [
-                ('PluginVersion = "1.1.9"', f'PluginVersion = "{VERSION}"'),
-                ('public override string Name => "Titlovi.com (Unofficial)"',
-                 'public override string Name => "Titlovi.com"'),
-                (f'"Unofficial Titlovi.com subtitle provider for {host}."',
-                 f'"Titlovi.com subtitle provider for {host}."'),
-                ('DisplayName = "Titlovi.com (Unofficial)"',
-                 'DisplayName = "Titlovi.com"'),
-            ])
-            patch(tree, f"src/{host}/TitloviSubtitleProvider.cs", [
-                ('"Titlovi.com (Unofficial)"', '"Titlovi.com"')
-            ])
-            patch(tree, f"src/{host}/Configuration/configPage.html", [
-                ("<h1>Titlovi.com (Unofficial)</h1>", "<h1>Titlovi.com</h1>"),
-                (f"Unofficial Titlovi.com subtitle provider for {host}.",
-                 f"Titlovi.com subtitle provider for {host}."),
+            patch(tree, "scripts/windows/Build.ps1", [
+                ('$packageFolderName = "Titlovi.com (Unofficial)_$packageVersion"',
+                 '$packageFolderName = "Titlovi.com_$packageVersion"'),
+                ('name = \'Titlovi.com (Unofficial)\'', "name = 'Titlovi.com'"),
+                ("description = 'Unofficial Titlovi.com subtitle provider for Jellyfin.'",
+                 "description = 'Titlovi.com subtitle provider for Jellyfin.'"),
+                ("overview = 'Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.'",
+                 "overview = 'Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree.'"),
+                ("owner = 'Unofficial community plugin'", "owner = 'Titlovi.com'"),
+                ("changelog = 'Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking.'",
+                 "changelog = 'Official Unified 2.0 preview: Jellyfin 12 support, preservation of Matko credentials, shared Emby and Jellyfin subtitle engine.'"),
+                ("if ($parsedMeta.name -ne 'Titlovi.com (Unofficial)')",
+                 "if ($parsedMeta.name -ne 'Titlovi.com')"),
+                ('$zip = Join-Path $dist "Titlovi.com.Unified-$version-Jellyfin-12.zip"',
+                 '$zip = Join-Path $dist "titlovi-com_$packageVersion.zip"'),
             ])
 
-        patch(tree, "scripts/linux/build-jellyfin.sh", [
-            ('PACKAGE_NAME="Titlovi.com (Unofficial)_$PACKAGE_VERSION"',
-             'PACKAGE_NAME="Titlovi.com_$PACKAGE_VERSION"'),
-            ('PACKAGE_ZIP="$DIST_DIR/Titlovi.com.Unified-$VERSION-Jellyfin-12.zip"',
-             'PACKAGE_ZIP="$DIST_DIR/titlovi-com_$PACKAGE_VERSION.zip"'),
-            ('"description": "Unofficial Titlovi.com subtitle provider for Jellyfin."',
-             '"description": "Titlovi.com subtitle provider for Jellyfin."'),
-            ('"name": "Titlovi.com (Unofficial)"',
-             '"name": "Titlovi.com"'),
-            ('"overview": "Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine."',
-             '"overview": "Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree."'),
-            ('"owner": "Unofficial community plugin"',
-             '"owner": "Titlovi.com"'),
-            ('"Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking."',
-             '"Official Unified 2.0 preview: Jellyfin 12 support, preservation of Matko credentials, shared Emby and Jellyfin subtitle engine."'),
-        ])
-        patch(tree, "scripts/windows/Build.ps1", [
-            ('$packageFolderName = "Titlovi.com (Unofficial)_$packageVersion"',
-             '$packageFolderName = "Titlovi.com_$packageVersion"'),
-            ('name = \'Titlovi.com (Unofficial)\'', "name = 'Titlovi.com'"),
-            ("description = 'Unofficial Titlovi.com subtitle provider for Jellyfin.'",
-             "description = 'Titlovi.com subtitle provider for Jellyfin.'"),
-            ("overview = 'Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.'",
-             "overview = 'Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree.'"),
-            ("owner = 'Unofficial community plugin'", "owner = 'Titlovi.com'"),
-            ("changelog = 'Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking.'",
-             "changelog = 'Official Unified 2.0 preview: Jellyfin 12 support, preservation of Matko credentials, shared Emby and Jellyfin subtitle engine.'"),
-            ("if ($parsedMeta.name -ne 'Titlovi.com (Unofficial)')",
-             "if ($parsedMeta.name -ne 'Titlovi.com')"),
-            ('$zip = Join-Path $dist "Titlovi.com.Unified-$version-Jellyfin-12.zip"',
-             '$zip = Join-Path $dist "titlovi-com_$packageVersion.zip"'),
-        ])
+
+        else:
+            # Official release-preparation sources need no temporary changes.
+            # Check that metadata and package names were converted together.
+            for host in ("Emby", "Jellyfin"):
+                plugin = (tree / f"src/{host}/Plugin.cs").read_text(encoding="utf-8-sig")
+                provider = (tree / f"src/{host}/TitloviSubtitleProvider.cs").read_text(encoding="utf-8-sig")
+                config = (tree / f"src/{host}/Configuration/configPage.html").read_text(encoding="utf-8-sig")
+                if ('public override string Name => "Titlovi.com"' not in plugin
+                    or 'DisplayName = "Titlovi.com"' not in plugin
+                    or 'public string Name => "Titlovi.com"' not in provider
+                    or '<h1>Titlovi.com</h1>' not in config):
+                    raise RuntimeError(f"{host}: official naming is incomplete")
+            linux_pack = (tree / "scripts/linux/build-jellyfin.sh").read_text(encoding="utf-8-sig")
+            windows_pack = (tree / "scripts/windows/Build.ps1").read_text(encoding="utf-8-sig")
+            if ('PACKAGE_NAME="Titlovi.com_$PACKAGE_VERSION"' not in linux_pack
+                or 'PACKAGE_ZIP="$DIST_DIR/titlovi-com_$PACKAGE_VERSION.zip"' not in linux_pack
+                or "$packageFolderName = \"Titlovi.com_$packageVersion\"" not in windows_pack
+                or '$zip = Join-Path $dist "titlovi-com_$packageVersion.zip"' not in windows_pack):
+                raise RuntimeError("Official Windows/Linux package naming is incomplete")
+            print("Using already official-branded release-preparation source", flush=True)
 
         print("Building official-branded CANDIDATE from an isolated source copy", flush=True)
         print("No publication is performed. Release version changes are NOT committed.", flush=True)

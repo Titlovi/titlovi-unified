@@ -23,7 +23,7 @@ namespace Emby.Titlovi
                 new EmbyConfigurationProvider(), "emby-titlovi");
         }
 
-        public string Name => "Titlovi.com (Unofficial)";
+        public string Name => "Titlovi.com";
         public int Order => 0;
 
         public IEnumerable<VideoContentType> SupportedMediaTypes =>

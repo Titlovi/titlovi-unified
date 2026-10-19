@@ -164,7 +164,7 @@ function Invoke-JellyfinBuild {
     if (-not (Test-Path -LiteralPath $built)) { throw "Build succeeded but Jellyfin.Titlovi.dll was not found at $built" }
     if (-not (Test-Path -LiteralPath $thumb)) { throw "thumb.png was not found at $thumb" }
 
-    $packageFolderName = "Titlovi.com (Unofficial)_$packageVersion"
+    $packageFolderName = "Titlovi.com_$packageVersion"
     $packageFolder = Join-Path $dist $packageFolderName
     Ensure-Directory $packageFolder
     $finalDll = Join-Path $packageFolder 'Jellyfin.Titlovi.dll'
@@ -175,12 +175,12 @@ function Invoke-JellyfinBuild {
 
     $meta = [ordered]@{
         category = 'Subtitles'
-        changelog = 'Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking.'
-        description = 'Unofficial Titlovi.com subtitle provider for Jellyfin.'
+        changelog = 'Titlovi.com Unified 2.0: Jellyfin 12 support, preservation of legacy Jellyfin credentials, and shared Emby/Jellyfin subtitle engine.'
+        description = 'Titlovi.com subtitle provider for Jellyfin.'
         guid = '6e25df50-638e-4109-a50b-03c14fc93fdd'
-        name = 'Titlovi.com (Unofficial)'
-        overview = 'Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.'
-        owner = 'Unofficial community plugin'
+        name = 'Titlovi.com'
+        overview = 'Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree.'
+        owner = 'Titlovi.com'
         targetAbi = '12.0.0.0'
         timestamp = (Get-Date).ToUniversalTime().ToString('o')
         version = $packageVersion
@@ -194,11 +194,11 @@ function Invoke-JellyfinBuild {
     [System.IO.File]::WriteAllText($finalMeta, $metaJson, $utf8NoBom)
 
     $parsedMeta = Get-Content -Raw -LiteralPath $finalMeta | ConvertFrom-Json
-    if ($parsedMeta.name -ne 'Titlovi.com (Unofficial)') { throw 'Generated meta.json contains an unexpected plugin name.' }
+    if ($parsedMeta.name -ne 'Titlovi.com') { throw 'Generated meta.json contains an unexpected plugin name.' }
     if ($parsedMeta.imagePath -ne 'thumb.png') { throw 'Generated meta.json is missing imagePath=thumb.png.' }
     if ($parsedMeta.assemblies -notcontains 'Jellyfin.Titlovi.dll') { throw 'Generated meta.json is missing the plugin assembly whitelist.' }
 
-    $zip = Join-Path $dist "Titlovi.com.Unified-$version-Jellyfin-12.zip"
+    $zip = Join-Path $dist "titlovi-com_$packageVersion.zip"
     Compress-Archive -Path (Join-Path $packageFolder '*') -DestinationPath $zip -CompressionLevel Optimal -Force
     Add-Content -LiteralPath $log -Value "`r`nSUCCESS`r`nPlugin folder: $packageFolder`r`nPackage ZIP: $zip" -Encoding UTF8
     Write-Host "SUCCESS" -ForegroundColor Green
