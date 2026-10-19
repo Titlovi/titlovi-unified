@@ -10,6 +10,13 @@ on:
       - "fix/**"
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: ${{ matrix.os }}
@@ -56,3 +63,15 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: scripts\windows\build-jellyfin.cmd
+
+      - name: Build Emby plugin on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          EMBY_IMAGE: emby/embyserver:4.10.0.40
+        run: bash scripts/linux/build-emby.sh
+
+      - name: Build Jellyfin plugin and package on Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash scripts/linux/build-jellyfin.sh

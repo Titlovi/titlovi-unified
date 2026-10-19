@@ -1,13 +1,19 @@
 # Official Titlovi.com Unified release handoff (preparation only)
 
-**Status:** Candidate preparation; **NOT approval to publish**. Working source of
-truth: `mihvel/Titlovi.com.Unified`. **Agreed architecture (2026-10-18):**
-canonical source in a new proposed `Titlovi/titlovi-unified`, existing
-`Titlovi/titlovi-jellyfin` for Jellyfin-only packages and its historic plugin
-catalogue, and a new proposed `Titlovi/titlovi-emby` for **manual Emby DLL
-downloads and installation instructions**. Emby has no third-party repository
-installation in the supported distribution workflow. All official provisioning
-and publication await Nikola's authorization.
+**Status:** Source migration **COMPLETED 2026-10-19**; official binary release
+still pending review and approval. The canonical source is now
+`Titlovi/titlovi-unified`, imported from the previously private development
+repository `mihvel/Titlovi.com.Unified` with its original Git ancestry.
+The source import commit is `8161e0686cd22e6e71f5c88f38712bd14bb0df18`,
+whose parent is `1621749f5901dd4c056a16b9590f35659ac98166`.
+Both commits reference the **same source tree**
+`8fd979085639ab8e21d8a4ab85893f9d26280407`.
+
+The agreed architecture remains: this repository is the sole canonical source;
+`Titlovi/titlovi-jellyfin` is Jellyfin-only distribution with its unchanged
+historic catalogue; and `Titlovi/titlovi-emby` is the future manual Emby DLL
+download location. All three repositories exist. The official 2.0 release,
+publication automation and catalogue update have **not** been performed.
 
 ## Release boundaries
 
@@ -43,14 +49,14 @@ and publication await Nikola's authorization.
 
 ## Agreed official repository split (2026-10-18)
 
-- **`Titlovi/titlovi-unified` (new, proposed):** the sole canonical source
+- **`Titlovi/titlovi-unified` (created, populated):** the sole canonical source
   and developer repository with `src/Common`, `src/Emby`, `src/Jellyfin`,
   regression tests, release orchestration and common source tags. One build
   produces two self-contained host plugins, without a Common/Core runtime DLL.
 - **`Titlovi/titlovi-jellyfin` (existing):** Jellyfin-only release ZIP,
   existing immutable 1.x release assets/history and unchanged Jellyfin
   catalogue at `https://titlovi.github.io/titlovi-jellyfin/repository.json`.
-- **`Titlovi/titlovi-emby` (new, proposed):** only the
+- **`Titlovi/titlovi-emby` (created, currently no release):** only the
   `Emby.Titlovi.dll` release downloads and manual Emby 4.10.x install/upgrade
   documentation. Do **not** prepare an Emby third-party plugin feed or promise
   automatic installation/updating via a repository.
@@ -171,17 +177,20 @@ published checksums, and update the old Jellyfin catalogue only after the
 new ZIP is actually accessible. Publishing rights should be limited to
 the necessary destination repos and gated by explicit maintainer approval.
 
-## Preparing the canonical source handoff
+## Canonical source handoff — complete
 
-After Nikola grants access, create the new canonical
-`Titlovi/titlovi-unified` project and transfer the reviewed Unified
-source there using a dedicated branch/PR or another explicitly agreed,
-auditable initial import. Do not migrate source development into
-`titlovi-jellyfin`.
+On 2026-10-19, the reviewed `migration/official-release-preparation`
+source branch was imported to the previously empty official `main`, with
+its ancestry intact and a migration-only `[skip ci]` commit. The tree
+was verified identical and **no GitHub Actions runs** were triggered.
+No version change, source rebuild or publication occurred.
 
-- Transfer both host projects, shared Common code, regression tests,
-  platform-specific build scripts and **English** documentation. Do not
-  transfer `.build`, `dist`, caches, local settings, credentials or tokens.
+The official repository now contains both host projects, shared Common code,
+regression tests, platform-specific build scripts and English documentation.
+Generated `.build` and `dist` output, local configuration, secrets and tokens
+were not added.
+
+Remaining coordination and release-preparation tasks:
 - Preserve required GPLv3 notices and Matko's attribution in historical
   source/release references. Explicitly link the new central source to
   the legacy Jellyfin project/history.
@@ -202,9 +211,9 @@ auditable initial import. Do not migrate source development into
 
 ## Draft publication documentation
 
-The following working documents have been prepared in English on this
-**migration branch only**; do not replace current end-user material while the
-plugin remains unofficial:
+The following English documents remain **drafts** in the canonical source
+repository. They do not authorize a release or imply that 2.0 binaries are
+available:
 
 - `OFFICIAL-RELEASE-NOTES-DRAFT.md` — release notes for proposed 2.0,
   compatibility, migrated credentials, features, limitations and attribution.
@@ -218,8 +227,8 @@ release notes. Do not replace current stable development docs prematurely.
 
 ## Remaining release gates
 
-- Confirm current official repository ownership, commit privileges and explicit
-  acceptance with Nikola; resolve upstream draft PR #5.
+- Confirm the remaining official release and publication approvals with Nikola;
+  resolve upstream Jellyfin draft PR #5.
 - Review **final** official docs, licensing, historical attribution and API
   client request headers for each host.
 - Verify a fresh Jellyfin 12 installation and Emby 4.10 package installation.

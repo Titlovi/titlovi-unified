@@ -199,29 +199,33 @@ The generated ZIP contains these three files directly at its root:
 Both Windows and Linux packaging paths produce the same Jellyfin distribution
 layout. meta.json is written as UTF-8 without BOM.
 
-GITHUB ACTIONS MINUTE CONSERVATION
-----------------------------------
+GITHUB ACTIONS POLICY FOR OFFICIAL PUBLIC SOURCE
+-----------------------------------------------
 
-GitHub Actions minutes are a limited resource. Minimize CI usage throughout
-development without skipping validation required for functional correctness.
+Titlovi/titlovi-unified is a PUBLIC GitHub repository. Standard GitHub-hosted
+Windows and Ubuntu runners are free for public repositories and are not subject
+to the 2,000-minutes/month private-repository allowance that constrained the
+former private development repository.
 
-- Prefer local tests and builds during implementation and troubleshooting.
-- Run the offline regression suite when a functional change needs validation,
-  not after every small edit. A functional change is not complete until its
-  regression tests have passed.
-- Build both host plugins when changes can affect compilation or packaging.
-  Prefer local builds; avoid repeating successful builds without new changes.
-- Avoid repeated pushes and PR updates that trigger duplicate CI runs.
-  Consolidate changes and use GitHub Actions only when CI provides necessary
-  additional verification.
-- Skip CI for documentation-only commits when possible (for example, by using
-  [skip ci] in the commit message). Do not launch workflows solely to confirm
-  a documentation update.
-- Run runtime smoke tests and live end-to-end tests only when relevant;
-  never trigger additional live/API tests without a concrete reason.
+- Run offline regression tests and compile/package BOTH host plugins on
+  Windows and Ubuntu through regular pull-request and main-branch CI.
+- Treat passing regression tests as mandatory for functional changes. Build
+  both Emby and Jellyfin after any change affecting compilation or packaging.
+- Use local tests during development when faster, but do NOT skip required CI
+  solely to conserve monthly Actions minutes.
+- Keep workflow triggers and checks deliberate; avoid duplicate work,
+  unnecessary reruns, and obsolete intermediate artifact retention.
+- Documentation-only changes do not need heavy CI solely to confirm prose;
+  [skip ci] may still be used selectively when appropriate.
+- Keep authenticated/live Titlovi.com end-to-end tests explicitly opt-in.
+  Do not increase external API requests or run live tests on each push.
+- Keep costly extended runtime/host-upgrade checks targeted, and do not use
+  separately billed larger runners without explicit approval.
+- The Emby and Jellyfin distribution repositories must NOT duplicate the
+  canonical source builds; a reviewed Unified release produces both outputs.
 
-This is a development workflow policy; it does not change existing CI triggers
-or reduce the regression coverage required before completing code changes.
+This policy replaces the earlier private-repository minute-conservation
+guidance. It does not enable publication or change functional behavior.
 
 REGRESSION TESTS
 ----------------

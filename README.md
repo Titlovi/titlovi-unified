@@ -1,6 +1,8 @@
-# Titlovi.com (Unofficial) for Emby and Jellyfin
+# Titlovi.com Unified — Emby and Jellyfin source
 
-**Titlovi.com (Unofficial)** is a community subtitle provider plugin for **Emby** and **Jellyfin**, using Titlovi.com for subtitle search and download.
+This is the **canonical development and source-code repository** for the Titlovi.com plugins for **Emby** and **Jellyfin**, hosted by the [Titlovi GitHub organization](https://github.com/Titlovi).
+
+The checked-in development builds still use the display name **Titlovi.com (Unofficial)**. Their official branding and version will be finalized only when the first Unified release is approved. Importing this source code did **not** publish a new plugin version.
 
 The project provides two independent host plugins built from the same shared subtitle engine:
 
@@ -9,13 +11,18 @@ The project provides two independent host plugins built from the same shared sub
 
 A **Titlovi.com account** is required.
 
-> This is an unofficial community integration. It is not published, maintained or endorsed by Titlovi.com, Emby or Jellyfin.
+> **Source migration completed on 19 October 2026.** Official Unified version 2.0.0.0 has **not** been released. This repository is the source of truth for future development, not a download location for production plugins. Jellyfin and Emby are independent projects.
 
-## Download and installation
+## Distribution and installation status
 
-Pre-built packages are available from the [latest GitHub release](https://github.com/mihvel/Titlovi.com.Unified/releases/latest).
+The project uses one source repository and two host-specific distribution repositories:
 
-For installation instructions, see **[INSTALL.md](INSTALL.md)**.
+- **[Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin)** — existing Jellyfin releases and the [unchanged official catalogue](https://titlovi.github.io/titlovi-jellyfin/repository.json). All historical Matko 1.x releases remain available for their supported Jellyfin versions. The first Jellyfin 12 Unified release will be published here **after** final approval.
+- **[Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby)** — destination for future Emby 4.10.x GitHub Releases containing the manually installed `Emby.Titlovi.dll`. There is **no** third-party Emby plugin catalogue or repository installation in the supported workflow.
+
+**No official Unified 2.0.0.0 binaries are available yet.** Do not treat the candidate-build artifacts or temporary test catalogue as production releases.
+
+For instructions on building and testing this source, see **[README-BUILD.txt](README-BUILD.txt)**. For manual installation of development builds, see **[INSTALL.md](INSTALL.md)**. Proposed end-user upgrade steps for the future official release are in **[OFFICIAL-INSTALL-DRAFT.md](OFFICIAL-INSTALL-DRAFT.md)**.
 
 The same host-specific plugin build is used on supported Windows and Linux installations.
 
@@ -155,6 +162,7 @@ Detailed logs may contain media titles, release names and subtitle or archive fi
 - **[README-BUILD.txt](README-BUILD.txt)** — building and testing from source
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — project architecture and host integration
 - **[CHANGELOG.md](CHANGELOG.md)** — release history
+- **[OFFICIAL-RELEASE-HANDOFF.md](OFFICIAL-RELEASE-HANDOFF.md)** — migration status and remaining official release gates
 
 ## License
 

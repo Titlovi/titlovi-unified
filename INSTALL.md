@@ -1,12 +1,12 @@
-# Installation
+# Installation of development builds
 
-This guide explains how to install the pre-built **Titlovi.com (Unofficial)** plugin for Emby and Jellyfin.
+**Current status (19 October 2026):** This is the canonical official **source** repository, but official Unified version 2.0.0.0 has **not been released**. The instructions below describe the manual installation of locally built or separately approved development packages, which still show the name **Titlovi.com (Unofficial)**. They are not instructions to install a published official 2.0 release.
 
 A **Titlovi.com account** is required.
 
-Download the appropriate package from the [latest GitHub release](https://github.com/mihvel/Titlovi.com.Unified/releases/latest).
+For existing Jellyfin 10.10/10.11-compatible historical releases, use the [existing Titlovi Jellyfin repository and catalogue](https://github.com/Titlovi/titlovi-jellyfin). The future Jellyfin 12 Unified package will be distributed there once approved. Future Emby 4.10.x DLL releases will be available from [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby) for **manual installation only**, without a third-party plugin feed.
 
-> This is an unofficial community plugin and is not published or endorsed by Titlovi.com, Emby or Jellyfin.
+To build the current source yourself, follow **[README-BUILD.txt](README-BUILD.txt)**. For the **planned official 2.0 installation and upgrade procedure**, see **[OFFICIAL-INSTALL-DRAFT.md](OFFICIAL-INSTALL-DRAFT.md)**; it is not active end-user release documentation until publication.
 
 ## Emby Server 4.10.x
 
@@ -97,11 +97,11 @@ For Docker or other container installations, place the complete plugin folder in
 
 Do not install only `Jellyfin.Titlovi.dll`. The Jellyfin plugin package also requires `meta.json` and `thumb.png`.
 
-### Manual installation notice
+### Manual development-build notice
 
-The plugin is currently installed manually from the GitHub release ZIP and is not published through a public Jellyfin plugin repository.
+The **development build** described above is installed manually and may not be associated with the official Jellyfin catalogue. However, the original Matko plugin **does** have an existing official catalogue at `https://titlovi.github.io/titlovi-jellyfin/repository.json`. That catalogue is unchanged; a Jellyfin 12 Unified entry has not yet been published.
 
-Because of this, Jellyfin may display a message such as:
+With a manually installed development build, Jellyfin may display a message such as:
 
 ```text
 An error occurred while getting the plugin details from the repository.
@@ -135,6 +135,10 @@ Authentication with Titlovi.com is handled automatically when the plugin needs t
 The plugin uses a stable Emby plugin ID, so the existing configuration should be preserved when the DLL is replaced.
 
 ### Jellyfin
+
+**Production upgrade note:** Do not use this manual development-build procedure as the official in-place upgrade from Matko's published Jellyfin plugin. Once approved, official 2.0 will use the existing catalogue and preserve the original plugin GUID. See the [draft migration/upgrade guide](OFFICIAL-INSTALL-DRAFT.md).
+
+For manual replacement of an isolated development build:
 
 1. Stop Jellyfin.
 2. Remove the existing **Titlovi.com (Unofficial)** plugin folder.

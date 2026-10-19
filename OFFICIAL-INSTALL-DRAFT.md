@@ -93,9 +93,10 @@ procedure for Emby.
 
 After official publication, download the self-contained
 `Emby.Titlovi.dll` directly from the approved GitHub Releases of the separate
-**`Titlovi/titlovi-emby`** repository. This distribution home is planned but
-has not yet been created. Its releases will link to the matching source tag
-in the canonical `Titlovi/titlovi-unified` repository.
+**`Titlovi/titlovi-emby`** repository. That repository now exists, but
+its official 2.0 DLL has **not yet been published**. Its future releases will
+link to the matching source tag in the canonical `Titlovi/titlovi-unified`
+repository.
 
 1. Back up existing Emby plugin/configuration data if upgrading.
 2. Stop Emby Server.

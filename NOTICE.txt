@@ -1,15 +1,20 @@
 Titlovi.com.Unified
 
-Titlovi.com.Unified provides the unofficial "Titlovi.com (Unofficial)"
-subtitle provider for Emby and Jellyfin.
+This is the canonical Titlovi.com Unified source repository in the official
+Titlovi GitHub organization. The imported development code still identifies
+its Emby and Jellyfin plugins as "Titlovi.com (Unofficial)" until an approved
+official release updates their metadata. No official Unified 2.0 release has
+been published merely by importing the source.
 
-This project is derived from and informed by open-source Titlovi.com Jellyfin
-plugin/API-client work distributed under the GNU General Public License v3.0.
-This package is likewise distributed under GPL-3.0. See LICENSE.
+This project is derived from and informed by Matko's original open-source
+Titlovi.com Jellyfin plugin/API-client work, preserved with its history and
+releases at https://github.com/Titlovi/titlovi-jellyfin and distributed under
+the GNU General Public License v3.0. This source is likewise GPL-3.0.
+See LICENSE.
 
 Titlovi.com, Emby and Jellyfin are names and/or trademarks of their respective
-owners. This project is an independent community integration. It is not an
-official Titlovi.com, Emby or Jellyfin product and is not presented as one.
+owners. Source maintenance by Titlovi does not imply that either Emby or
+Jellyfin endorses, publishes or maintains these plugins.
 
 Use of the provider requires the user's own Titlovi.com account/API access and
 is subject to the service's own rules and availability.
