@@ -1,0 +1,146 @@
+name: Review official 2.0 distribution candidate (NO PUBLICATION)
+
+# Deliberately manual and read-only. Source tree and credentials are not changed.
+# On a new official release this workflow is NOT the publisher.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: official-distribution-candidate-review
+  cancel-in-progress: false
+
+jobs:
+  linux:
+    name: Linux — regressions, both hosts, offline catalogue
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out exact selected source revision
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Check candidate helpers and documentation
+        shell: bash
+        run: |
+          python3 -m py_compile scripts/migration/build-official-candidate.py scripts/migration/prepare-official-catalogue.py
+          python3 scripts/docs/check_links.py
+
+      - name: Run full offline regressions
+        shell: bash
+        run: bash scripts/linux/run-tests.sh
+
+      - name: Build isolated Emby and Jellyfin candidates without altering tracked version
+        shell: bash
+        env:
+          EMBY_IMAGE: emby/embyserver:4.10.0.40
+        run: python3 scripts/migration/build-official-candidate.py
+
+      - name: Read original published Jellyfin catalogue without modifying it
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            https://raw.githubusercontent.com/Titlovi/titlovi-jellyfin/gh-pages/repository.json \
+            --output dist/official-candidate/original-repository.json
+
+      - name: Verify immutable history, candidate metadata, and checksums
+        shell: bash
+        run: |
+          python3 scripts/migration/prepare-official-catalogue.py \
+            dist/official-candidate/original-repository.json \
+            dist/official-candidate/titlovi-com_2.0.0.0.zip
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          directory = Path('dist/official-candidate')
+          old = json.loads((directory / 'original-repository.json').read_text('utf-8'))
+          review = json.loads((directory / 'repository.review-only.json').read_text('utf-8'))
+          assert len(old) == len(review) == 1
+          assert old[0]['guid'] == review[0]['guid'] == '6e25df50-638e-4109-a50b-03c14fc93fdd'
+          assert review[0]['versions'][1:] == old[0]['versions']
+          assert len(old[0]['versions']) == 9, 'Expected nine historical Jellyfin versions at first 2.0 release'
+          item = review[0]['versions'][0]
+          assert item['version'] == '2.0.0.0' and item['targetAbi'] == '12.0.0.0'
+          assert item['sourceUrl'] == (
+              'https://github.com/Titlovi/titlovi-jellyfin/releases/'
+              'download/v2.0.0/titlovi-com_2.0.0.0.zip')
+          archive = directory / 'titlovi-com_2.0.0.0.zip'
+          assert hashlib.md5(archive.read_bytes()).hexdigest() == item['checksum']
+          for name, checksum_filename in (
+              ('Emby.Titlovi.dll', 'SHA256SUMS.txt'),
+              ('titlovi-com_2.0.0.0.zip', 'SHA256SUMS.txt')
+          ):
+              lines = (directory / checksum_filename).read_text('utf-8').splitlines()
+              checksums = dict(line.split() for line in lines)
+              assert hashlib.sha256((directory / name).read_bytes()).hexdigest() == checksums[name]
+          print('OFFLINE REVIEW PASSED: both candidates and nine untouched historical versions')
+          print('NO TAGS, RELEASES, CATALOGUE WRITES OR PUBLIC ASSET UPLOADS')
+          PY
+
+      - name: Upload ephemeral internal review artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titlovi-2.0-Linux-candidate-NOT-FOR-RELEASE
+          path: dist/official-candidate/*
+          if-no-files-found: error
+          retention-days: 5
+          compression-level: 0
+
+  windows:
+    name: Windows — regressions and both host candidates
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out exact selected source revision
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+
+      - name: Run full offline regressions
+        shell: cmd
+        run: scripts\windows\run-tests.cmd
+
+      - name: Build isolated Emby and Jellyfin candidates without altering tracked version
+        shell: pwsh
+        run: python scripts/migration/build-official-candidate.py
+
+      - name: Verify Windows candidate checksums and archive contents
+        shell: pwsh
+        run: |
+          @'
+          import hashlib, json, zipfile
+          from pathlib import Path
+          directory = Path('dist/official-candidate')
+          jellyfin = directory / 'titlovi-com_2.0.0.0.zip'
+          emby = directory / 'Emby.Titlovi.dll'
+          assert emby.is_file() and emby.stat().st_size > 0
+          with zipfile.ZipFile(jellyfin) as z:
+              assert set(z.namelist()) == {'Jellyfin.Titlovi.dll', 'meta.json', 'thumb.png'}
+              meta = json.loads(z.read('meta.json'))
+          for k,v in {'guid':'6e25df50-638e-4109-a50b-03c14fc93fdd',
+                      'version':'2.0.0.0', 'name':'Titlovi.com',
+                      'targetAbi':'12.0.0.0'}.items():
+              assert meta[k] == v
+          sums = dict(line.split() for line in (directory / 'SHA256SUMS.txt').read_text('utf-8').splitlines())
+          for name in ('Emby.Titlovi.dll', 'titlovi-com_2.0.0.0.zip'):
+              assert hashlib.sha256((directory / name).read_bytes()).hexdigest() == sums[name]
+          print('WINDOWS OFFLINE REVIEW PASSED. NO PUBLICATION.')
+          '@ | python -
+
+      - name: Upload ephemeral internal review artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titlovi-2.0-Windows-candidate-NOT-FOR-RELEASE
+          path: dist/official-candidate/*
+          if-no-files-found: error
+          retention-days: 5
+          compression-level: 0
