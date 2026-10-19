@@ -55,7 +55,7 @@ scripts/          Skripte za izgradnju, pakiranje i testiranje
 - [Povijest razvojnih promjena (engleski)](../../CHANGELOG.md)
 - [Prijava problema](https://github.com/Titlovi/titlovi-unified/issues)
 
-Automatizirani testovi i izgradnja provode se na Windowsu i Linuxu. Testovi koji pristupaju stvarnom Titlovi.com servisu pokreću se odvojeno, s namjenskim pristupnim podacima.
+Automatizirani testovi i izgradnja provode se na Windowsu i Linuxu. Testovi koji pristupaju stvarnom servisu Titlovi.com pokreću se samo namjenski i zahtijevaju zasebno konfigurirane pristupne podatke u GitHub Actionsu.
 
 **Sigurnost:** Ne objavljujte lozinke, API tokene, konfiguracijske datoteke koje sadrže pristupne podatke ni osjetljive dijelove zapisnika.
 

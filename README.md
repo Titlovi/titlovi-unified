@@ -59,7 +59,7 @@ scripts/          Build, packaging and test scripts
 - [Development changelog](CHANGELOG.md)
 - [Report an issue](https://github.com/Titlovi/titlovi-unified/issues)
 
-Automated tests and builds run on Windows and Linux. Live end-to-end tests against Titlovi.com are run separately, using dedicated credentials and controlled requests.
+Automated tests and builds run on Windows and Linux. Live end-to-end tests against Titlovi.com are opt-in and require separately configured GitHub Actions credentials; they are not run on routine pushes.
 
 **Security:** Never share your Titlovi.com password, API tokens, configuration files containing credentials or unredacted sensitive logs in public issues.
 
