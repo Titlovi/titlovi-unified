@@ -276,6 +276,17 @@ activated as-is.
 - Verify Jellyfin 10.11 catalogue compatibility for historical 1.x releases
   and correct Jellyfin 12-only ABI targeting for 2.0.
 
+## Distribution readiness (2026-10-19)
+
+The Emby distribution repository now contains a pre-release README and manual
+installation guide; no binary has been published. A separate
+[distribution runbook](DISTRIBUTION-RUNBOOK.md) records the three-repository
+release sequence and the critical requirement to disable/replace Jellyfin's
+legacy net9 auto-publishing workflow before any 2.0 release. A manually
+triggered, **read-only** candidate review workflow is prepared at
+`.github/workflows/review-official-distribution-candidate.yml`. It does not
+publish packages, create tags or edit the Jellyfin catalogue.
+
 ## Remaining release gates
 
 The historical [official migration audit](../MIGRATION-AUDIT.md) and the
