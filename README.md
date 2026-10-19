@@ -38,7 +38,7 @@ Emby Server 4.10.x may save an alternative-language subtitle with a filename suf
 - A compatible Jellyfin or Emby Server version.
 - A **Titlovi.com account with API access**. Account eligibility and access conditions are determined by Titlovi.com.
 
-[Installation](docs/en/INSTALL.md) explains the planned post-release procedure and [the user guide](docs/en/USER-GUIDE.md) describes the configuration and search features. **No official 2.0 package is available yet.**
+[Installation](docs/en/INSTALL.md) explains the planned post-release procedure and [the user guide](docs/en/USER-GUIDE.md) describes the configuration and search features.
 
 ## Source code and development
 

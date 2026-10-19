@@ -1,8 +1,8 @@
 # Titlovi.com za Jellyfin i Emby
 
-**Službeni izvorni kod dodataka Titlovi.com za Jellyfin i Emby.** Dodaci omogućuju pretraživanje i preuzimanje titlova sa stranice [Titlovi.com](https://titlovi.com/) izravno iz medijskog poslužitelja. Oba se dodatka razvijaju iz zajedničkog izvornog koda.
-
 **Dokumentacija:** [English](../../README.md) · **Hrvatski** · [Српски](../sr-Cyrl/README.md)
+
+**Službeni izvorni kod dodataka Titlovi.com za Jellyfin i Emby.** Dodaci omogućuju pretraživanje i preuzimanje titlova sa stranice [Titlovi.com](https://titlovi.com/) izravno iz medijskog poslužitelja. Oba se dodatka razvijaju iz zajedničkog izvornog koda.
 
 > **Status izdanja:** Prvo službeno izdanje objedinjene implementacije, **2.0.0.0**, još se priprema. Instalacijski paketi za Jellyfin 12 i Emby 4.10.x **nisu objavljeni**. Ovaj repozitorij sadrži izvorni kod, a ne datoteke za preuzimanje dodataka.
 
@@ -36,7 +36,7 @@ Emby Server 4.10.x može spremiti titl na drugom jeziku sa sufiksom jezika prvot
 - Kompatibilna inačica Jellyfina ili Emby Servera.
 - **Korisnički račun na Titlovi.com s API pristupom.** Uvjete pristupa i pravo korištenja API-ja određuje Titlovi.com.
 
-[Upute za instalaciju](INSTALL.md) opisuju planirani postupak nakon objave, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje. **Službeni paketi 2.0 još nisu dostupni.**
+[Upute za instalaciju](INSTALL.md) opisuju planirani postupak nakon objave, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje.
 
 ## Izvorni kod i razvoj
 
