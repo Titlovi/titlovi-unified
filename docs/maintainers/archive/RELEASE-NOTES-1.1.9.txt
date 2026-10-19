@@ -1,3 +1,5 @@
+ARCHIVED DEVELOPMENT NOTE — NOT A CURRENT OR OFFICIAL RELEASE
+
 Titlovi.com.Unified 1.1.9
 ==========================
 
@@ -25,5 +27,5 @@ Highlights:
 - Simple host-specific output directories. Jellyfin's ready-to-copy folder and
   ZIP are both created directly under src\Jellyfin\output.
 
-See README.md for an overview, INSTALL.md for installation, and README-BUILD.txt
+Historical references (before documentation reorganization): README.md, INSTALL.md, README-BUILD.txt
 for building from source.

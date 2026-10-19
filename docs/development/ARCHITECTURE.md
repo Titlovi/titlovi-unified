@@ -268,7 +268,7 @@ dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip
 
 The distribution tree is separated by host rather than operating system.
 
-Detailed build requirements and commands are documented in `README-BUILD.txt`.
+Detailed build requirements and commands are documented in [Build guide](../en/BUILD.md).
 
 ## Tests and validation
 
@@ -289,6 +289,6 @@ Validation is divided into three levels:
 
 No test assembly or test dependency is shipped with either plugin.
 
-For build and test commands, see `README-BUILD.txt`.
+For build and test commands, see [Build guide](../en/BUILD.md).
 
-For live validation details, see `tests/e2e/README.md`.
+For live validation details, see [Live E2E guide](../../tests/e2e/README.md).
