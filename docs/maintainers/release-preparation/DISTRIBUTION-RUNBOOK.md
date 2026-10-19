@@ -36,11 +36,14 @@ or Emby binaries into the historical Jellyfin distribution repository.
    separate Emby GUID `1dbf2e1e-3187-4f63-9a60-4ca7ace4232e`.
    Verify host-specific **GET Search** `X-App` headers:
    Jellyfin `titlovi-jellyfin`, Emby `emby-titlovi`.
-5. Verify Jellyfin 12 fresh install, in-place original Matko plugin upgrade
-   (including credentials import), real search/download and restart; verify
-   the Emby 4.10 DLL loads and searches/downloads. Do not conflate Jellyfin
-   plugin migration with the separate, previously blocked Jellyfin 10.11 to
-   12 **server database upgrade** rehearsal.
+5. **Phase-specific acceptance:** before publishing Emby, verify real Emby
+   4.10 DLL installation/update, load, account settings, search, download and
+   restart. Before publishing Jellyfin, additionally verify Jellyfin 12 fresh
+   installation, original Matko plugin upgrade with credentials migration,
+   search/download and restart. Do not conflate Jellyfin plugin migration
+   with the separately blocked Jellyfin 10.11-to-12 **server database**
+   upgrade rehearsal. Both hosts' build and offline tests must pass before
+   the **first** (Emby) publication.
 6. Preserve the original nine 1.x catalogue entries, URLs, checksums and
    historic tags/assets. Test that older compatible Jellyfin releases remain
    selectable for older hosts and that 2.0 targets **only Jellyfin 12**.
@@ -70,39 +73,89 @@ upload, push, catalogue write, third-party token, or production secret. It
 is **not** the production publisher. Successful offline output alone never
 authorizes distributing preview artifacts to users.
 
+## Agreed sequence: Emby first, Jellyfin last (2026-10-19)
+
+The maintainers have agreed to **stage the two host releases** rather than
+publish them simultaneously. Emby 4.10's manually installed DLL is the first
+distribution. Jellyfin 12 comes only after Emby publication/acceptance and its
+own additional compatibility and legacy-catalogue gates.
+
+**Important distinction:** source/build consistency does *not* require both
+distribution releases to appear on the same day. Freeze and tag **one**
+reviewed Unified source commit for the planned 2.0.0.0 binaries; build and
+test **both** host candidates from this source before the Emby release. The
+Jellyfin package can remain unpublished while its separate live and catalogue
+checks are completed.
+
+**Immutable source rule:** never move or rewrite the released Unified source
+tag. If an Emby release is published and later Jellyfin work requires *any*
+change to the original tagged source, do **not** silently reuse the same
+2.0.0.0 version/tag for a different build. Evaluate a subsequent version and
+new source tag, run full regressions/builds again, and record which original
+source each published distribution asset actually came from. An Emby release
+already published remains bound to its original verified source tag.
+
 ## Ordered production publication — not yet implemented or authorized
 
-Only after all release gates pass:
+Only after the relevant approval and acceptance gates:
 
-1. Freeze and tag the reviewed, approved versioned source in
-   `Titlovi/titlovi-unified`; record the immutable source commit SHA.
-2. Build both host artifacts **once** from this tag with verified provenance.
-   Do not build from separate distribution repository source histories.
-3. Take a backup of the current Jellyfin `gh-pages/repository.json`, record
-   all historical entries and checksums, and prepare (but do not yet push)
-   the candidate 2.0 manifest.
-4. **Before uploading a new Jellyfin 2.x Release**, replace or disable the
-   old `Titlovi/titlovi-jellyfin/.github/workflows/publish.yaml`
-   release-triggered workflow. It still compiles Matko's net9 `Titlovi.Plugin`
-   with `jellyfin-meta-plugins`, auto-uploads assets and regenerates the
-   catalogue. That workflow is incompatible with our distribution-only model.
-   Make this a separately reviewed, explicit maintainer-authorized change;
-   do not trigger an original `v2.0.0` release while it remains active.
-5. Publish **only** the verified Jellyfin ZIP and checksum sidecars into a
-   `titlovi-jellyfin` release; publish **only** the verified Emby DLL and
-   checksum sidecars into a `titlovi-emby` release. Give both links back to
-   the identical canonical Unified source tag. Do not overwrite or delete
-   historical Jellyfin release assets.
-6. Retrieve the actual published binaries and independently check SHA-256
-   (and Jellyfin ZIP MD5 for the catalogue entry), source provenance,
-   package content and compatibility metadata.
-7. **Only after** the Jellyfin ZIP is publicly reachable and verified,
-   update its original `gh-pages/repository.json` with the 2.0 entry, keeping
-   every historical entry unchanged. Re-fetch and re-validate the published
-   catalogue and original historical URLs. No Emby catalogue update exists.
-8. Verify the catalogue install/update experience on supported Jellyfin 12
-   and the actual Emby DLL install. Announce availability only after these
-   checks pass and the maintainers sign off.
+### Phase A — common source and candidate freeze (before any release)
+
+1. Obtain explicit maintainer authorization for release preparation and
+   coordinate the source tag/version/official naming in the canonical
+   `Titlovi/titlovi-unified` repository.
+2. Finish regression and build verification for **both** Emby and Jellyfin
+   on Windows/Linux; keep the final count and traceable commit SHA. Prepare
+   each package from the **same immutable approved source**. A historical
+   candidate built from temporary version overlays is not itself a
+   publishable official release.
+3. Verify Emby 4.10 live acceptance independently: plugin load and settings,
+   a real search/download, identity preservation on update, restart, and
+   rollback to a compatible backed-up plugin. Verify the Emby `X-App`
+   Search header. Review end-user installation/attribution and checksum
+   documentation. See [Emby first-release checklist](EMBY-FIRST-ACCEPTANCE.md).
+
+### Phase B — publish and verify **Emby 2.0.0.0 first**
+
+4. Publish **only** `Emby.Titlovi.dll` and its verified checksum sidecars
+   to `Titlovi/titlovi-emby` as an approved GitHub Release pointing to
+   the matching `titlovi-unified` source tag. Emby has **no** repository
+   feed, catalogue or automatic-update endpoint.
+5. Re-download the **actual public DLL**, verify the SHA-256 checksum and
+   provenance, install it on Emby 4.10 and confirm it loads and downloads a
+   subtitle. Record the outcome, and **hold** the Jellyfin phase if a shared
+   regression or release-provenance issue appears. Emby release notes must
+   not claim that Jellyfin 2.0 is already available.
+
+### Phase C — independently prepare **Jellyfin last**
+
+6. Preserve a backup of the original Jellyfin
+   `gh-pages/repository.json`, all **nine historical release entries**,
+   URLs/checksums and old tags/assets. Confirm original plugin GUID,
+   Jellyfin 12 ABI, Matko configuration import, fresh install, in-place
+   update, restart and real subtitle search/download. Verify older hosts
+   still have their original compatible 1.x catalogue entries.
+7. **Before creating/publishing any Jellyfin 2.x Release**, replace/disable
+   the old `Titlovi/titlovi-jellyfin/.github/workflows/publish.yaml`
+   through an explicitly approved change. The original workflow builds
+   Matko's net9 package, uploads files and regenerates the catalogue on
+   release events. It must not run during Unified 2.x distribution.
+8. Publish **only** the Jellyfin ZIP and checksum sidecars to
+   `Titlovi/titlovi-jellyfin`, linked to its verified Unified source tag.
+   Re-download and independently check SHA-256, Jellyfin ZIP MD5, all three
+   ZIP entries, assembly allowlist, original plugin GUID and Jellyfin 12 ABI.
+   Never overwrite or delete existing Matko 1.x releases.
+9. **Only after** the published Jellyfin ZIP is reachable and checksummed,
+   append the matching new entry to the original Jellyfin
+   `gh-pages/repository.json` while preserving all older version objects
+   exactly. Re-fetch the public catalogue and check historical downloads.
+10. Verify final Jellyfin 12 install/upgrade from the actual catalogue and
+    communicate the host-specific availability and compatibility
+    requirements. Obtain maintainer sign-off for the Jellyfin announcement.
+
+**No phase is authorized for execution just because this runbook exists.**
+The [manual review workflow](../../../.github/workflows/review-official-distribution-candidate.yml)
+can validate internal candidates, but it is not the production publisher.
 
 **Failure/rollback:** Before catalogue publication, do not reference an
 unavailable package. If distribution validation fails, hold the new
@@ -117,5 +170,7 @@ rollback package for an already-upgraded Jellyfin 12 host.
 - The original Jellyfin `publish.yaml` is still active and **must be
   addressed before** authorizing a 2.0 release.
 - Emby distribution repository has documentation, **no release binaries**.
+- **Emby-first / Jellyfin-last** sequencing is agreed; no distribution release
+  has been authorized or published under this plan.
 - Unified official 2.0 name/version bump and production cross-repo publisher
   have **not** been implemented. They require separate approval and review.
