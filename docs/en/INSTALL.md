@@ -30,7 +30,7 @@ The successor preserves the original **Jellyfin plugin GUID** and the existing c
 
 Before upgrading, **back up the server's data/configuration**, including `plugins/configurations/Titlovi.Plugin.xml` if it exists. On Jellyfin 12, install the compatible official successor from the catalogue after publication and restart the server. Check the username on the configuration page and verify that a subtitle downloads.
 
-The code contains a one-time importer for the original username and password, used only when newer credentials do not already exist. The old configuration file is kept and its cached API token is **not** reused. This was verified against a development preview; the final official package requires its own acceptance test.
+On first use, the successor is designed to import the original plugin's username and password **only if the newer configuration has no credentials**. The original configuration file remains intact, and its cached API token is **not** reused. After upgrading, verify your account details in the plugin settings and enter them manually if necessary.
 
 **Upgrading the Jellyfin server itself from 10.11 to 12 is separate from upgrading the plugin.** Back up the entire server and follow Jellyfin's server migration instructions. A plugin test does not guarantee a server database upgrade.
 

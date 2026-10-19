@@ -30,7 +30,7 @@ Nova implementacija zadržava **izvorni identifikator Jellyfin dodatka (GUID)** 
 
 Prije nadogradnje **sigurnosno kopirajte podatke i konfiguraciju poslužitelja**, uključujući `plugins/configurations/Titlovi.Plugin.xml` ako postoji. Kada službeno izdanje postane dostupno, na Jellyfinu 12 instalirajte kompatibilnu verziju iz kataloga i ponovno pokrenite poslužitelj. Provjerite korisničko ime u postavkama i preuzimanje titla.
 
-Nova implementacija može **jednokratno uvesti** korisničko ime i lozinku izvornog dodatka ako novija konfiguracija još nema pristupne podatke. Stara konfiguracijska datoteka ostaje sačuvana, a stari API token **ne preuzima se**. Funkcija je provjerena na razvojnom pretpregledu; završni službeni paket još mora proći prihvatno testiranje.
+Pri prvom pokretanju novi dodatak predviđen je za **jednokratni uvoz** korisničkog imena i lozinke izvornog dodatka, ali samo ako novija konfiguracija nema pristupne podatke. Izvorna konfiguracijska datoteka ostaje sačuvana, a stari API token **ne prenosi se**. Nakon nadogradnje provjerite pristupne podatke u postavkama i po potrebi ih ponovno unesite.
 
 **Nadogradnja samog Jellyfin poslužitelja s 10.11 na 12 zaseban je postupak.** Prethodno izradite sigurnosnu kopiju cijelog poslužitelja i slijedite službene Jellyfin upute. Uspješna provjera dodatka ne jamči uspješnu migraciju poslužiteljske baze.
 
