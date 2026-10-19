@@ -276,6 +276,22 @@ activated as-is.
 - Verify Jellyfin 10.11 catalogue compatibility for historical 1.x releases
   and correct Jellyfin 12-only ABI targeting for 2.0.
 
+## Emby-first publication decision (2026-10-19)
+
+**Agreed release order:** build/test both host candidates from a frozen,
+versioned `titlovi-unified` source tag; **publish and verify Emby first** in
+`titlovi-emby` as a manually installed DLL; **publish Jellyfin last** only
+after legacy-upgrade acceptance, old `publish.yaml` replacement, downloaded
+ZIP checksum verification and preservation of all nine 1.x catalogue entries.
+
+Emby publication must not depend on publishing a Jellyfin 2.0 catalogue
+entry. Do not change the already-published canonical source tag after an Emby
+release; if subsequent Jellyfin work changes the source, use a new appropriate
+version/tag with full regression and packaging validation rather than shipping
+different code as the same source release. See the
+[Emby-first checklist](EMBY-FIRST-ACCEPTANCE.md) and the
+[distribution runbook](DISTRIBUTION-RUNBOOK.md).
+
 ## Distribution readiness (2026-10-19)
 
 The Emby distribution repository now contains a pre-release README and manual
