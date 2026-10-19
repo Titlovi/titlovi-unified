@@ -85,7 +85,7 @@ Ne instalirajte Emby DLL u Jellyfin ni obratno. Vidite [Upute za instalaciju](IN
 
 ## Testovi
 
-Regresijski testovi rade **bez pristupa internetu ili servisu Titlovi.com**, nad istim zajedničkim kodom koji se ugrađuje u stvarne dodatke.
+Regresijski testovi **ne šalju zahtjeve servisu Titlovi.com**; za početno preuzimanje NuGet paketa ipak može biti potrebna internetska veza. Testira se isti zajednički kod koji se ugrađuje u stvarne dodatke.
 
 Prošireni Linux test učitavanja zahtijeva Docker, curl i Python 3:
 

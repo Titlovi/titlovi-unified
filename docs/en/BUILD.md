@@ -85,7 +85,7 @@ Do **not** install the Emby DLL into Jellyfin or the Jellyfin DLL into Emby. For
 
 ## Tests
 
-The regression suite is **offline** and does not contact Titlovi.com. It compiles the same Common engine as the production plugins and checks subtitle identity, language handling, title and release matching, archives and episode filename rules.
+The regression test cases **do not contact Titlovi.com**; an initial NuGet package restore may still require internet access. The suite compiles the same Common engine as the production plugins and checks subtitle identity, language handling, title and release matching, archives and episode filename rules.
 
 The Linux host-loading smoke test also requires Docker, curl and Python 3:
 
