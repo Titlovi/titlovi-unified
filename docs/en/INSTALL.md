@@ -2,19 +2,19 @@
 
 [English](INSTALL.md) · [Hrvatski](../hr/INSTALL.md) · [Српски](../sr-Cyrl/INSTALL.md)
 
-> **Release status:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) is published for **Emby Server 4.10.x**. **Jellyfin 2.0.0.0 for Jellyfin 12 is not yet published**; its installation steps below describe the planned process.
+> **Official releases:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) for **Emby Server 4.10.x** and [Jellyfin 2.0.0.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) for **Jellyfin 12** are published.
 
 A Titlovi.com account **with API access** is required. Titlovi.com sets account eligibility and access conditions.
 
 ## Jellyfin 12 (.NET 10)
 
-Distribution: [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). The **existing** Jellyfin plugin-catalogue URL will remain:
+Distribution: [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). The **existing** Jellyfin plugin-catalogue URL is:
 
 ```text
 https://titlovi.github.io/titlovi-jellyfin/repository.json
 ```
 
-**Once an approved Jellyfin 12 Unified release is published:**
+**Install the published Jellyfin 2.0.0.0 release:**
 
 1. Open the Jellyfin administration dashboard, then **Plugins → Repositories**.
 2. Confirm that the existing Titlovi catalogue URL is configured; add it if necessary.
@@ -28,7 +28,7 @@ The existing catalogue also contains historical releases for **older Jellyfin ve
 
 The successor preserves the original **Jellyfin plugin GUID** and the existing catalogue URL: it is intended as an upgrade, not a separate competing installation.
 
-Before upgrading, **back up the server's data/configuration**, including `plugins/configurations/Titlovi.Plugin.xml` if it exists. On Jellyfin 12, install the compatible official successor from the catalogue after publication and restart the server. Check the username on the configuration page and verify that a subtitle downloads.
+Before upgrading, **back up the server's data/configuration**, including `plugins/configurations/Titlovi.Plugin.xml` if it exists. On Jellyfin 12, install or update to version 2.0.0.0 from the existing catalogue and restart the server. Check the username on the configuration page and verify that a subtitle downloads.
 
 On first use, the successor is designed to import the original plugin's username and password **only if the newer configuration has no credentials**. The original configuration file remains intact, and its cached API token is **not** reused. After upgrading, verify your account details in the plugin settings and enter them manually if necessary.
 
@@ -36,7 +36,7 @@ On first use, the successor is designed to import the original plugin's username
 
 ### Manual Jellyfin installation
 
-Once the official ZIP has been published, a manual alternative is to stop the server and extract the **entire** approved package into its own directory within the active Jellyfin plugins folder:
+If catalogue installation is unavailable, download [`titlovi-com_2.0.0.0.zip`](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) from the official Jellyfin release. Stop the server, back up the existing plugin folder and its configuration, **move any older Titlovi plugin folder outside the active plugins directory**, and extract the **entire** ZIP into one new dedicated directory under the active Jellyfin plugins folder:
 
 ```text
 Jellyfin.Titlovi.dll

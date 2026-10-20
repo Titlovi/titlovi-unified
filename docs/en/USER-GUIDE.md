@@ -2,7 +2,7 @@
 
 [English](USER-GUIDE.md) · [Hrvatski](../hr/USER-GUIDE.md) · [Српски](../sr-Cyrl/USER-GUIDE.md)
 
-The Unified plugin lets your Jellyfin or Emby server search for and download subtitles from Titlovi.com. The first official **Unified 2.0.0.0 is not yet published**; see [Installation](INSTALL.md) for its availability and host compatibility.
+The Unified plugin lets your Jellyfin or Emby server search for and download subtitles from Titlovi.com. **Unified 2.0.0.0 is published for both Jellyfin 12 and Emby 4.10.x**; see [Installation](INSTALL.md) for the host-specific downloads and upgrade procedures.
 
 ## Requirements and setup
 

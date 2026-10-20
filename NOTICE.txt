@@ -5,8 +5,11 @@ Titlovi GitHub organization. The Emby and Jellyfin plugin metadata uses the name
 "Titlovi.com" and version 2.0.0.0, from the canonical source tag v2.0.0.
 The Emby Server 4.10.x plugin was first published on 2026-10-20 at
 https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0.
-The Jellyfin 12 version 2.0.0.0 has not yet been published and the
-historical Jellyfin catalogue entries remain unchanged.
+The Jellyfin 12 plugin was published on 2026-10-20 at
+https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0.
+It is available through the existing Jellyfin plugin catalogue, which retains
+all nine earlier Jellyfin 1.x release entries. Current catalogue developer
+credit is "mihvel"; Matko's original contributions remain acknowledged below.
 
 This project is derived from and informed by Matko's original open-source
 Titlovi.com Jellyfin plugin/API-client work, preserved with its history and

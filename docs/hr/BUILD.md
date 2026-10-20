@@ -4,7 +4,7 @@
 
 Ovaj vodič opisuje izgradnju dvaju samostalnih dodataka za **Jellyfin 12 / .NET 10** i **Emby Server 4.10.x** iz [središnjeg repozitorija](https://github.com/Titlovi/titlovi-unified).
 
-> Službena [Unified izvorna oznaka `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0) izvor je [objavljenog Emby 2.0.0.0 izdanja](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). Jellyfin 2.0 još nije objavljen. Izgradnja iz izvornog koda namijenjena je razvoju; za instalaciju koristite odobrena izdanja za odgovarajući poslužitelj.
+> Službena [Unified izvorna oznaka `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0) izvor je [objavljenog Emby 2.0.0.0 izdanja](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). Objavljena su oba izdanja: [Emby 2.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) i [Jellyfin 2.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0). Izgradnja iz izvornog koda namijenjena je razvoju; za instalaciju koristite odobrena izdanja za odgovarajući poslužitelj.
 
 ## Organizacija i preduvjeti
 

@@ -27,7 +27,7 @@ Historical changelog entries from the private/unofficial development repository 
 1. **English is authoritative.** Update the Croatian and Serbian versions whenever user-visible behavior, requirements, installation procedures or release status changes.
 2. Use idiomatic standard Croatian in Latin script and standard Serbian in Cyrillic, not mechanically transliterated text. Preserve filenames, commands, IDs and URLs exactly.
 3. Distinguish **implemented behavior**, **proposed features** and **platform limitations**. Never imply a package or update is available until its real release asset is published and verified.
-4. Jellyfin 12 / .NET 10 and Emby 4.10.x are the upcoming Unified release targets. Preserve all earlier Jellyfin 1.x catalogue entries. Emby distribution is a manually installed DLL, not a Jellyfin-style repository.
+4. Jellyfin 12 / .NET 10 and Emby 4.10.x are the supported targets of the published Unified 2.0 release. Preserve all earlier Jellyfin 1.x catalogue entries. Emby distribution is a manually installed DLL, not a Jellyfin-style repository.
 5. Verify all relative links, installation paths, command examples, filenames and compatibility claims. All build commands execute from the **repository root**, even though the documentation lives in `docs/`.
 6. Keep the GPL-3.0 license and the attribution to the original Jellyfin developer. Do not post API credentials or configuration XML in documentation or test fixtures.
 7. Release notes should be translated when **actual releases** are prepared. Do not translate obsolete internal developmental changelogs for public end users.

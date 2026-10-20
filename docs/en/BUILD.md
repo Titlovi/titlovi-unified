@@ -4,7 +4,7 @@
 
 This guide describes building the two independent **Jellyfin 12 / .NET 10** and **Emby Server 4.10.x** plugins from the [canonical source repository](https://github.com/Titlovi/titlovi-unified).
 
-> The official [Unified source tag `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0) is the source of the [published Emby 2.0.0.0 release](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). The Jellyfin 2.0 release remains unpublished. Builds from source are for development; for installation use only approved host-specific GitHub Releases.
+> The official [Unified source tag `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0) is the source of the [published Emby 2.0.0.0 release](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). Both the [Emby 2.0 release](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) and [Jellyfin 2.0 release](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) are published. Builds from source are for development; for installation use only approved host-specific GitHub Releases.
 
 ## Source tree and prerequisites
 
