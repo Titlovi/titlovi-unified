@@ -3,6 +3,16 @@
 **Not released.** These notes are prepared for review by Titlovi.com
 maintainers and must not be presented as a published official version.
 
+**Staged distribution order:** release and verify **Emby 2.0 first** as a
+manual DLL download; release **Jellyfin 2.0 last** only after its separate
+legacy workflow, upgrade and original-catalogue validation. The two host
+binaries must share the same approved, immutable Unified source revision.
+
+On 2026-10-20 a tester reported that a locally built official-branded
+Emby candidate loaded successfully, retained prior settings, searched
+and downloaded subtitles for a movie and series episode, and displayed
+them correctly. This does **not** constitute published-release acceptance.
+
 ## Overview
 
 This proposed first official Unified release replaces the original
