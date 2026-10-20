@@ -28,6 +28,18 @@ The project follows these boundaries:
 7. The actual subtitle language reported by Titlovi.com is preserved in the shared model whenever it can be mapped to a supported language.
 8. Host-specific limitations must remain host-specific and must not distort shared provider behavior.
 
+**Emby build portability:** The Emby plugin build **must not depend on an
+installed Emby Server**. The three required `MediaBrowser.Model.dll`,
+`MediaBrowser.Common.dll` and `MediaBrowser.Controller.dll` are
+compile-time host references, not extra plugin runtime assemblies.
+Canonical Windows/Linux build scripts must remain able to obtain these
+from an official Emby distribution when no suitable local installation
+exists (Windows: official release archive; Linux: official Docker image
+if local references or `EMBY_REFERENCE_DIR` are unavailable). Downloading
+missing references on a clean machine requires network access; the Linux
+fallback requires Docker and the Windows fallback requires `tar`.
+Changing this behavior requires a deliberate, documented design decision.
+
 These rules are intended to keep the two host implementations behaviorally aligned without hiding genuine differences between Emby and Jellyfin.
 
 ## Repository layout

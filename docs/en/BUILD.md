@@ -26,6 +26,15 @@ The shared `src/Common` C# files compile **directly into each host DLL**. There 
 | Jellyfin packaging on Linux | Python 3. |
 | Emby compilation | `MediaBrowser.Model.dll`, `MediaBrowser.Common.dll`, `MediaBrowser.Controller.dll` as **compile-time** host references. |
 
+**An installed Emby Server is NOT required on the build machine.** Only its
+three `MediaBrowser.*` DLLs are needed as compile-time references; the resulting
+`Emby.Titlovi.dll` runs inside Emby but building it does not start or install
+Emby Server. The canonical build scripts first look for suitable local
+references and can obtain missing references automatically from official
+Emby distributions. On a clean machine this fallback needs network access
+and the platform-specific extraction tool described below. The build must
+continue to support machines **without a local Emby installation**.
+
 Windows scripts prefer an installed stable .NET 10 SDK and can fetch the configured portable SDK if none is suitable. They can download official Emby 4.10 references when not locally available; Windows `tar` is needed for extraction. Preview/RC SDKs are not selected.
 
 On Linux, Emby references are resolved from `EMBY_REFERENCE_DIR` if set, common local Emby installation directories, or the configured `emby/embyserver:4.10.0.40` Docker image. Docker is needed only for the fallback and extended runtime tests.
