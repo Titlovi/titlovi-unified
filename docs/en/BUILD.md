@@ -17,7 +17,7 @@ scripts/windows/  Windows build/test entry points
 scripts/linux/    Linux build/test entry points
 ```
 
-The shared `src/Common` C# files compile **directly into each host DLL**. There is no separately deployed Common/Core runtime DLL.
+The shared `src/Common` C# files compile **directly into each host DLL**.
 
 | Platform | Requirements |
 | --- | --- |

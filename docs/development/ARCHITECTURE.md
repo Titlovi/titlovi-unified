@@ -11,7 +11,7 @@ Jellyfin.Titlovi.dll
 
 Both plugins are presented to users as **Titlovi.com (Unofficial)**.
 
-There is no separate Common/Core runtime assembly. Each host project compiles the same `src/Common` source directly into its own plugin assembly, so Emby and Jellyfin remain independently installable and self-contained.
+Each host project compiles the same `src/Common` source directly into its own plugin assembly, so Emby and Jellyfin remain independently installable and self-contained.
 
 The same host artifact is used on supported Windows and Linux installations.
 
@@ -22,7 +22,7 @@ The project follows these boundaries:
 1. Shared subtitle-provider behavior belongs in `src/Common`.
 2. Host API types and host-specific behavior belong in `src/Emby` or `src/Jellyfin`.
 3. `src/Common` must not depend on Emby or Jellyfin `MediaBrowser.*` types.
-4. Both host plugins compile the same Common source rather than referencing a separate runtime Common DLL.
+4. Both host plugins compile the same `src/Common` sources directly into their host assemblies.
 5. Different Titlovi.com media IDs remain separate search results. Only duplicate results referring to the same media ID may be merged.
 6. Release matching affects ranking only. A release mismatch must not remove an otherwise valid subtitle result.
 7. The actual subtitle language reported by Titlovi.com is preserved in the shared model whenever it can be mapped to a supported language.

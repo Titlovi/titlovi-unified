@@ -17,7 +17,7 @@ scripts/windows/  Skripte za Windows
 scripts/linux/    Skripte za Linux
 ```
 
-Datoteke iz `src/Common` ugrađuju se **izravno u svaki DLL dodatka**. Nije potrebna zasebna Common/Core biblioteka.
+Datoteke iz `src/Common` ugrađuju se **izravno u svaki DLL dodatka**.
 
 | Okruženje | Potrebno |
 | --- | --- |

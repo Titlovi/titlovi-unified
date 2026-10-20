@@ -13,8 +13,7 @@ maintainers explicitly approve that action.
   [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby),
   **manual DLL installation**, no third-party Emby catalogue.
 - Only source of code: [Titlovi/titlovi-unified](https://github.com/Titlovi/titlovi-unified).
-  The shared `src/Common` C# sources are compiled into `Emby.Titlovi.dll`;
-  **no separate Common/Core runtime DLL**.
+  The shared `src/Common` C# sources are compiled into `Emby.Titlovi.dll`.
 - The **Jellyfin** 2.0 release and its catalogue update are separate, later
   milestones. Matko's original Jellyfin plugin and catalogue are untouched
   by publishing Emby.
@@ -31,8 +30,8 @@ maintainers explicitly approve that action.
 - [ ] Full regression suite passes at the **current** baseline (166 at this
       checkpoint, updated as tests change) on Windows and Linux.
 - [ ] Build **both** Emby 4.10 and Jellyfin 12 candidates from that same
-      immutable source on Windows and Linux; check that the Emby output is
-      one `Emby.Titlovi.dll` without a Common/Core runtime dependency.
+      immutable source on Windows and Linux; check that the Emby distribution contains
+      the host-specific `Emby.Titlovi.dll`.
 - [ ] Review packaging metadata, source provenance, GPLv3 licensing,
       `NOTICE.txt`, and clear Emby-only README/INSTALL/release notes.
 - [ ] Confirm the Emby plugin retains its existing GUID

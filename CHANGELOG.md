@@ -9,6 +9,6 @@ This document records **official Titlovi.com Unified releases** from version 2.0
 - **Canonical source:** [Unified tag `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0), commit `1c4c6dfd04fc0bf51b88a1c8e276896e5f0cab78`.
 - **Emby DLL SHA-256:** `5980d14869686be78c709ae19fc493f590859d06e7423a943dc6d4b04af0a852`.
 
-Both host plugins are built from the same source tree. Shared logic is compiled directly into each host DLL, without a separate runtime Common/Core DLL. The first Emby release was verified using the 166-test regression suite and host builds on Windows and Linux; live Emby acceptance of the release candidate was also reported.
+Both host plugins are built from the same source tree. Shared logic is compiled directly into each host DLL. The first Emby release was verified using the 166-test regression suite and host builds on Windows and Linux; live Emby acceptance of the release candidate was also reported.
 
 Earlier **pre-official development history** is preserved in [the maintainer archive](docs/maintainers/archive/CHANGELOG-PRE-OFFICIAL.md) and the Git commit history. Those experimental releases are not part of the official Unified 2.0 release series.

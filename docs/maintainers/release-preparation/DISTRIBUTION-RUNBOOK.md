@@ -14,7 +14,7 @@ be explicitly approved by Titlovi.com maintainers.
 | [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby) | Manual Emby DLL downloads and installation documentation, **no** Emby catalogue | Release `v2.0.0`: `Emby.Titlovi.dll` and checksum sidecars |
 
 Both binaries must be built from **exactly the same reviewed Unified tag**.
-No runtime Common/Core DLL is packaged. Do not copy Unified application source
+Do not copy Unified application source
 or Emby binaries into the historical Jellyfin distribution repository.
 
 ## Provenance and release gates
