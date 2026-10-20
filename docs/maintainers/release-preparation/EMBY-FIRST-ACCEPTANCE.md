@@ -1,5 +1,7 @@
 # First official Emby 2.0.0.0 release — acceptance checklist (DRAFT)
 
+> **Historical release-preparation snapshot (archived in place).** Emby and Jellyfin Unified 2.0.0.0 were both published on 2026-10-20. This document records pre-release planning and may contain obsolete status statements, pending checklist items, and provisional instructions. It is **not** the current installation or release status. For current guidance, see [the Unified README](../../../README.md), [installation guide](../../en/INSTALL.md), and [official changelog](../../../CHANGELOG.md). Do not use this historical document to publish another release.
+
 **Status: not approved, not published.** This checklist prepares the **first**
 distribution step under the agreed Emby-first / Jellyfin-last release order.
 Do not upload binaries, create tags or publish a release until the Titlovi.com

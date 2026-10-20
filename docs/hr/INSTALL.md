@@ -2,19 +2,19 @@
 
 [English](../en/INSTALL.md) · **Hrvatski** · [Српски](../sr-Cyrl/INSTALL.md)
 
-> **Status izdanja:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) objavljen je za **Emby Server 4.10.x**. **Jellyfin 2.0.0.0 za Jellyfin 12 još nije objavljen**; njegove upute u nastavku opisuju planirani postupak.
+> **Službena izdanja:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) za **Emby Server 4.10.x** i [Jellyfin 2.0.0.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) za **Jellyfin 12** su objavljeni.
 
 Potreban je **korisnički račun na Titlovi.com s API pristupom**. Pravo pristupa i povezane uvjete određuje Titlovi.com.
 
 ## Jellyfin 12 (.NET 10)
 
-Službena distribucija: [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). Zadržava se postojeća adresa kataloga dodataka:
+Službena distribucija: [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). Zadržana je postojeća adresa kataloga dodataka:
 
 ```text
 https://titlovi.github.io/titlovi-jellyfin/repository.json
 ```
 
-**Nakon objave odobrenog izdanja za Jellyfin 12:**
+**Instalacija objavljenog izdanja Jellyfin 2.0.0.0:**
 
 1. Otvorite administratorsku upravljačku ploču Jellyfina i odjeljak **Plugins → Repositories**.
 2. Provjerite je li navedena adresa kataloga Titlovi dodana; ako nije, dodajte je.
@@ -28,7 +28,7 @@ U postojećem katalogu nalaze se i **starija izdanja za starije inačice Jellyfi
 
 Nova implementacija zadržava **izvorni identifikator Jellyfin dodatka (GUID)** i postojeću adresu kataloga. Predviđena je kao nadogradnja, a ne kao zaseban dodatak.
 
-Prije nadogradnje **sigurnosno kopirajte podatke i konfiguraciju poslužitelja**, uključujući `plugins/configurations/Titlovi.Plugin.xml` ako postoji. Kada službeno izdanje postane dostupno, na Jellyfinu 12 instalirajte kompatibilnu verziju iz kataloga i ponovno pokrenite poslužitelj. Provjerite korisničko ime u postavkama i preuzimanje titla.
+Prije nadogradnje **sigurnosno kopirajte podatke i konfiguraciju poslužitelja**, uključujući `plugins/configurations/Titlovi.Plugin.xml` ako postoji. Na Jellyfinu 12 instalirajte ili nadogradite dodatak na verziju 2.0.0.0 iz postojećeg kataloga i ponovno pokrenite poslužitelj. Provjerite korisničko ime u postavkama i preuzimanje titla.
 
 Pri prvom pokretanju novi dodatak predviđen je za **jednokratni uvoz** korisničkog imena i lozinke izvornog dodatka, ali samo ako novija konfiguracija nema pristupne podatke. Izvorna konfiguracijska datoteka ostaje sačuvana, a stari API token **ne prenosi se**. Nakon nadogradnje provjerite pristupne podatke u postavkama i po potrebi ih ponovno unesite.
 
@@ -36,7 +36,7 @@ Pri prvom pokretanju novi dodatak predviđen je za **jednokratni uvoz** korisni�
 
 ### Ručna instalacija u Jellyfin
 
-Nakon objave službenog ZIP paketa moguće je zaustaviti poslužitelj i raspakirati **cijeli** paket u zasebnu mapu unutar stvarnog direktorija Jellyfin dodataka:
+Ako instalacija iz kataloga nije dostupna, preuzmite [`titlovi-com_2.0.0.0.zip`](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) iz službenog Jellyfin izdanja. Zaustavite poslužitelj, spremite sigurnosnu kopiju postojećeg dodatka i konfiguracije, **premjestite staru mapu dodatka izvan aktivnog direktorija dodataka** pa raspakirajte **cijeli** ZIP u novu zasebnu mapu:
 
 ```text
 Jellyfin.Titlovi.dll

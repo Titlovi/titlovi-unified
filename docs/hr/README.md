@@ -4,7 +4,7 @@
 
 **Službeni izvorni kod dodataka Titlovi.com za Jellyfin i Emby.** Dodaci omogućuju pretraživanje i preuzimanje titlova sa stranice [Titlovi.com](https://titlovi.com/) izravno iz medijskog poslužitelja. Oba se dodatka razvijaju iz zajedničkog izvornog koda.
 
-> **Status izdanja:** **Emby 2.0.0.0 je objavljen** za Emby Server 4.10.x: [preuzmite službeno izdanje](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). **Jellyfin 2.0.0.0 za Jellyfin 12 još nije objavljen.** Ovaj repozitorij sadrži izvorni kod, a ne instalacijske pakete.
+> **Službena izdanja:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) za Emby Server 4.10.x i [Jellyfin 2.0.0.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) za Jellyfin 12 su objavljeni. Ovaj repozitorij sadrži zajednički izvorni kod, a instalacijski paketi dostupni su u zasebnim repozitorijima.
 
 ## Podržani poslužitelji
 
@@ -13,7 +13,7 @@
 | **Jellyfin** | **12.x** (.NET 10) | Službeni katalog dodataka i izdanja u repozitoriju [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). Postojeća adresa kataloga ostaje nepromijenjena. |
 | **Emby Server** | **4.10.x** | Ručna instalacija datoteke `Emby.Titlovi.dll` iz [službenog Emby izdanja](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). |
 
-Službeni Emby 2.0.0.0 dostupan je za Emby Server 4.10.x. **Nemojte instalirati Unified 2.0 u Jellyfin prije objave službenog izdanja za Jellyfin 12.** U postojećem Jellyfin katalogu i dalje su dostupna ranija izdanja za odgovarajuće inačice Jellyfina.
+**Unified 2.0.0.0 dostupan je za oba podržana poslužitelja.** Korisnici Jellyfina 12 mogu ga instalirati putem [postojećeg kataloga Titlovi.com](https://titlovi.github.io/titlovi-jellyfin/repository.json). Ranija izdanja 1.x ostaju dostupna za odgovarajuće starije verzije Jellyfina. **Unified 2.0 ne podržava Jellyfin 10.x.**
 
 ## Mogućnosti
 
@@ -36,7 +36,7 @@ Emby Server 4.10.x može spremiti titl na drugom jeziku sa sufiksom jezika prvot
 - Kompatibilna inačica Jellyfina ili Emby Servera.
 - **Korisnički račun na Titlovi.com s API pristupom.** Uvjete pristupa i pravo korištenja API-ja određuje Titlovi.com.
 
-[Upute za instalaciju](INSTALL.md) opisuju dostupnu instalaciju za Emby i planirani postupak za Jellyfin, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje.
+[Upute za instalaciju](INSTALL.md) opisuju instalaciju i nadogradnju oba objavljena dodatka, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje.
 
 ## Izvorni kod i razvoj
 

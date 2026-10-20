@@ -2,7 +2,7 @@
 
 [English](../en/USER-GUIDE.md) · **Hrvatski** · [Српски](../sr-Cyrl/USER-GUIDE.md)
 
-Dodatak omogućuje pretraživanje i preuzimanje titlova sa stranice Titlovi.com iz Jellyfina ili Embyja. Prvo službeno izdanje **Unified 2.0.0.0 još nije objavljeno**. Status i kompatibilnost poslužitelja navedeni su u [uputama za instalaciju](INSTALL.md).
+Dodatak omogućuje pretraživanje i preuzimanje titlova sa stranice Titlovi.com iz Jellyfina ili Embyja. **Unified 2.0.0.0 objavljen je za Jellyfin 12 i Emby 4.10.x**. Preuzimanje, instalacija i nadogradnja opisani su u [uputama za instalaciju](INSTALL.md).
 
 ## Preduvjeti i postavke
 
