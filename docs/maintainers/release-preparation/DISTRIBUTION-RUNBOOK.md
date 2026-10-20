@@ -1,5 +1,7 @@
 # First official Unified 2.0.0.0 distribution runbook — DRAFT
 
+> **Historical release-preparation snapshot (archived in place).** Emby and Jellyfin Unified 2.0.0.0 were both published on 2026-10-20. This document records pre-release planning and may contain obsolete status statements, pending checklist items, and provisional instructions. It is **not** the current installation or release status. For current guidance, see [the Unified README](../../../README.md), [installation guide](../../en/INSTALL.md), and [official changelog](../../../CHANGELOG.md). Do not use this historical document to publish another release.
+
 **PRE-RELEASE ONLY.** This is an engineering/release checklist, not permission
 to publish. No tag, GitHub Release, Jellyfin catalogue entry, Emby feed, or
 public binary is authorized by this document. The first official release will
