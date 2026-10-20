@@ -4,16 +4,16 @@
 
 **Titlovi.com subtitle integration for Jellyfin and Emby.** Search for and download subtitles from [Titlovi.com](https://titlovi.com/) directly in your media server. This is the **official source repository** for both plugins, developed from one shared codebase.
 
-> **Release status:** The first official Unified release, **2.0.0.0**, is being prepared. Installation packages for Jellyfin 12 and Emby 4.10.x have **not yet been published**. This repository contains the source code, not downloadable plugin releases.
+> **Release status:** **Emby 2.0.0.0 is published** for Emby Server 4.10.x: [download the official Emby release](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). **Jellyfin 2.0.0.0 for Jellyfin 12 is not yet published.** This repository hosts the source code, not the plugin downloads.
 
 ## Supported platforms
 
 | Media server | Supported version | Installation and distribution |
 | --- | --- | --- |
 | **Jellyfin** | **12.x** (.NET 10) | Official plugin catalogue and release packages at [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). The existing catalogue URL will be retained. |
-| **Emby Server** | **4.10.x** | Manual installation of `Emby.Titlovi.dll` from future releases at [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby). |
+| **Emby Server** | **4.10.x** | Manual installation of `Emby.Titlovi.dll` from the [official Emby releases](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). |
 
-The above versions are the targets of the upcoming Unified release. **Do not attempt to install Unified 2.0 until its official packages are published.** Existing releases in the Jellyfin catalogue remain available for their respective supported server versions.
+The official Emby 2.0.0.0 release is available for Emby Server 4.10.x. **Do not install Unified 2.0 on Jellyfin until the official Jellyfin 12 release is published.** Existing Jellyfin catalogue releases remain available for their respective supported server versions.
 
 ## Features
 
@@ -38,7 +38,7 @@ Emby Server 4.10.x may save an alternative-language subtitle with a filename suf
 - A compatible Jellyfin or Emby Server version.
 - A **Titlovi.com account with API access**. Account eligibility and access conditions are determined by Titlovi.com.
 
-[Installation](docs/en/INSTALL.md) explains the planned post-release procedure and [the user guide](docs/en/USER-GUIDE.md) describes the configuration and search features.
+[Installation](docs/en/INSTALL.md) explains the published Emby installation and planned Jellyfin installation procedures and [the user guide](docs/en/USER-GUIDE.md) describes the configuration and search features.
 
 ## Source code and development
 

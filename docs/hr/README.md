@@ -4,16 +4,16 @@
 
 **Službeni izvorni kod dodataka Titlovi.com za Jellyfin i Emby.** Dodaci omogućuju pretraživanje i preuzimanje titlova sa stranice [Titlovi.com](https://titlovi.com/) izravno iz medijskog poslužitelja. Oba se dodatka razvijaju iz zajedničkog izvornog koda.
 
-> **Status izdanja:** Prvo službeno izdanje objedinjene implementacije, **2.0.0.0**, još se priprema. Instalacijski paketi za Jellyfin 12 i Emby 4.10.x **nisu objavljeni**. Ovaj repozitorij sadrži izvorni kod, a ne datoteke za preuzimanje dodataka.
+> **Status izdanja:** **Emby 2.0.0.0 je objavljen** za Emby Server 4.10.x: [preuzmite službeno izdanje](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). **Jellyfin 2.0.0.0 za Jellyfin 12 još nije objavljen.** Ovaj repozitorij sadrži izvorni kod, a ne instalacijske pakete.
 
 ## Podržani poslužitelji
 
 | Medijski poslužitelj | Podržana inačica | Distribucija i instalacija |
 | --- | --- | --- |
 | **Jellyfin** | **12.x** (.NET 10) | Službeni katalog dodataka i izdanja u repozitoriju [Titlovi/titlovi-jellyfin](https://github.com/Titlovi/titlovi-jellyfin). Postojeća adresa kataloga ostaje nepromijenjena. |
-| **Emby Server** | **4.10.x** | Ručna instalacija datoteke `Emby.Titlovi.dll` iz budućih izdanja u repozitoriju [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby). |
+| **Emby Server** | **4.10.x** | Ručna instalacija datoteke `Emby.Titlovi.dll` iz [službenog Emby izdanja](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). |
 
-Navedene inačice odnose se na **nadolazeće izdanje Unified**. Ne pokušavajte instalirati 2.0 prije službene objave. U postojećem Jellyfin katalogu i dalje su dostupna ranija izdanja za odgovarajuće inačice Jellyfina.
+Službeni Emby 2.0.0.0 dostupan je za Emby Server 4.10.x. **Nemojte instalirati Unified 2.0 u Jellyfin prije objave službenog izdanja za Jellyfin 12.** U postojećem Jellyfin katalogu i dalje su dostupna ranija izdanja za odgovarajuće inačice Jellyfina.
 
 ## Mogućnosti
 
@@ -36,7 +36,7 @@ Emby Server 4.10.x može spremiti titl na drugom jeziku sa sufiksom jezika prvot
 - Kompatibilna inačica Jellyfina ili Emby Servera.
 - **Korisnički račun na Titlovi.com s API pristupom.** Uvjete pristupa i pravo korištenja API-ja određuje Titlovi.com.
 
-[Upute za instalaciju](INSTALL.md) opisuju planirani postupak nakon objave, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje.
+[Upute za instalaciju](INSTALL.md) opisuju dostupnu instalaciju za Emby i planirani postupak za Jellyfin, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje.
 
 ## Izvorni kod i razvoj
 
