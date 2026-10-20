@@ -1,5 +1,7 @@
 # Official source migration completeness audit — 2026-10-19
 
+> **Historical migration audit (2026-10-19).** This document records the state of source migration *before* the official Emby and Jellyfin 2.0 releases. Its then-pending acceptance/release steps were later completed. For present status consult the [Unified README](../../README.md), [installation instructions](../en/INSTALL.md), [official changelog](../../CHANGELOG.md) and [documentation quality gate](DOCUMENTATION-QUALITY-GATE.md). Do not treat its original pre-release status as current.
+
 **Status: Git source/PR/branch audit and historical decision reconciliation completed; official 2.0.0.0 release review NOT yet complete.** This is a
 historical verification checkpoint, **not** an assertion that all release
 acceptance tests have passed.

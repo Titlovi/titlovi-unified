@@ -4,7 +4,7 @@
 
 Ово упутство описује компајлирање два самостална додатка за **Jellyfin 12 / .NET 10** и **Emby Server 4.10.x** из [централног репозиторијума](https://github.com/Titlovi/titlovi-unified).
 
-> Званична [ознака изворног кода Unified `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0) извор је [објављеног Emby 2.0.0.0 издања](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0). Објављена су оба издања: [Emby 2.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) и [Jellyfin 2.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0). Компајлирање из изворног кода намењено је развоју; за инсталацију користите одобрена издања за одговарајући сервер.
+> Званична [ознака изворног кода Unified `v2.0.0`](https://github.com/Titlovi/titlovi-unified/tree/v2.0.0) извор је оба објављена додатка: [Emby 2.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) и [Jellyfin 2.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0). Компајлирање изворног кода намењено је развоју; корисници треба да инсталирају званично издање за одговарајући сервер.
 
 ## Организација и предуслови
 

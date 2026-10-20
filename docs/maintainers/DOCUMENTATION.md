@@ -18,6 +18,7 @@ Additional translations, including Macedonian (`docs/mk/`), can be added later w
 - **Technical:** `docs/development/` — architecture and filename/archive matching notes. English only unless translations become necessary.
 - **Maintainers:** `docs/maintainers/release-preparation/` contains unpublished release drafts; `docs/maintainers/archive/` contains historical material not intended for users.
 - **Maintenance policy:** [Bug triage and maintenance releases](BUG-TRIAGE-AND-RELEASE-POLICY.md) defines issue priorities, investigation standards and release thresholds.
+- **Quality gate:** [Project-wide documentation consistency and factual verification](DOCUMENTATION-QUALITY-GATE.md) defines a deliberate, on-demand audit across all three repositories, including historical Markdown/TXT files, translations and verified releases.
 - **Root:** `README.md`, `CHANGELOG.md`, `LICENSE` and `NOTICE.txt` (plus project/build configuration files).
 
 Historical changelog entries from the private/unofficial development repository are retained at `docs/maintainers/archive/CHANGELOG-PRE-OFFICIAL.md`. The root `CHANGELOG.md` covers official releases starting with 2.0.0.0.
@@ -32,5 +33,7 @@ Historical changelog entries from the private/unofficial development repository 
 6. Keep the GPL-3.0 license and the attribution to the original Jellyfin developer. Do not post API credentials or configuration XML in documentation or test fixtures.
 7. Release notes should be translated when **actual releases** are prepared. Do not translate obsolete internal developmental changelogs for public end users.
 8. Review translated material for natural technical terminology and factual equivalence before merging.
+
+**Mandatory when triggered:** Apply the [documentation quality gate](DOCUMENTATION-QUALITY-GATE.md) to all three repositories when releases, compatibility, packaging, installation instructions or other material product facts change. Do not schedule exhaustive checks on every trivial edit.
 
 Repository documentation reorganization must not change source code, plugin version numbers or published catalogue entries.
