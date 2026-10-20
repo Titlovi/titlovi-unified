@@ -1,5 +1,7 @@
 # Titlovi.com 2.0.0.0 for Emby Server — RELEASE NOTES DRAFT
 
+> **Historical draft only (superseded).** This file preserves the proposed Emby release notes from before public publication on 2026-10-20. The authoritative public notes are in [the official Emby Release](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0), and the [Unified changelog](../../../CHANGELOG.md) records the final status. Do not present the draft's old availability statements as current.
+
 **NOT YET RELEASED.** This English draft is for the first official Emby
 GitHub Release, **after** approval, immutable Unified source tagging, live
 acceptance and final download/checksum validation. Do not present it as a

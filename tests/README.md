@@ -35,7 +35,7 @@ Generated test state is centralized under:
 .build/logs/Tests/test.log
 ```
 
-GitHub Actions runs the complete suite on Windows and Ubuntu. The current official-source regression suite has **166 tests** (confirmed on Windows and Linux in the non-publishing distribution candidate review on 2026-10-19).
+GitHub Actions runs the complete suite on Windows and Ubuntu. The current official-source regression suite has **166 tests** (confirmed on Windows and Linux in the non-publishing distribution candidate workflow #4 on 2026-10-20).
 
 ## Coverage
 
