@@ -17,6 +17,7 @@ Additional translations, including Macedonian (`docs/mk/`), can be added later w
 - **User-facing:** `README.md`, `docs/{en,hr,sr-Cyrl}/INSTALL.md`, `USER-GUIDE.md` and `BUILD.md`. The Croatian/Serbian README files link to the same facts in their respective languages.
 - **Technical:** `docs/development/` — architecture and filename/archive matching notes. English only unless translations become necessary.
 - **Maintainers:** `docs/maintainers/release-preparation/` contains unpublished release drafts; `docs/maintainers/archive/` contains historical material not intended for users.
+- **Maintenance policy:** [Bug triage and maintenance releases](BUG-TRIAGE-AND-RELEASE-POLICY.md) defines issue priorities, investigation standards and release thresholds.
 - **Root:** `README.md`, `CHANGELOG.md`, `LICENSE` and `NOTICE.txt` (plus project/build configuration files).
 
 Historical changelog entries from the private/unofficial development repository are retained at `docs/maintainers/archive/CHANGELOG-PRE-OFFICIAL.md`. The root `CHANGELOG.md` covers official releases starting with 2.0.0.0.
