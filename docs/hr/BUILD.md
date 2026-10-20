@@ -26,6 +26,15 @@ Datoteke iz `src/Common` ugrađuju se **izravno u svaki DLL dodatka**. Nije potr
 | Jellyfin pakiranje na Linuxu | Python 3. |
 | Emby kompilacija | Referentne biblioteke `MediaBrowser.Model.dll`, `MediaBrowser.Common.dll` i `MediaBrowser.Controller.dll` — samo tijekom kompilacije. |
 
+**Emby Server NE mora biti instaliran na računalu na kojem se dodatak izgrađuje.**
+Za kompilaciju su potrebne samo tri `MediaBrowser.*` DLL datoteke kao
+referentne biblioteke; kompajliranje ne instalira niti pokreće Emby Server.
+Službene skripte najprije traže lokalne reference, a ako ih nema, mogu ih
+automatski pribaviti iz službenih Emby distribucija. Na računalu bez
+predmemoriranih referenci za to su potrebni mrežni pristup i odgovarajući
+alat za raspakiravanje, opisani u nastavku. **Izgradnja mora ostati moguća
+i bez lokalne instalacije Emby Servera.**
+
 Windows skripte odabiru stabilan instalirani .NET 10 SDK, a po potrebi preuzimaju konfigurirani prijenosni SDK. Kada lokalne Emby reference nisu dostupne, preuzimaju ih iz službenog paketa Emby 4.10; za raspakiravanje je potreban Windows `tar`. Pretpregledne i RC inačice SDK-a ne odabiru se.
 
 Na Linuxu se Emby reference traže u `EMBY_REFERENCE_DIR`, u uobičajenim instalacijskim direktorijima i naposljetku u Docker slici `emby/embyserver:4.10.0.40`. Docker je nužan samo za zadnju mogućnost i proširene testove.
