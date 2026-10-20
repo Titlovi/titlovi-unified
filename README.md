@@ -42,7 +42,7 @@ Emby Server 4.10.x may save an alternative-language subtitle with a filename suf
 
 ## Source code and development
 
-This is the **canonical source repository** for both plugins. Each plugin is built independently from shared logic; no additional Common/Core DLL is required.
+This is the **canonical source repository** for both plugins. Each plugin is built independently from shared logic..
 
 ```text
 src/Common/       Shared subtitle search and download engine

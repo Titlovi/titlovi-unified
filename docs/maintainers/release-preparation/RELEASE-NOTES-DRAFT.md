@@ -35,7 +35,7 @@ release assets remain unchanged.
 
 The Jellyfin ZIP contains precisely `Jellyfin.Titlovi.dll`, `meta.json`,
 and `thumb.png`. Both compiled plugins include their shared subtitle
-logic; no separate runtime Common/Core DLL is installed.
+logic.
 
 ## Upgrading from the original Jellyfin plugin
 

@@ -23,8 +23,7 @@ publication automation and catalogue update have **not** been performed.
 
 - Official target: **Jellyfin 12 / .NET 10** and **Emby Server 4.10.x**.
 - One source tree: `src/Common`, `src/Jellyfin`, `src/Emby`.
-  Each host DLL compiles Common sources directly. Never distribute a separate
-  Common/Core DLL.
+  Each host DLL compiles the shared `src/Common` sources directly.
 - Preserve the Jellyfin plugin GUID
   `6e25df50-638e-4109-a50b-03c14fc93fdd` and Emby GUID
   `1dbf2e1e-3187-4f63-9a60-4ca7ace4232e`.
@@ -60,7 +59,7 @@ publication automation and catalogue update have **not** been performed.
 - **`Titlovi/titlovi-unified` (created, populated):** the sole canonical source
   and developer repository with `src/Common`, `src/Emby`, `src/Jellyfin`,
   regression tests, release orchestration and common source tags. One build
-  produces two self-contained host plugins, without a Common/Core runtime DLL.
+  produces two self-contained host plugins.
 - **`Titlovi/titlovi-jellyfin` (existing):** Jellyfin-only release ZIP,
   existing immutable 1.x release assets/history and unchanged Jellyfin
   catalogue at `https://titlovi.github.io/titlovi-jellyfin/repository.json`.
