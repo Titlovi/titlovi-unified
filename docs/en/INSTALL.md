@@ -2,7 +2,7 @@
 
 [English](INSTALL.md) · [Hrvatski](../hr/INSTALL.md) · [Српски](../sr-Cyrl/INSTALL.md)
 
-> **Not yet released:** Unified **2.0.0.0** for **Jellyfin 12** and **Emby Server 4.10.x** is being prepared. The instructions below describe the **intended process after the official release is published**. No official Unified 2.0 download is available yet.
+> **Release status:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) is published for **Emby Server 4.10.x**. **Jellyfin 2.0.0.0 for Jellyfin 12 is not yet published**; its installation steps below describe the planned process.
 
 A Titlovi.com account **with API access** is required. Titlovi.com sets account eligibility and access conditions.
 
@@ -50,7 +50,7 @@ Restart the server. Do not install only the DLL or leave duplicate conflicting c
 
 Distribution: [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby). **Emby is installed manually**; there is no third-party Emby plugin catalogue to add.
 
-**Once the approved DLL is published:**
+**For the published Emby plugin:**
 
 1. Download `Emby.Titlovi.dll` from the [official Emby releases](https://github.com/Titlovi/titlovi-emby/releases).
 2. Stop Emby Server and back up the existing plugin/configuration if upgrading.

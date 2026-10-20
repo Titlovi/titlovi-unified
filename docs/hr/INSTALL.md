@@ -2,7 +2,7 @@
 
 [English](../en/INSTALL.md) · **Hrvatski** · [Српски](../sr-Cyrl/INSTALL.md)
 
-> **Još nije objavljeno:** Unified **2.0.0.0** za **Jellyfin 12** i **Emby Server 4.10.x** još se priprema. Upute u nastavku opisuju **planirani postupak nakon službene objave**. Trenutačno nije moguće preuzeti službeni paket Unified 2.0.
+> **Status izdanja:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) objavljen je za **Emby Server 4.10.x**. **Jellyfin 2.0.0.0 za Jellyfin 12 još nije objavljen**; njegove upute u nastavku opisuju planirani postupak.
 
 Potreban je **korisnički račun na Titlovi.com s API pristupom**. Pravo pristupa i povezane uvjete određuje Titlovi.com.
 
@@ -50,7 +50,7 @@ Ponovno pokrenite poslužitelj. Nemojte instalirati samo DLL ni ostavljati sukob
 
 Distribucija: [Titlovi/titlovi-emby](https://github.com/Titlovi/titlovi-emby). Instalacija u Emby **ručna je**; ne postoji katalog dodataka Titlovi.com koji se dodaje Embyju.
 
-**Nakon objave odobrenog DLL-a:**
+**Za objavljeni Emby dodatak:**
 
 1. Preuzmite `Emby.Titlovi.dll` sa stranice [službenih Emby izdanja](https://github.com/Titlovi/titlovi-emby/releases).
 2. Zaustavite Emby Server i, ako nadograđujete, sigurnosno kopirajte prethodni dodatak i konfiguraciju.
