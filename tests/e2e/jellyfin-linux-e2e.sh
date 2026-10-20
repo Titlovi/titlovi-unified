@@ -79,7 +79,7 @@ command -v ffmpeg >/dev/null 2>&1 || fail "ffmpeg is required on the GitHub runn
 
 MEDIA_ROOT="$E2E_ROOT/media"
 JF_CONFIG="$E2E_ROOT/jellyfin-config"
-JF_PLUGIN="$JF_CONFIG/plugins/Titlovi.com (Unofficial)_1.1.9.0"
+JF_PLUGIN="$JF_CONFIG/plugins/Titlovi.com_2.0.0.0"
 MOVIE_DIR="$MEDIA_ROOT/movies/The Matrix (1999)"
 EPISODE_DIR="$MEDIA_ROOT/tv/Friends/Season 01"
 MOVIE_FILE="$MOVIE_DIR/The Matrix (1999).mkv"
@@ -138,14 +138,14 @@ cat > "$JF_PLUGIN/meta.json" <<'JSON'
 {
   "category": "Subtitles",
   "changelog": "Manual Linux end-to-end validation package",
-  "description": "Unofficial Titlovi.com subtitle provider for Jellyfin.",
+  "description": "Titlovi.com subtitle provider for Jellyfin.",
   "guid": "6e25df50-638e-4109-a50b-03c14fc93fdd",
-  "name": "Titlovi.com (Unofficial)",
-  "overview": "Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.",
-  "owner": "Unofficial community plugin",
+  "name": "Titlovi.com",
+  "overview": "Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree.",
+  "owner": "Titlovi.com",
   "targetAbi": "12.0.0.0",
   "timestamp": "2026-09-15T00:00:00Z",
-  "version": "1.1.9.0",
+  "version": "2.0.0.0",
   "status": "Active",
   "autoUpdate": false,
   "imagePath": "thumb.png",
@@ -380,7 +380,7 @@ if isinstance(data, dict):
     results = data.get("Items") or data.get("items") or []
 else:
     results = data
-matches = [r for r in results if (r.get("ProviderName") or r.get("providerName")) == "Titlovi.com (Unofficial)"]
+matches = [r for r in results if (r.get("ProviderName") or r.get("providerName")) == "Titlovi.com"]
 if not matches:
     raise SystemExit(f"{label}: Jellyfin returned no Titlovi.com results")
 result = matches[0]

@@ -26,7 +26,7 @@ namespace Jellyfin.Titlovi
                 new JellyfinConfigurationProvider(), "titlovi-jellyfin");
         }
 
-        public string Name => "Titlovi.com (Unofficial)";
+        public string Name => "Titlovi.com";
 
         public IEnumerable<VideoContentType> SupportedMediaTypes =>
             new[] { VideoContentType.Movie, VideoContentType.Episode };

@@ -41,6 +41,40 @@ maintainers explicitly approve that action.
 - [ ] Confirm `X-App: emby-titlovi` on Emby GET Search; don't send
       Jellyfin's `titlovi-jellyfin` identifier from Emby.
 
+## Live Emby acceptance record — 2026-10-20 (tester-reported)
+
+The tester cloned the dedicated `release/prepare-2.0.0.0-source` branch
+(after commit `a7120029ae0ed1c7ff2c15638e41b53d7d1049de` had been pushed),
+successfully built the Emby DLL locally on Windows and installed the
+candidate on their existing Emby server. In response to the five-point
+manual acceptance check, they reported that **all checks work**:
+
+- **Titlovi.com 2.0.0.0** appears and loads, without "Unofficial";
+- previous settings/account configuration were retained;
+- search and subtitle download work for a movie;
+- search and subtitle download work for a series episode;
+- downloaded subtitles display correctly in Emby.
+
+**Evidence class:** user/tester confirmation in the development conversation,
+not an independently collected log or artifact hash. This is an **in-place
+candidate upgrade / working-install validation**; do not present it as proof
+of a fresh install, an authenticated E2E CI run, or verification of an
+immutable released binary. The local build's SHA-256 and its actual Git
+revision have **not** been independently recorded.
+
+The same release-preparation branch passed the **166-test offline regressions
+and both host builds on Windows/Linux**, plus **Linux Emby/Jellyfin runtime
+smoke**, in GitHub Actions
+([regressions](https://github.com/Titlovi/titlovi-unified/actions/runs/39336110858),
+[runtime](https://github.com/Titlovi/titlovi-unified/actions/runs/39336110846)).
+Those CI results are distinct from this manual Emby acceptance.
+
+**Still unverified for release sign-off:** preserved backups and tested rollback,
+fresh installation, final versioned/tagged source provenance, downloadable
+artifact checksum, independent coverage of archive/alternative-language edge
+cases (beyond existing regressions), and explicit public-release approval.
+The known Emby 4.10 filename-suffix limitation remains accepted.
+
 ## B. Acceptance on an actual Emby Server 4.10.x
 
 - [ ] Back up the installed DLL and plugin configuration; record the Emby

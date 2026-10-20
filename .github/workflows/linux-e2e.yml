@@ -48,7 +48,7 @@ jobs:
           path = Path('tests/e2e/jellyfin-linux-e2e.sh')
           text = path.read_text(encoding='utf-8')
           text = text.replace(
-              'JF_PLUGIN="$JF_CONFIG/plugins/Titlovi.com (Unofficial)_1.1.9.0"\n',
+              'JF_PLUGIN="$JF_CONFIG/plugins/Titlovi.com_2.0.0.0"\n',
               'JF_PLUGIN_ROOT="$JF_CONFIG/plugins"\n',
           )
           text = text.replace(
@@ -65,7 +65,7 @@ jobs:
 
           replacement = r'''echo "==> Building Jellyfin plugin through canonical Linux build script"
           bash "$ROOT/scripts/linux/build-jellyfin.sh"
-          JF_PACKAGE="$(find "$ROOT/dist/Jellyfin" -mindepth 1 -maxdepth 1 -type d -name 'Titlovi.com (Unofficial)_*' -print -quit)"
+          JF_PACKAGE="$(find "$ROOT/dist/Jellyfin" -mindepth 1 -maxdepth 1 -type d -name 'Titlovi.com_*' -print -quit)"
           test -n "$JF_PACKAGE" || fail "Jellyfin package directory was not produced."
           test -s "$JF_PACKAGE/Jellyfin.Titlovi.dll" || fail "Jellyfin.Titlovi.dll was not produced."
           test -s "$JF_PACKAGE/meta.json" || fail "meta.json was not produced."

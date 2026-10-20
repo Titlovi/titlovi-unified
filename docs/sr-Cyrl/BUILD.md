@@ -4,7 +4,7 @@
 
 Ово упутство описује компајлирање два самостална додатка за **Jellyfin 12 / .NET 10** и **Emby Server 4.10.x** из [централног репозиторијума](https://github.com/Titlovi/titlovi-unified).
 
-> Изворни код тренутно производи **развојне верзије**, а не већ објављено званично издање Unified 2.0.0.0. У развојним метаподацима још се може појавити назив **Titlovi.com (Unofficial)**.
+> Изворни код на грани за припрему издања производи **необјављене кандидате 2.0.0.0** са званичним називом **Titlovi.com**. То **нису** јавно објављена издања; за инсталацију користите искључиво одобрено GitHub издање.
 
 ## Организација и предуслови
 
@@ -86,8 +86,8 @@ bash scripts/linux/build-all.sh
 | Сервер | Излазна датотека |
 | --- | --- |
 | Emby | `dist/Emby/Emby.Titlovi.dll` |
-| Jellyfin | `dist/Jellyfin/Titlovi.com.Unified-<version>-Jellyfin-12.zip` |
-| Jellyfin распакована фасцикла | `dist/Jellyfin/Titlovi.com (Unofficial)_<version>/` |
+| Jellyfin | `dist/Jellyfin/titlovi-com_<version>.zip` |
+| Jellyfin распакована фасцикла | `dist/Jellyfin/Titlovi.com_<version>/` |
 
 Jellyfin ZIP мора садржати **тачно** `Jellyfin.Titlovi.dll`, `meta.json` и `thumb.png` у корену архиве. Windows и Linux производе исту структуру пакета независну од оперативног система.
 

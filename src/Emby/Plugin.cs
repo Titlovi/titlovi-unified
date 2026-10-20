@@ -13,7 +13,7 @@ namespace Emby.Titlovi
 {
     public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages, IHasThumbImage
     {
-        public const string PluginVersion = "1.1.9";
+        public const string PluginVersion = "2.0.0.0";
         public static readonly Guid PluginId = Guid.Parse("1dbf2e1e-3187-4f63-9a60-4ca7ace4232e");
 
         public static Plugin Instance { get; private set; }
@@ -36,8 +36,8 @@ namespace Emby.Titlovi
             }
         }
 
-        public override string Name => "Titlovi.com (Unofficial)";
-        public override string Description => "Unofficial Titlovi.com subtitle provider for Emby.";
+        public override string Name => "Titlovi.com";
+        public override string Description => "Titlovi.com subtitle provider for Emby.";
         public override Guid Id => PluginId;
 
         public Stream GetThumbImage()
@@ -53,7 +53,7 @@ namespace Emby.Titlovi
             {
                 new PluginPageInfo
                 {
-                    DisplayName = "Titlovi.com (Unofficial)",
+                    DisplayName = "Titlovi.com",
                     Name = "EmbyTitloviConfigPage",
                     EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html",
                     EnableInMainMenu = true,

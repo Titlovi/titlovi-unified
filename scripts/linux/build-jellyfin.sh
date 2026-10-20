@@ -23,9 +23,9 @@ PACKAGE_VERSION="$VERSION"
 if [[ "$PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   PACKAGE_VERSION="$PACKAGE_VERSION.0"
 fi
-PACKAGE_NAME="Titlovi.com (Unofficial)_$PACKAGE_VERSION"
+PACKAGE_NAME="Titlovi.com_$PACKAGE_VERSION"
 PACKAGE_DIR="$DIST_DIR/$PACKAGE_NAME"
-PACKAGE_ZIP="$DIST_DIR/Titlovi.com.Unified-$VERSION-Jellyfin-12.zip"
+PACKAGE_ZIP="$DIST_DIR/titlovi-com_$PACKAGE_VERSION.zip"
 
 echo "Titlovi.com.Unified $VERSION - Jellyfin build (Linux)" | tee -a "$LOG"
 echo "Target: Jellyfin 12.0 / .NET 10" | tee -a "$LOG"
@@ -55,12 +55,12 @@ import sys
 path, version = sys.argv[1:]
 meta = {
     "category": "Subtitles",
-    "changelog": "Initial Titlovi.com.Unified release with shared Emby/Jellyfin subtitle logic, B/S/H alternative search, archive handling, encoding conversion and synchronization-aware release ranking.",
-    "description": "Unofficial Titlovi.com subtitle provider for Jellyfin.",
+    "changelog": "Titlovi.com Unified 2.0: Jellyfin 12 support, preservation of legacy Jellyfin credentials, and shared Emby/Jellyfin subtitle engine.",
+    "description": "Titlovi.com subtitle provider for Jellyfin.",
     "guid": "6e25df50-638e-4109-a50b-03c14fc93fdd",
-    "name": "Titlovi.com (Unofficial)",
-    "overview": "Unofficial Titlovi.com subtitle provider built from the shared Titlovi.com.Unified engine.",
-    "owner": "Unofficial community plugin",
+    "name": "Titlovi.com",
+    "overview": "Titlovi.com for Jellyfin 12, built from the unified Emby and Jellyfin source tree.",
+    "owner": "Titlovi.com",
     "targetAbi": "12.0.0.0",
     "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     "version": version,

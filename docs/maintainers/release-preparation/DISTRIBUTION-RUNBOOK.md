@@ -172,5 +172,12 @@ rollback package for an already-upgraded Jellyfin 12 host.
 - Emby distribution repository has documentation, **no release binaries**.
 - **Emby-first / Jellyfin-last** sequencing is agreed; no distribution release
   has been authorized or published under this plan.
-- Unified official 2.0 name/version bump and production cross-repo publisher
-  have **not** been implemented. They require separate approval and review.
+- Official branding/version `2.0.0.0` is **staged in draft PR #9 only**, not
+  merged to `main` or tagged. The production cross-repo publisher has not
+  been implemented and needs separate approval/review.
+- A tester reported successful installation/upgrade, preserved settings,
+  movie + episode search/download, and correct subtitle display on their
+  live Emby 4.10.x server on 2026-10-20. This is **candidate acceptance
+  evidence**, not publication approval or a verified public-release hash.
+  See [Emby first-release acceptance](EMBY-FIRST-ACCEPTANCE.md) for remaining
+  rollback, source provenance, fresh-install and approval gates.

@@ -11,7 +11,7 @@ namespace Jellyfin.Titlovi
 {
     public sealed class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     {
-        public const string PluginVersion = "1.1.9";
+        public const string PluginVersion = "2.0.0.0";
         public static readonly Guid PluginId = Guid.Parse("6e25df50-638e-4109-a50b-03c14fc93fdd");
 
         public static Plugin Instance { get; private set; }
@@ -71,8 +71,8 @@ namespace Jellyfin.Titlovi
             }
         }
 
-        public override string Name => "Titlovi.com (Unofficial)";
-        public override string Description => "Unofficial Titlovi.com subtitle provider for Jellyfin.";
+        public override string Name => "Titlovi.com";
+        public override string Description => "Titlovi.com subtitle provider for Jellyfin.";
         public override Guid Id => PluginId;
 
         public IEnumerable<PluginPageInfo> GetPages()
@@ -81,7 +81,7 @@ namespace Jellyfin.Titlovi
             {
                 new PluginPageInfo
                 {
-                    DisplayName = "Titlovi.com (Unofficial)",
+                    DisplayName = "Titlovi.com",
                     Name = "JellyfinTitloviConfigPage",
                     EmbeddedResourcePath = GetType().Namespace + ".Configuration.configPage.html"
                 },
