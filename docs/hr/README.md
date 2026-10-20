@@ -40,7 +40,7 @@ Emby Server 4.10.x može spremiti titl na drugom jeziku sa sufiksom jezika prvot
 
 ## Izvorni kod i razvoj
 
-Ovo je **središnji repozitorij izvornog koda** za oba dodatka. Svaki dodatak gradi se zasebno sa zajedničkom logikom..
+Ovo je **središnji repozitorij izvornog koda** za oba dodatka. Svaki dodatak gradi se zasebno sa zajedničkom logikom.
 
 ```text
 src/Common/       Zajednički mehanizam za pretraživanje i preuzimanje
