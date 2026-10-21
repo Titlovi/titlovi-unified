@@ -6,7 +6,7 @@ The Unified plugin lets your Jellyfin or Emby server search for and download sub
 
 ## Requirements and setup
 
-Use a compatible server and a **Titlovi.com account with API access**. After installing a compatible plugin and restarting the server, open its settings.
+Use a compatible server and a **Titlovi.com account**. After installing a compatible plugin and restarting the server, open its settings.
 
 | Setting | Purpose |
 | --- | --- |
@@ -56,7 +56,7 @@ In **Emby Server 4.10.x**, an alternative-language subtitle may be saved with a 
 | Problem | What to check |
 | --- | --- |
 | Plugin does not load | Server version, host-specific package, complete Jellyfin ZIP contents and restart. |
-| Authentication fails | Username, password and Titlovi.com API access. |
+| Authentication fails | Titlovi.com username and password. |
 | Search finds nothing | Media metadata, selected language, enabled subtitle formats and account access. |
 | Incorrect episode subtitle | Season and episode metadata, archive naming and alternative results. |
 | Character-encoding problems | Optional UTF-8 conversion. |

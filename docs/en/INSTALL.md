@@ -4,7 +4,7 @@
 
 > **Official releases:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) for **Emby Server 4.10.x** and [Jellyfin 2.0.0.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) for **Jellyfin 12** are published.
 
-A Titlovi.com account **with API access** is required. Titlovi.com sets account eligibility and access conditions.
+A **Titlovi.com account** is required to download subtitles using the plugin.
 
 ## Jellyfin 12 (.NET 10)
 
@@ -73,7 +73,7 @@ These are **examples, not guaranteed paths**. Check the active Emby **Server Dat
 
 After installation, choose subtitle formats and optional Serbian/Croatian/Bosnian alternatives, UTF-8 conversion and diagnostic logging in the plugin configuration. See the [User guide](USER-GUIDE.md).
 
-If the plugin does not load, confirm server version, host-specific package, installation directory and server restart. If searches fail, verify Titlovi.com API access, the account credentials and the desired subtitle language.
+If the plugin does not load, confirm server version, host-specific package, installation directory and server restart. If searches fail, verify the Titlovi.com account credentials and the desired subtitle language.
 
 To roll back, restore a **server-compatible** previous plugin version and your configuration backup. Do **not** downgrade a Jellyfin server database as part of plugin rollback.
 
