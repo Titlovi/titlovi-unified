@@ -45,6 +45,8 @@ Podržani su pojedinačni titlovi, arhive cijelih sezona ili serija, ugniježđe
 
 Podržani su **SRT, SUB, TXT, SSA i ASS**. U postavkama možete isključiti pojedine formate. Ako su znakovi poput č, ć, đ, š ili ž pogrešno prikazani, razmotrite uključivanje neobavezne **pretvorbe u UTF-8**.
 
+**Zašto se titl prikazuje u rezultatima, ali ga nije moguće preuzeti?** Rezultati pretraživanja na Titlovi.com ne otkrivaju stvarni format datoteke titla. Dodatak ga može provjeriti tek nakon preuzimanja i pregleda datoteke ili arhive. Zato se među rezultatima može pojaviti i titl čiji je jedini format isključen u postavkama (primjerice SUB). Ako preuzeti sadržaj ne sadrži nijedan titl u dopuštenom formatu, preuzimanje neće uspjeti; to ne mora značiti da dodatak ili Titlovi.com ne radi ispravno. Uključite taj format ako ga želite prihvatiti ili odaberite drugi rezultat.
+
 ## Razlike između Jellyfina i Embyja
 
 Jellyfin 12 sprema titl prema jeziku koji mu dostavi dodatak.
