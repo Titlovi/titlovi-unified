@@ -45,6 +45,8 @@ The provider handles individual files, season packs, complete-series packs, nest
 
 Formats supported: **SRT, SUB, TXT, SSA, ASS**. The configuration allows restricting the accepted formats. If regional characters appear incorrectly, consider the optional **UTF-8 conversion** setting.
 
+**Why can a subtitle appear in search results but fail to download?** Titlovi.com search results do not reveal the actual subtitle file format. The plugin can check the format only after downloading and inspecting the file or archive. Therefore, a result may appear even when its only subtitle is in a format you have disabled (for example, SUB). If the downloaded content has no subtitle in an enabled format, the download fails; this does not necessarily mean the plugin or Titlovi.com is malfunctioning. Enable the format if you want to accept it, or choose a different result.
+
 ## Jellyfin and Emby differences
 
 Jellyfin 12 saves the subtitle using the language provided by the plugin.
