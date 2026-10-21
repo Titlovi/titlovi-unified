@@ -60,6 +60,7 @@ In **Emby Server 4.10.x**, an alternative-language subtitle may be saved with a 
 | Plugin does not load | Server version, host-specific package, complete Jellyfin ZIP contents and restart. |
 | Authentication fails | Titlovi.com username and password. |
 | Search finds nothing | Media metadata, selected language, enabled subtitle formats and account access. |
+| Search result appears, but download fails | The downloaded subtitle may use only formats disabled in plugin settings (the format is unknown during search). Enable the format or choose another result. |
 | Incorrect episode subtitle | Season and episode metadata, archive naming and alternative results. |
 | Character-encoding problems | Optional UTF-8 conversion. |
 | Emby alternative-language suffix | Known Emby 4.10 filename limitation above. |
