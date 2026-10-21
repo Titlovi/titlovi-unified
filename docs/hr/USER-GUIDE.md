@@ -60,7 +60,7 @@ U **Emby Serveru 4.10.x** titl na alternativnom jeziku može dobiti sufiks jezik
 | Dodatak se ne učitava | Inačicu poslužitelja, odgovarajući paket, sadržaj Jellyfin ZIP-a i ponovno pokretanje. |
 | Prijava ne uspijeva | Korisničko ime i lozinku za Titlovi.com. |
 | Nema rezultata | Metapodatke videosnimke, jezik, dopuštene formate i račun. |
-| Titl je ponuđen, ali preuzimanje ne uspijeva | Preuzeti titl možda je samo u formatu isključenom u postavkama (format nije poznat tijekom pretraživanja). Uključite taj format ili odaberite drugi rezultat. |
+| Titl je ponuđen, ali preuzimanje ne uspijeva | Jedan od mogućih razloga jest to što preuzeti titl sadrži samo formate isključene u postavkama, kao što je objašnjeno iznad. Pokušajte uključiti format ili odabrati drugi rezultat. |
 | Pogrešan titl za epizodu | Oznake sezone/epizode, nazive u arhivi i druge ponuđene rezultate. |
 | Neispravni znakovi | Neobaveznu pretvorbu u UTF-8. |
 | Neobičan jezični sufiks u Embyju | Poznato ograničenje Embyja 4.10 opisano iznad. |
