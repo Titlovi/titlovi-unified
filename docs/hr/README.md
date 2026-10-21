@@ -34,7 +34,7 @@ Emby Server 4.10.x može spremiti titl na drugom jeziku sa sufiksom jezika prvot
 ## Preduvjeti
 
 - Kompatibilna inačica Jellyfina ili Emby Servera.
-- **Korisnički račun na Titlovi.com s API pristupom.** Uvjete pristupa i pravo korištenja API-ja određuje Titlovi.com.
+- **Korisnički račun na Titlovi.com** potreban je za preuzimanje titlova putem dodatka.
 
 [Upute za instalaciju](INSTALL.md) opisuju instalaciju i nadogradnju oba objavljena dodatka, a [korisnički vodič](USER-GUIDE.md) postavke i pretraživanje.
 

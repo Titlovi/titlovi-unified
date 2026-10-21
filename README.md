@@ -36,7 +36,7 @@ Emby Server 4.10.x may save an alternative-language subtitle with a filename suf
 ## Requirements
 
 - A compatible Jellyfin or Emby Server version.
-- A **Titlovi.com account with API access**. Account eligibility and access conditions are determined by Titlovi.com.
+- A **Titlovi.com account** is required to download subtitles through the plugins.
 
 [Installation](docs/en/INSTALL.md) explains installation and upgrades for both published plugins and [the user guide](docs/en/USER-GUIDE.md) describes the configuration and search features.
 

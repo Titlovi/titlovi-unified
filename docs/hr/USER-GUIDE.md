@@ -6,7 +6,7 @@ Dodatak omogućuje pretraživanje i preuzimanje titlova sa stranice Titlovi.com 
 
 ## Preduvjeti i postavke
 
-Potreban je kompatibilan medijski poslužitelj i **Titlovi.com račun s API pristupom**. Nakon instalacije odgovarajućeg dodatka i ponovnog pokretanja poslužitelja otvorite njegove postavke.
+Potreban je kompatibilan medijski poslužitelj i **Titlovi.com korisnički račun**. Nakon instalacije odgovarajućeg dodatka i ponovnog pokretanja poslužitelja otvorite njegove postavke.
 
 | Postavka | Namjena |
 | --- | --- |
@@ -56,7 +56,7 @@ U **Emby Serveru 4.10.x** titl na alternativnom jeziku može dobiti sufiks jezik
 | Problem | Što provjeriti |
 | --- | --- |
 | Dodatak se ne učitava | Inačicu poslužitelja, odgovarajući paket, sadržaj Jellyfin ZIP-a i ponovno pokretanje. |
-| Prijava ne uspijeva | Korisničko ime, lozinku i Titlovi.com API pristup. |
+| Prijava ne uspijeva | Korisničko ime i lozinku za Titlovi.com. |
 | Nema rezultata | Metapodatke videosnimke, jezik, dopuštene formate i račun. |
 | Pogrešan titl za epizodu | Oznake sezone/epizode, nazive u arhivi i druge ponuđene rezultate. |
 | Neispravni znakovi | Neobaveznu pretvorbu u UTF-8. |

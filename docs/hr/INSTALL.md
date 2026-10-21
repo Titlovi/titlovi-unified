@@ -4,7 +4,7 @@
 
 > **Službena izdanja:** [Emby 2.0.0.0](https://github.com/Titlovi/titlovi-emby/releases/tag/v2.0.0) za **Emby Server 4.10.x** i [Jellyfin 2.0.0.0](https://github.com/Titlovi/titlovi-jellyfin/releases/tag/v2.0.0) za **Jellyfin 12** su objavljeni.
 
-Potreban je **korisnički račun na Titlovi.com s API pristupom**. Pravo pristupa i povezane uvjete određuje Titlovi.com.
+Za preuzimanje titlova putem dodatka potreban je **korisnički račun na Titlovi.com**.
 
 ## Jellyfin 12 (.NET 10)
 
@@ -73,7 +73,7 @@ To su **primjeri, a ne univerzalne putanje**. Stvarnu mapu podataka poslužitelj
 
 Nakon instalacije u postavkama možete odabrati formate titlova, alternativne hrvatske/srpske/bosanske rezultate, pretvorbu u UTF-8 i dijagnostičke zapise. Pogledajte [Korisnički vodič](USER-GUIDE.md).
 
-Ako se dodatak ne učitava, provjerite inačicu poslužitelja, odgovarajući paket, direktorij instalacije i ponovno pokretanje. Ako pretraživanje ne radi, provjerite API pristup, pristupne podatke i odabrani jezik.
+Ako se dodatak ne učitava, provjerite inačicu poslužitelja, odgovarajući paket, direktorij instalacije i ponovno pokretanje. Ako pretraživanje ne radi, provjerite korisničko ime i lozinku i odabrani jezik.
 
 Za povratak na starije izdanje vratite **kompatibilan** prethodni paket i sigurnosnu kopiju konfiguracije. Ne pokušavajte vraćati Jellyfinovu bazu na stariju inačicu samo radi zamjene dodatka.
 
