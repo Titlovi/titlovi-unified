@@ -197,7 +197,10 @@ namespace Titlovi.Common
         {
             if (string.IsNullOrEmpty(text)) return double.MinValue;
             var lang = (providerLanguage ?? string.Empty).Trim().ToLowerInvariant();
-            var wantsCyrillic = lang == "cirilica" || lang == "makedonski";
+            // "Srpski" does not specify Latin or Cyrillic. Identify a coherent
+            // Cyrillic candidate from its decoded content to avoid CP1250 mojibake.
+            var wantsCyrillic = lang == "cirilica" || lang == "makedonski"
+                || (lang == "srpski" && HasPredominantlyCyrillicText(text));
             var wantsEnglish = lang == "english";
             double score = 0;
 
@@ -244,6 +247,24 @@ namespace Titlovi.Common
             else if (!wantsCyrillic && !wantsEnglish && encodingName == "Windows-1250") score += 2.0;
 
             return score;
+        }
+
+        private static bool HasPredominantlyCyrillicText(string text)
+        {
+            var cyrillicLetters = 0;
+            var totalLetters = 0;
+            foreach (var ch in text)
+            {
+                if (!char.IsLetter(ch))
+                    continue;
+
+                totalLetters++;
+                if (ch >= '\u0400' && ch <= '\u04FF')
+                    cyrillicLetters++;
+            }
+
+            // Require substantial script evidence to avoid short or mixed cases.
+            return cyrillicLetters >= 10 && cyrillicLetters * 5 >= totalLetters * 4;
         }
 
         private static bool IsBalkanLatin(char ch)

@@ -56,7 +56,10 @@ for source in sorted(ROOT.rglob("*.md")):
 for lang in LOCALES:
     for name in GUIDES:
         path = ROOT / "docs" / lang / name
-        if path.exists() and "2.0.0.0" not in path.read_text(encoding="utf-8"):
+        if path.exists() and not any(
+            version in path.read_text(encoding="utf-8")
+            for version in ("2.0.0.0", "v2.0.0")
+        ):
             errors.append(f"Missing 2.0 release-status reference in docs/{lang}/{name}")
 
 if errors:
